@@ -1,0 +1,26 @@
+{
+  "name": "ai-artifacts",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Install AI skills and rules from the shared registry into your project",
+  "bin": {
+    "ai-artifacts": "./cli/index.mjs"
+  },
+  "files": [
+    "cli/",
+    "coding-workflows/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/patrykmroz619/AI-artifacts.git"
+  },
+  "dependencies": {
+    "giget": "^1.0.0"
+  },
+  "scripts": {
+    "test": "node --test cli/test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
