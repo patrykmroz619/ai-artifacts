@@ -7,19 +7,25 @@ A shared registry of reusable AI artifacts — skills and coding rules — for u
 From inside any project that has a `.claude/` and/or `.cursor/` folder, run:
 
 ```bash
-npx ai-artifacts-cli <scope>
+npx github:patrykmroz619/AI-artifacts <scope>
 ```
 
 Example — install everything in the `coding-workflows` scope:
 
 ```bash
-npx ai-artifacts-cli coding-workflows
+npx github:patrykmroz619/AI-artifacts coding-workflows
 ```
 
 Install multiple scopes at once:
 
 ```bash
-npx ai-artifacts-cli coding-workflows learning
+npx github:patrykmroz619/AI-artifacts coding-workflows learning
+```
+
+Preview what will be written without making changes:
+
+```bash
+npx github:patrykmroz619/AI-artifacts coding-workflows --dry-run
 ```
 
 The CLI detects which AI tools are present in the project and installs artifacts into the right places automatically.
@@ -87,7 +93,7 @@ To add an artifact:
 
 ## Update model
 
-There is no lockfile and no version pinning — the CLI always fetches the latest `main`. To update installed artifacts, re-run the install command.
+There is no lockfile and no version pinning — the CLI always fetches the latest `main`. To update installed artifacts, re-run the same install command; rule blocks are replaced in place and skill folders are overwritten.
 
 ## Detection cases
 
