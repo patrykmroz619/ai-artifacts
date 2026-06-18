@@ -347,8 +347,8 @@ None — greenfield. Do **not** migrate the repo's existing `.claude/` (10xDevs 
 
 #### Automated
 
-- [ ] 3.1 `npx`-style invocation resolves the bin and runs
-- [ ] 3.2 Scripted run into a temp `.claude` fixture produces expected files
+- [x] 3.1 `npx`-style invocation resolves the bin and runs
+- [x] 3.2 Scripted run into a temp `.claude` fixture produces expected files
 
 #### Manual
 

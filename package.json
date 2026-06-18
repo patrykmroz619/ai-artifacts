@@ -18,7 +18,8 @@
     "giget": "^1.0.0"
   },
   "scripts": {
-    "test": "node --test cli/test/*.test.mjs"
+    "test": "node --test cli/test/*.test.mjs",
+    "verify-e2e": "node scripts/verify-e2e.mjs"
   },
   "engines": {
     "node": ">=18"

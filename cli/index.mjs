@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 const USAGE = `
-Usage: ai-artifacts <scope...> [--dry-run]
+Usage: npx github:patrykmroz619/AI-artifacts <scope...> [--dry-run]
 
 Arguments:
   scope     One or more domain folder names from the registry (e.g. coding-workflows)
@@ -18,8 +18,8 @@ Options:
   --dry-run  Print intended writes without making changes
 
 Examples:
-  ai-artifacts coding-workflows
-  ai-artifacts coding-workflows learning --dry-run
+  npx github:patrykmroz619/AI-artifacts coding-workflows
+  npx github:patrykmroz619/AI-artifacts coding-workflows learning --dry-run
 `.trim()
 
 function parseArgs(argv) {

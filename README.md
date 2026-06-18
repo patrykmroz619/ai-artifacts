@@ -7,19 +7,25 @@ A shared registry of reusable AI artifacts — skills and coding rules — for u
 From inside any project that has a `.claude/` and/or `.cursor/` folder, run:
 
 ```bash
-npx ai-artifacts-cli <scope>
+npx github:patrykmroz619/AI-artifacts <scope>
 ```
 
 Example — install everything in the `coding-workflows` scope:
 
 ```bash
-npx ai-artifacts-cli coding-workflows
+npx github:patrykmroz619/AI-artifacts coding-workflows
 ```
 
 Install multiple scopes at once:
 
 ```bash
-npx ai-artifacts-cli coding-workflows learning
+npx github:patrykmroz619/AI-artifacts coding-workflows learning
+```
+
+Preview what will be written without making changes:
+
+```bash
+npx github:patrykmroz619/AI-artifacts coding-workflows --dry-run
 ```
 
 The CLI detects which AI tools are present in the project and installs artifacts into the right places automatically.
@@ -87,7 +93,7 @@ To add an artifact:
 
 ## Update model
 
-There is no lockfile and no version pinning — the CLI always fetches the latest `main`. To update installed artifacts, re-run the install command.
+There is no lockfile and no version pinning — the CLI always fetches the latest `main`. To update installed artifacts, re-run the same install command; rule blocks are replaced in place and skill folders are overwritten.
 
 ## Detection cases
 
@@ -96,4 +102,35 @@ There is no lockfile and no version pinning — the CLI always fetches the lates
 | ✓ | — | Skills → `.claude/skills/`, rules → `CLAUDE.md` |
 | — | ✓ | Skills → `.cursor/skills/`, rules → `AGENTS.md` |
 | ✓ | ✓ | Both targets |
-| — | — | Error: no AI tool folder found |
+| — | — | Error: no AI tool folder found — create `.claude/` or `.cursor/` first |
+
+## Verification
+
+To verify the four detection cases in a scratch project:
+
+```bash
+# Case A — .claude only
+mkdir /tmp/test-a && cd /tmp/test-a && mkdir .claude
+npx github:patrykmroz619/AI-artifacts coding-workflows
+# expect: .claude/skills/commit-message/SKILL.md and CLAUDE.md with managed block
+
+# Case B — .cursor only
+mkdir /tmp/test-b && cd /tmp/test-b && mkdir .cursor
+npx github:patrykmroz619/AI-artifacts coding-workflows
+# expect: .cursor/skills/commit-message/SKILL.md and AGENTS.md with managed block
+
+# Case C — both
+mkdir /tmp/test-c && cd /tmp/test-c && mkdir .claude .cursor
+npx github:patrykmroz619/AI-artifacts coding-workflows
+# expect: both targets written
+
+# Case D — neither
+mkdir /tmp/test-d && cd /tmp/test-d
+npx github:patrykmroz619/AI-artifacts coding-workflows
+# expect: non-zero exit with guidance to create .claude/ or .cursor/
+
+# Idempotency — re-run in test-a; existing content above the managed block is unchanged
+cd /tmp/test-a
+npx github:patrykmroz619/AI-artifacts coding-workflows
+# expect: one block (not two), any hand-written content preserved
+```
