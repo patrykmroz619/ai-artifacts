@@ -1,41 +1,16 @@
-#!/usr/bin/env node
-
-import { detectTargets } from './detect.mjs'
-import { fetchScope } from './fetch.mjs'
-import { installSkills } from './install-skills.mjs'
-import { installRules } from './install-rules.mjs'
 import { rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { detectTargets } from '../../common/detect.js'
+import { fetchScope } from '../../common/fetch.js'
+import { installSkills } from './skills.js'
+import { installRules } from './rules.js'
 
-const USAGE = `
-Usage: npx github:patrykmroz619/AI-artifacts <scope...> [--dry-run]
-
-Arguments:
-  scope     One or more domain folder names from the registry (e.g. coding-workflows)
-
-Options:
-  --dry-run  Print intended writes without making changes
-
-Examples:
-  npx github:patrykmroz619/AI-artifacts coding-workflows
-  npx github:patrykmroz619/AI-artifacts coding-workflows learning --dry-run
-`.trim()
-
-function parseArgs(argv) {
-  const args = argv.slice(2)
-  const dryRun = args.includes('--dry-run')
-  const scopes = args.filter(a => !a.startsWith('--'))
-  return { scopes, dryRun }
-}
-
-async function main() {
-  const { scopes, dryRun } = parseArgs(process.argv)
-
-  if (scopes.length === 0) {
-    console.error(USAGE)
-    process.exit(1)
-  }
+export async function runInstall(opts: {
+  scopes: string[]
+  dryRun: boolean
+}): Promise<{ failed: string[] }> {
+  const { scopes, dryRun } = opts
 
   if (dryRun) {
     console.log('[dry-run] No files will be written.\n')
@@ -45,13 +20,14 @@ async function main() {
   try {
     targets = await detectTargets(process.cwd())
   } catch (err) {
-    console.error(`Error: ${err.message}`)
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error(`Error: ${msg}`)
     process.exit(1)
   }
 
   console.log(`Detected tools: ${targets.map(t => t.tool).join(', ')}\n`)
 
-  const failed = []
+  const failed: string[] = []
 
   for (const scope of scopes) {
     console.log(`Installing scope: ${scope}`)
@@ -59,7 +35,8 @@ async function main() {
     try {
       await fetchScope(scope, tempDir)
     } catch (err) {
-      console.error(`  ✗ Failed to fetch scope "${scope}": ${err.message}`)
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error(`  ✗ Failed to fetch scope "${scope}": ${msg}`)
       failed.push(scope)
       continue
     }
@@ -85,13 +62,5 @@ async function main() {
     console.log()
   }
 
-  if (failed.length > 0) {
-    console.error(`Failed scopes: ${failed.join(', ')}`)
-    process.exit(1)
-  }
+  return { failed }
 }
-
-main().catch(err => {
-  console.error(`Fatal: ${err.message}`)
-  process.exit(1)
-})

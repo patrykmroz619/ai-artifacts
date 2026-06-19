@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "declaration": false,
+    "sourceMap": true,
+    "rootDir": "cli",
+    "outDir": "dist"
+  },
+  "include": ["cli"],
+  "exclude": ["**/tests/**", "**/*.test.ts", "**/*.e2e.ts"]
+}

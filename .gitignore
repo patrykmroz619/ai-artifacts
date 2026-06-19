@@ -3,3 +3,5 @@
 .claude/.10x-cli-manifest.json
 
 node_modules/
+dist/
+dist-test/

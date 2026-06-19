@@ -15,11 +15,20 @@
     "url": "https://github.com/patrykmroz619/AI-artifacts.git"
   },
   "dependencies": {
+    "citty": "^0.1.6",
     "giget": "^1.0.0"
   },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "typescript": "^5.0.0"
+  },
   "scripts": {
-    "test": "node --test cli/test/*.test.mjs",
-    "verify-e2e": "node scripts/verify-e2e.mjs"
+    "build": "tsc -p tsconfig.json",
+    "prepare": "npm run build",
+    "pretest": "tsc -p tsconfig.test.json",
+    "test": "node --test \"dist-test/**/*.test.js\"",
+    "preverify-e2e": "tsc -p tsconfig.test.json",
+    "verify-e2e": "node dist-test/commands/install/tests/install.e2e.js"
   },
   "engines": {
     "node": ">=18"

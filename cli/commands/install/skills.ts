@@ -1,8 +1,13 @@
 import { readdir, cp, mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
+import type { Target } from '../../common/detect.js'
 
-export async function installSkills(tempDir, target, { dryRun = false } = {}) {
+export async function installSkills(
+  tempDir: string,
+  target: Target,
+  { dryRun = false }: { dryRun?: boolean } = {}
+): Promise<string[]> {
   const skillsSource = join(tempDir, 'skills')
   if (!existsSync(skillsSource)) return []
 
@@ -13,7 +18,7 @@ export async function installSkills(tempDir, target, { dryRun = false } = {}) {
     return []
   }
 
-  const installed = []
+  const installed: string[] = []
 
   for (const entry of entries) {
     if (!entry.isDirectory()) continue
