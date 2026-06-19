@@ -16,10 +16,10 @@
   },
   "dependencies": {
     "citty": "^0.1.6",
-    "giget": "^1.0.0"
+    "giget": "^3.3.0"
   },
   "devDependencies": {
-    "@types/node": "^18.0.0",
+    "@types/node": "^18.19.130",
     "typescript": "^5.0.0"
   },
   "scripts": {
