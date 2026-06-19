@@ -1,7 +1,13 @@
 import { access, constants } from 'node:fs/promises'
 import { join } from 'node:path'
 
-async function exists(p) {
+export interface Target {
+  tool: 'claude' | 'cursor'
+  skillsDir: string
+  ruleFile: string
+}
+
+async function exists(p: string): Promise<boolean> {
   try {
     await access(p, constants.F_OK)
     return true
@@ -10,8 +16,8 @@ async function exists(p) {
   }
 }
 
-export async function detectTargets(cwd) {
-  const targets = []
+export async function detectTargets(cwd: string): Promise<Target[]> {
+  const targets: Target[] = []
 
   if (await exists(join(cwd, '.claude'))) {
     targets.push({

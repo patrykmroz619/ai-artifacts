@@ -1,11 +1,12 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
+import type { Target } from '../../common/detect.js'
 
-const BEGIN = (scope) => `<!-- BEGIN registry:${scope} -->`
-const END = (scope) => `<!-- END registry:${scope} -->`
+const BEGIN = (scope: string) => `<!-- BEGIN registry:${scope} -->`
+const END = (scope: string) => `<!-- END registry:${scope} -->`
 
-export function injectBlock(existing, scope, content) {
+export function injectBlock(existing: string, scope: string, content: string): string {
   const begin = BEGIN(scope)
   const end = END(scope)
   const block = `${begin}\n${content.trim()}\n${end}`
@@ -22,7 +23,12 @@ export function injectBlock(existing, scope, content) {
   return existing + sep + block + '\n'
 }
 
-export async function installRules(scope, tempDir, target, { dryRun = false } = {}) {
+export async function installRules(
+  scope: string,
+  tempDir: string,
+  target: Target,
+  { dryRun = false }: { dryRun?: boolean } = {}
+): Promise<string | null> {
   const rulesSource = join(tempDir, 'RULES.md')
   if (!existsSync(rulesSource)) return null
 
