@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-A shared AI artifacts registry — skills and coding rules — distributed via `npx github:patrykmroz619/AI-artifacts install <scope>`. Consumers run that command inside any project with a `.claude/` or `.cursor/` folder; the CLI detects which tool is present and writes artifacts to the right place.
+A shared AI artifacts registry — skills and coding rules — distributed via `npx @patryk.mroz/artifacts install <scope>`. Consumers run that command inside any project with a `.claude/` or `.cursor/` folder; the CLI detects which tool is present and writes artifacts to the right place.
 
 ## CLI commands
 
@@ -62,10 +62,10 @@ Two tsconfigs control what goes where:
 
 ## Distribution
 
-`npx github:patrykmroz619/AI-artifacts install <scope>` works because:
+`npx @patryk.mroz/artifacts install <scope>` works because:
 
-1. npm runs `npm install` (including devDependencies) for git installs
-2. The `prepare` script (`npm run build`) compiles `cli/` → `dist/`
+1. npm downloads the `@patryk.mroz/artifacts` package from the public registry
+2. The `prepack` script (`npm run build`) compiles `cli/` → `dist/` before publishing
 3. The `bin` entry points to `dist/index.js`
 
 `dist/` and `dist-test/` are gitignored and never committed.

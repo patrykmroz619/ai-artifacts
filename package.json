@@ -1,17 +1,16 @@
 {
-  "name": "@pmroz/artifacts",
+  "name": "@patryk.mroz/artifacts",
   "version": "1.0.0",
   "type": "module",
   "description": "Install AI skills and rules from the shared registry into your project",
   "bin": {
-    "pmroz-artifacts": "dist/index.js"
+    "artifacts": "dist/index.js"
   },
   "files": [
     "dist"
   ],
   "publishConfig": {
-    "access": "public",
-    "provenance": true
+    "access": "public"
   },
   "repository": {
     "type": "git",

@@ -7,25 +7,25 @@ A shared registry of reusable AI artifacts — skills and coding rules — for u
 From inside any project that has a `.claude/` and/or `.cursor/` folder, run:
 
 ```bash
-npx github:patrykmroz619/AI-artifacts <scope>
+npx @patryk.mroz/artifacts install <scope>
 ```
 
 Example — install everything in the `coding-workflows` scope:
 
 ```bash
-npx github:patrykmroz619/AI-artifacts coding-workflows
+npx @patryk.mroz/artifacts install coding-workflows
 ```
 
 Install multiple scopes at once:
 
 ```bash
-npx github:patrykmroz619/AI-artifacts coding-workflows learning
+npx @patryk.mroz/artifacts install coding-workflows learning
 ```
 
 Preview what will be written without making changes:
 
 ```bash
-npx github:patrykmroz619/AI-artifacts coding-workflows --dry-run
+npx @patryk.mroz/artifacts install coding-workflows --dry-run
 ```
 
 The CLI detects which AI tools are present in the project and installs artifacts into the right places automatically.
@@ -63,33 +63,6 @@ General-purpose coding skills and standards.
 | ----- | ---------------- | ------------------------------------------------------------- |
 | skill | `commit-message` | Write Conventional Commits messages for staged changes        |
 | rules | `RULES.md`       | Comments, scope, change size, security, dependency guidelines |
-
-## Repository layout
-
-```
-<scope>/                     # e.g. coding-workflows/
-  RULES.md                   # single rules file; injected as one block into CLAUDE.md / AGENTS.md
-  skills/
-    <skill-id>/
-      SKILL.md               # shared skill, valid in Claude Code and Cursor
-cli/                         # npx CLI source
-```
-
-## Contributing
-
-To add an artifact:
-
-1. Place it in the correct scope folder following the layout above.
-2. **Skills**: create `<scope>/skills/<skill-id>/SKILL.md` with YAML frontmatter:
-   ```yaml
-   ---
-   name: <skill-id>
-   description: <one-line description>
-   ---
-   ```
-   The `SKILL.md` format is shared between Claude Code and Cursor — no transpilation needed.
-3. **Rules**: create `<scope>/RULES.md` as plain markdown. The CLI injects the entire file content as one managed block into `CLAUDE.md` / `AGENTS.md` — no surrounding markers in the source file. Write content that reads correctly when embedded inside a larger rules file.
-4. Update the "Available scopes" table in this README.
 
 ## Update model
 
