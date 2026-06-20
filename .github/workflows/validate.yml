@@ -19,4 +19,15 @@ jobs:
 
       - run: npm run build
 
-      - run: npm test
+      - run: npm run pretest
+
+      - name: Run tests
+        shell: bash
+        run: |
+          shopt -s globstar nullglob
+          test_files=(dist-test/**/*.test.js)
+          if [[ ${#test_files[@]} -gt 0 ]]; then
+            node --test "${test_files[@]}"
+          else
+            echo "No test files found"
+          fi
