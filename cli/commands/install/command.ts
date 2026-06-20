@@ -17,14 +17,14 @@ export default defineCommand({
 
     if (scopes.length === 0) {
       console.error(
-        'Usage: ai-artifacts install <scope...> [--dry-run]\n\n' +
+        'Usage: npx @patryk.mroz/artifacts install <scope...> [--dry-run]\n\n' +
         'Arguments:\n' +
         '  scope     One or more domain folder names from the registry (e.g. coding-workflows)\n\n' +
         'Options:\n' +
         '  --dry-run  Print intended writes without making changes\n\n' +
         'Examples:\n' +
-        '  npx github:patrykmroz619/AI-artifacts install coding-workflows\n' +
-        '  npx github:patrykmroz619/AI-artifacts install coding-workflows learning --dry-run'
+        '  npx @patryk.mroz/artifacts install coding-workflows\n' +
+        '  npx @patryk.mroz/artifacts install coding-workflows learning --dry-run'
       )
       process.exit(1)
     }
