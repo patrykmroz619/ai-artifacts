@@ -22,12 +22,12 @@ node dist/index.js install coding-workflows --dry-run
 
 ## Architecture
 
-### Registry content (`<scope>/`)
+### Registry content (`artifacts/<scope>/`)
 
-Each scope folder is the unit of installation:
+All scope folders live under `artifacts/` at the repo root. Each scope folder is the unit of installation:
 
-- `<scope>/RULES.md` — injected verbatim as a managed block into `CLAUDE.md` / `AGENTS.md` of the consumer project. The block is delimited `<!-- BEGIN registry:<scope> --> … <!-- END registry:<scope> -->` so reinstalls replace only that span.
-- `<scope>/skills/<skill-id>/SKILL.md` — copied to `.claude/skills/<id>/` or `.cursor/skills/<id>/` depending on detected tool.
+- `artifacts/<scope>/RULES.md` — injected verbatim as a managed block into `CLAUDE.md` / `AGENTS.md` of the consumer project. The block is delimited `<!-- BEGIN registry:<scope> --> … <!-- END registry:<scope> -->` so reinstalls replace only that span.
+- `artifacts/<scope>/skills/<skill-id>/SKILL.md` — copied to `.claude/skills/<id>/` or `.cursor/skills/<id>/` depending on detected tool.
 
 ### CLI source (`cli/`)
 

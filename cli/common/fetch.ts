@@ -17,7 +17,7 @@ function repoFromPackage(): string {
 
 export async function fetchScope(scope: string, destDir: string): Promise<void> {
   const repo = repoFromPackage()
-  const source = `gh:${repo}/${scope}#main`
+  const source = `gh:${repo}/artifacts/${scope}#main`
   try {
     await downloadTemplate(source, { dir: destDir, force: true })
   } catch (err) {
