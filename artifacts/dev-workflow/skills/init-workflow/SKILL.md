@@ -78,8 +78,16 @@ The goal is to record *how* this project's workflow integrates with the outside 
 skills can auto-fetch task data, propose branch names, and prompt for changelog entries — and
 degrade gracefully to manual input when an integration isn't available.
 
-Ask in **small batches** rather than one giant form — keep it conversational, and let earlier
-answers inform later questions. Cover three areas:
+**Prefer the `AskUserQuestion` tool to put questions to the user** — present the choices (system,
+access mechanism, changelog yes/no, etc.) as selectable options rather than asking in free-form prose.
+It keeps the interview fast and unambiguous, and the user can always pick "Other" to supply something
+not listed (which is how they name a tracker you didn't offer). Fall back to plain prose only for
+genuinely open-ended details that don't fit options well — pasted credentials, a project/board key, a
+custom branch pattern.
+
+Ask in **small batches** rather than one giant form — group related questions into a single
+`AskUserQuestion` call, let earlier answers inform later ones, and keep it conversational. Cover three
+areas:
 
 **1. Task management.** Which system, if any. Offer Jira, Linear, and GitHub Issues as common
 examples, but make clear these are only examples — **the user can name any other tracker** (e.g.
