@@ -20,6 +20,8 @@ Run the CLI locally against a fixture dir:
 node dist/index.js install coding-workflows --dry-run
 ```
 
+> **Don't test via `npx @patryk.mroz/artifacts ...` from inside this repo.** This project's own `package.json` is named `@patryk.mroz/artifacts`, so npx resolves the spec to the local package and looks for its bin shim in `node_modules/.bin/artifacts` — which a package never creates for itself — and fails with `'artifacts' is not recognized`. This is a self-reference collision, not a packaging bug; the published package works fine in any consumer project. To exercise the published CLI, run `npx` in a different directory that has a `.claude/` or `.cursor/` folder; to exercise local changes, use `node dist/index.js` as above.
+
 ## Architecture
 
 ### Registry content (`artifacts/<scope>/`)
