@@ -89,17 +89,26 @@ Ask in **small batches** rather than one giant form — group related questions 
 `AskUserQuestion` call, let earlier answers inform later ones, and keep it conversational. Cover three
 areas:
 
-**1. Task management.** Which system, if any. Offer Jira, Linear, and GitHub Issues as common
-examples, but make clear these are only examples — **the user can name any other tracker** (e.g.
-Azure DevOps, Asana, Trello, Shortcut, a self-hosted tool) or choose "none". Whatever they pick,
-help them wire it up: ask how the agent should access it — an MCP server, a CLI such as `gh`, a REST
-API, or manual entry — and walk them through whatever configuration that mechanism needs (auth, base
-URL, project/board key, required env vars or tokens). For a system you don't have a built-in
-integration for, work with the user to find a usable access path; if none exists, fall back to
-manual and record exactly what the user will paste in by hand.
+**1. Task management.** Which system, if any. **Ask the user first — never infer the tracker from
+what tooling happens to be installed.** Do *not* scan for available MCP servers, CLIs (`gh`, `linear`,
+`jira`, etc.), or env vars and then assume the project uses that tracker. The presence of a tool says
+nothing about which tracker this project actually uses; only the user knows that. So lead with the
+question, not a detection sweep.
 
-> **Verify availability before recording it.** A configured-but-unreachable integration is worse
-> than honest "manual", because downstream skills will keep trying it. Check first:
+Offer Jira, Linear, and GitHub Issues as common examples, but make clear these are only examples —
+**the user can name any other tracker** (e.g. Azure DevOps, Asana, Trello, Shortcut, a self-hosted
+tool) or choose "none". Only **after** the user has named the tracker (or "none") do you look at
+tooling — and then only for *that* tracker: help them wire it up by asking how the agent should access
+it — an MCP server, a CLI such as `gh`, a REST API, or manual entry — and walk them through whatever
+configuration that mechanism needs (auth, base URL, project/board key, required env vars or tokens).
+For a system you don't have a built-in integration for, work with the user to find a usable access
+path; if none exists, fall back to manual and record exactly what the user will paste in by hand.
+
+> **Verify availability before recording it.** Once the user has chosen a tracker and an access
+> mechanism, confirm that mechanism actually works before recording it — a configured-but-unreachable
+> integration is worse than honest "manual", because downstream skills will keep trying it. (This
+> check is for the tracker the user picked; it is not a license to go discover trackers by scanning.)
+> Check first:
 > - **CLI (e.g. `gh`)** — confirm it's installed and authenticated, e.g. `gh auth status`.
 > - **MCP server** — check whether the corresponding MCP tools are actually available in this
 >   session.
