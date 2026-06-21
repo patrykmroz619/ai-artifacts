@@ -1,6 +1,6 @@
 ---
 name: init-workflow
-description: Initialize the markdown-artifact dev-workflow in this project — scaffold the specs/ root (coding-standards.md placeholder, workflow-config.md, tasks/) and interview the user to capture task-management, git, and changelog conventions. Use this whenever the user runs /init-workflow, or asks to "set up the dev workflow", "initialize specs", "bootstrap the workflow", "configure the task workflow", or wants a place for task planning/decision/review artifacts to live — even if they don't say "specs" explicitly. This is the one-time entry point that every other dev-workflow skill (/start-task, /plan-task, /plan-implementation, /implement, /review, /finalize) depends on.
+description: Initialize the markdown-artifact dev-workflow in this project — scaffold the specs/ root (coding-standards.md, workflow-config.md, tasks/) and interview the user to capture task-management, git, and changelog conventions. Use this whenever the user runs /init-workflow, or asks to "set up the dev workflow", "initialize specs", "bootstrap the workflow", "configure the task workflow", or wants a place for task planning/decision/review artifacts to live — even if they don't say "specs" explicitly. This is the one-time entry point that every other dev-workflow skill (/start-task, /plan-task, /plan-implementation, /implement, /review, /finalize) depends on.
 allowed-tools:
   - Read
   - Write
@@ -26,7 +26,7 @@ than leaving holes.
 
 ```
 specs/
-  coding-standards.md   # placeholder — you fill this in manually
+  coding-standards.md   # references your existing rules files; extend it if you want
   workflow-config.md    # filled from the interview below
   tasks/
     .gitkeep            # keeps the (initially empty) tasks/ dir tracked in git
@@ -45,15 +45,19 @@ rather than overwriting what's there. Note the outcome (`created`, `completed`, 
 final summary. This matters because the user may have partially filled an artifact, and a re-run
 should finish the job, not erase it.
 
-**`specs/coding-standards.md`** — if absent, copy it verbatim from the bundled template at
+**`specs/coding-standards.md`** — if absent, copy it from the bundled template at
 `assets/coding-standards.md` (resolve relative to this skill's directory). **Before writing it, look
 for existing standards:** scan the repo's rules/instruction files — e.g. `CLAUDE.md`, `AGENTS.md`,
 `.cursor/rules/` (`.mdc` files), `.cursorrules`, `.github/copilot-instructions.md`, `.windsurfrules`
 — for anything that reads like a coding standard (language idioms, naming, formatting, testing, error
-handling, file layout). If you find any, **don't copy the content in — reference the source files**
-so this artifact points the user to where the standards already live, leaving them to decide what to
-pull in or restate here. Fill the template's "References" section with one pointer per file (path + a
-one-line note on what it covers); if nothing relevant was found, delete that section before writing.
+handling, file layout). If you find any, **reference the source files rather than copying their
+content.** Those files stay authoritative; this artifact just points the workflow at them. Fill the
+template's "References" section with one pointer per file (path + a one-line note on what it covers).
+If nothing relevant was found, delete the "References" section before writing.
+
+Don't ask the user to restate or duplicate what the referenced files already say — referencing them
+is enough. The template's "Project conventions" section is optional: it's there only so the user can
+*extend* the standards with extra rules if they want, not a placeholder they're obliged to fill.
 
 If `coding-standards.md` already exists, leave the user's content alone — at most append references
 to rules files not already mentioned there, and tell the user.
@@ -77,25 +81,43 @@ degrade gracefully to manual input when an integration isn't available.
 Ask in **small batches** rather than one giant form — keep it conversational, and let earlier
 answers inform later questions. Cover three areas:
 
-**1. Task management.** Which system, if any: Jira, Linear, GitHub Issues, or none. Then how the
-agent should access it: an MCP server, a CLI such as `gh`, or manual entry.
+**1. Task management.** Which system, if any. Offer Jira, Linear, and GitHub Issues as common
+examples, but make clear these are only examples — **the user can name any other tracker** (e.g.
+Azure DevOps, Asana, Trello, Shortcut, a self-hosted tool) or choose "none". Whatever they pick,
+help them wire it up: ask how the agent should access it — an MCP server, a CLI such as `gh`, a REST
+API, or manual entry — and walk them through whatever configuration that mechanism needs (auth, base
+URL, project/board key, required env vars or tokens). For a system you don't have a built-in
+integration for, work with the user to find a usable access path; if none exists, fall back to
+manual and record exactly what the user will paste in by hand.
 
 > **Verify availability before recording it.** A configured-but-unreachable integration is worse
 > than honest "manual", because downstream skills will keep trying it. Check first:
 > - **CLI (e.g. `gh`)** — confirm it's installed and authenticated, e.g. `gh auth status`.
-> - **MCP server (Jira/Linear)** — check whether the corresponding MCP tools are actually available
->   in this session.
+> - **MCP server** — check whether the corresponding MCP tools are actually available in this
+>   session.
+> - **REST API / other** — confirm the credentials and endpoint actually resolve before trusting them.
 >
 > If the chosen mechanism isn't available, tell the user what's missing and ask them to either
-> configure one of the supported options now or fall back to manual. Record whatever is *actually*
-> usable.
+> configure it now or fall back to manual. Record whatever is *actually* usable, and capture the
+> access details (endpoint, project key, auth method) in the config's **Notes** so downstream skills
+> can reach the tracker.
 
 **2. Git conventions.** Branch naming pattern and commit style. If the repo already has rules files
 (e.g. `CLAUDE.md`, `AGENTS.md`, `.cursor/rules`) that specify these, read them and propose those as
 defaults rather than asking cold.
 
-**3. Changelog.** Whether a changelog is maintained. Only if it is, capture its location and format
-(e.g. `CHANGELOG.md`, Keep a Changelog) — this tells /finalize whether and where to add an entry.
+**3. Changelog.** **First detect, then ask.** Scan the repo for an existing changelog before
+prompting — look for common names at the root and a level or two down (e.g. `CHANGELOG.md`,
+`CHANGELOG`, `HISTORY.md`, `CHANGES.md`, `NEWS.md`, a `changelog/` or `changes/` directory, or
+changeset tooling like `.changeset/`). Let the finding shape the question:
+> - **If a changelog file is found** — don't ask whether one exists. Tell the user what you found,
+>   peek at its format (e.g. Keep a Changelog, plain dated entries, changesets), and confirm it's the
+>   one the workflow should append to. Record its location and format.
+> - **If none is found** — ask whether the project maintains a changelog (perhaps elsewhere) or wants
+>   to start one. Only capture location/format if they say yes.
+>
+> Whether a changelog section ends up in the config is what tells /finalize whether and where to add
+> an entry.
 
 Then write `specs/workflow-config.md` from the bundled template at `assets/workflow-config.md`
 (resolve relative to this skill's directory), substituting the captured answers for the
@@ -118,8 +140,8 @@ referenced rules files in `coding-standards.md`, call that out so the user knows
 
 Then close with two pointers, and stop — don't chain into another skill:
 
-- **Fill in `specs/coding-standards.md`.** It's a placeholder; the planning, implementation, and
-  review skills lean on it, so it's worth a few minutes now.
+- **Review `specs/coding-standards.md`.** It already points at your existing rules files; you only
+  need to touch it if you want to add conventions beyond what those files cover.
 - **Next step:** run `/start-task` when you're ready to begin work. It reads `workflow-config.md` to
   fetch task details and propose a branch.
 

@@ -5,10 +5,10 @@ Update by re-running /init-workflow or by editing this file directly.
 
 ## Task management
 
-- **System:** <Jira | Linear | GitHub Issues | none>
-- **Access mechanism:** <MCP server | CLI (e.g. `gh`) | manual>
+- **System:** <Jira | Linear | GitHub Issues | any other tracker | none>
+- **Access mechanism:** <MCP server | CLI (e.g. `gh`) | REST API | manual>
 - **Availability:** <verified available | configure before use | manual only>
-- **Notes:** <project/board key, repo slug, URL — anything skills need to address the tracker>
+- **Notes:** <project/board key, repo slug, URL, auth/setup details — anything skills need to address the tracker>
 
 ## Git conventions
 
