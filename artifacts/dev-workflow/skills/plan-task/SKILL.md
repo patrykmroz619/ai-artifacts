@@ -39,7 +39,7 @@ Ask questions in rounds. After each round: append the resulting decisions to `de
 
 **Always open Round 1 with a solution approach question** (unless the approach is already unambiguous from the task description and codebase research). Propose **2–3 concrete approaches** with a ⭐ Recommended pick grounded in what the codebase actually favors:
 
-```
+```yaml
 AskUserQuestion:
   question: "Which approach should we take for [the core challenge]?"
   header: "Approach"
@@ -57,7 +57,7 @@ The recommendation must come from codebase research — not guessing.
 **Question categories to draw from:**
 
 | Category | Tag |
-|---|---|
+| --- | --- |
 | Scope — what's in vs. out | [D] |
 | Solution approach — how to tackle the core challenge | [S] |
 | Risk & unknowns — what needs investigation or a spike first | [S] |
@@ -69,6 +69,7 @@ The recommendation must come from codebase research — not guessing.
 `[D]` = diagnostic (about the problem space); `[S]` = solution (about how to build it).
 
 **Rules:**
+
 - One topic per AskUserQuestion call, 2–4 options per question
 - For approach / tradeoff questions: mark exactly one option `⭐ Recommended`, format options as `[What this does.] · Strength: [advantage] · Tradeoff: [cost]`
 - Don't ask what `task-info.md` already specifies — absorb it as a prior decision
@@ -90,10 +91,13 @@ Never overwrite prior entries; the log shows the progression of thinking.
 
 Present the plan before writing it:
 
-```
+```markdown
 Here's the breakdown I'm proposing:
 
 **Definition of Done:** [overall acceptance criteria — what does "task complete" mean?]
+
+**Relevant Code Areas:**
+- `path/or/folder` — [why it matters: will change, important pattern, or constraint]
 
 **Subtasks (ordered):**
 1. subtask-a — [one line: what it delivers]
@@ -101,17 +105,28 @@ Here's the breakdown I'm proposing:
 3. subtask-c — [one line: what it delivers]
 ```
 
+Subtasks are implementation slices, not project-management phases. Each subtask must require adding or modifying code. Do not create separate subtasks for testing, manual verification, documentation-only review, rollout, or cleanup; include verification expectations in Definition of Done or in the implementation plan for the code-changing subtask they validate.
+
+Keep the list coarse enough to guide implementation without turning into step-by-step instructions. A good subtask usually maps to one coherent code change or one reviewable implementation slice, not one function, one file edit, or one command.
+
+Include only the file/folder references that matter for orientation: areas likely to change, shared modules with important patterns, or code that constrains the design. Do not list every file searched.
+
+If a visual would materially clarify the approach, include an optional Mermaid diagram before the subtask list. Use it for non-trivial flows, architecture boundaries, state transitions, or data movement; skip it for linear or obvious work.
+
 Or, for a small task:
 
-```
+```markdown
 **No subtasks** — this task is small enough to handle in one implementation pass.
 
 **Definition of Done:** [acceptance criteria]
+
+**Relevant Code Areas:**
+- `path/or/folder` — [why it matters]
 ```
 
 Then get approval:
 
-```
+```yaml
 AskUserQuestion:
   question: "Does this breakdown look right?"
   header: "Breakdown"
@@ -140,6 +155,17 @@ Iterate until approved.
 [Overall acceptance criteria. Be specific: name behaviors, not vibes.
 These are what /review and /finalize will check the whole task against.]
 
+## Relevant Code Areas
+
+- `path/or/folder` — [why it matters: will change, important pattern, or constraint]
+- `path/or/file.ext` — [why it matters]
+
+[Include only important references discovered during codebase research, not every file checked.]
+
+## Solution Diagram
+
+[Optional. Include a Mermaid diagram only when it helps explain a non-trivial flow, architecture boundary, state transition, or data movement. Omit this section entirely when a diagram would be decorative.]
+
 ## Subtasks
 
 - [ ] subtask-a — pending
@@ -156,6 +182,10 @@ For the no-subtasks path:
 
 [Acceptance criteria.]
 
+## Relevant Code Areas
+
+- `path/or/folder` — [why it matters]
+
 ## No Subtasks
 
 This task will be handled in a single implementation pass.
@@ -165,7 +195,7 @@ This task will be handled in a single implementation pass.
 
 ### Step 5: Summarize and hand off
 
-```
+```text
 specs/tasks/{task-name}/task-plan.md    [created]
 specs/tasks/{task-name}/decisions.md    [created | updated]
 
@@ -180,6 +210,12 @@ Close with the next step and stop — don't chain automatically:
 
 Subtask names become folder names: lowercase, hyphenated, filesystem-safe (`add-auth-middleware`, `migrate-user-table`). Keep them short and descriptive — every downstream skill references subtasks by this slug.
 
+## Subtask granularity
+
+Subtasks are implementation-oriented slices. Every subtask must require adding or modifying code and should deliver a coherent, reviewable change. Avoid granular subtasks for individual helper functions, single-file edits, commands, or checklist chores unless that unit is genuinely the meaningful implementation boundary.
+
+Do not create separate subtasks for testing, manual verification, documentation-only checks, rollout, or cleanup. Capture those expectations in Definition of Done, or leave detailed verification steps for `/plan-implementation` within the code-changing subtask they belong to.
+
 ## The "no subtasks" decision
 
 Choose "no subtasks" when: single clear deliverable, ≤2 distinct areas of the codebase, can be meaningfully reviewed and committed in one pass. If in doubt, prefer a small subtask list — it's easier to collapse subtasks than to split a large commit after the fact.
@@ -187,6 +223,8 @@ Choose "no subtasks" when: single clear deliverable, ≤2 distinct areas of the 
 ## Notes
 
 - **High-level only.** Don't detail HOW each subtask will be implemented — that's `/plan-implementation`'s job. Resist the urge to write implementation steps here.
+- **Relevant code areas are selective.** Reference files or folders only when they orient implementation, identify likely changes, or preserve important context from codebase research.
+- **Diagrams are optional.** Use Mermaid only when it explains something a short paragraph cannot; omit it for straightforward tasks.
 - **Decisions log is cumulative.** Append to `decisions.md` after each Q&A round; never overwrite prior entries.
 - **Check task-info.md first.** If the task description already specifies approach or acceptance criteria, absorb it as a prior decision — don't make the user repeat themselves.
 - **Subtask status lives here.** Downstream skills (`/plan-implementation`, `/implement`, `/review`, `/finalize`) update the checklist in `task-plan.md` as they progress. This is the only status ledger.
