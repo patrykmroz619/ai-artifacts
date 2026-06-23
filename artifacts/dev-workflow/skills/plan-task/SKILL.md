@@ -79,6 +79,8 @@ Keep the list coarse enough to guide implementation without turning into step-by
 
 Design subtasks for independence: each one should have a clear purpose, a reviewable code outcome, and enough context that `/plan-implementation`, `/implement`, `/review`, and `/finalize` can operate on it without needing unrelated subtasks in progress.
 
+**Merge pass — do this before presenting the list.** For each pair of adjacent subtasks, ask: _would a reviewer naturally review these together, in one sitting, as one change?_ If yes, merge them. Keep two subtasks separate only when at least one holds: they touch genuinely distinct code areas, one must land and be reviewed before the next can start, or combining them would produce a commit too large to review in one pass. Absent one of those, default to merging.
+
 Do not create a separate code-areas section. Attach file or folder references directly to the plan text when the surrounding sentence refers to a specific area, likely change, important pattern, or constraint. This can be in the Definition of Done, a diagram explanation, a no-subtasks note, or any subtask description. Do not list every file searched.
 
 If a visual would materially clarify the approach, include an optional Mermaid diagram before the subtask list. Use it for non-trivial flows, architecture boundaries, state transitions, or data movement; skip it for linear or obvious work.
@@ -181,11 +183,15 @@ Subtask names become folder names: lowercase, hyphenated, filesystem-safe (`add-
 
 Subtasks are implementation-oriented slices. Every subtask must require adding or modifying code and should deliver a coherent, reviewable change. Avoid granular subtasks for individual helper functions, single-file edits, commands, or checklist chores unless that unit is genuinely the meaningful implementation boundary.
 
+A subtask earns its own slot only when it represents a distinct reviewable boundary — a distinct code area, a hard sequencing dependency, or a chunk large enough that bundling it would make review unwieldy. If two candidate subtasks share the same area and could be reviewed together, they are one subtask.
+
 Do not create separate subtasks for testing, manual verification, documentation-only checks, rollout, or cleanup. Capture those expectations in Definition of Done, or leave detailed verification steps for `/plan-implementation` within the code-changing subtask they belong to.
 
 ## The "no subtasks" decision
 
-Choose "no subtasks" when: single clear deliverable, ≤2 distinct areas of the codebase, can be meaningfully reviewed and committed in one pass. If in doubt, prefer a small subtask list — it's easier to collapse subtasks than to split a large commit after the fact.
+Choose "no subtasks" when: single clear deliverable, ≤2 distinct areas of the codebase, can be meaningfully reviewed and committed in one pass.
+
+**Default to fewer, larger subtasks.** When unsure whether two slices are one subtask or two, make them one. Splitting later during `/plan-implementation` is cheap; an over-fragmented plan adds workflow overhead (a `/plan-implementation` + `/implement` + `/review` cycle per subtask) with no benefit. A typical task is 1–4 subtasks; treat 5+ as a signal to re-check whether some should merge.
 
 ## Notes
 

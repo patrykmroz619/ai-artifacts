@@ -24,14 +24,12 @@ specs/
   tasks/
     {task-name}/
       task-info.md            # source of truth about the task
-      task-plan.md            # HIGH-LEVEL plan: subtask checklist + status (SoT) + overall DoD
-      decisions.md            # task-level decision log (high-level planning / no-subtask path)
+      task-plan.md            # HIGH-LEVEL plan: subtask list + status (SoT) + overall DoD + planning notes
       implementation-plan.md  # ONLY in the no-subtasks path: detailed whole-task plan
       review.md               # task-level (cross-cutting) review
       subtasks/
         {subtask-name}/
           implementation-plan.md   # detailed plan for this subtask
-          decisions.md             # per-subtask decision log
           review.md                # per-subtask review
 ```
 
@@ -42,11 +40,16 @@ task is worth splitting.
 ### Two altitudes of planning
 
 - **High-level plan** (`task-plan.md`, produced by `/plan-task`): the decomposition of the task into
-  an ordered **subtask checklist** plus the overall definition of done. It is also the **single source
+  an ordered **subtask list** plus the overall definition of done. It is also the **single source
   of truth for subtask status**. If the task is small, it records "no subtasks" instead.
 - **Detailed plan** (`implementation-plan.md`, produced by `/plan-implementation`): the concrete,
   step-by-step plan for a chosen **scope** — the whole task, a single subtask, or several subtasks at
   once. This is what `/implement` executes against.
+
+There is **no separate decision log**. Durable planning context — decisions made, rejected
+alternatives, constraints, risks, and codebase observations — is captured inline as **Planning Notes**
+within the plan artifact it belongs to: task-level context in `task-plan.md`, scope-level context in
+the relevant `implementation-plan.md`. One file per altitude, nothing to drift.
 
 ### Scope resolution (shared by plan-implementation / implement / review / finalize)
 
@@ -62,18 +65,19 @@ ask the user. Branches map to the **task**, not to subtasks.
 
 ### Subtask status in `task-plan.md`
 
-`task-plan.md` holds the checklist that the per-scope skills advance as work progresses. Each entry
-carries a phase tag:
+`task-plan.md` lists each subtask as a heading carrying its slug and a phase tag, which the per-scope
+skills advance as work progresses:
 
 ```
-- [ ] subtask-a — pending
-- [~] subtask-b — planned        (set by /plan-implementation)
-- [~] subtask-c — implemented    (set by /implement)
-- [~] subtask-d — reviewed       (set by /review)
-- [x] subtask-e — committed      (set by /finalize)
+### 1. `subtask-a` — pending
+### 2. `subtask-b` — planned        (set by /plan-implementation)
+### 3. `subtask-c` — implemented    (set by /implement)
+### 4. `subtask-d` — reviewed       (set by /review)
+### 5. `subtask-e` — committed      (set by /finalize)
 ```
 
-This is the only place subtask status lives — no separate ledger to drift.
+Each heading is followed by a short description of that subtask. This is the only place subtask status
+lives — no separate ledger to drift.
 
 ### Configuration-driven integrations
 
@@ -132,18 +136,19 @@ Skills read this file to decide whether to auto-fetch task data, propose branch 
 plus the overall definition of done — through iterative dialogue.
 
 **Reads:** `task-info.md`, `coding-standards.md`, relevant codebase context.
-**Produces / modifies:** `task-plan.md` and `decisions.md` in the task dir.
+**Produces / modifies:** `task-plan.md` in the task dir.
 
 **How it works:**
 
 1. **Analyze the codebase first** to understand the context of the task — this drives better questions and a better breakdown.
 2. Run an **iterative Q&A loop**:
    - Ask a _small_ set of questions per iteration (later questions may depend on earlier answers — don't overload).
-   - After each iteration, append the resulting decisions to the task-level `decisions.md`.
+   - Keep track of the durable context the answers produce — it becomes the **Planning Notes** section of `task-plan.md`.
    - Repeat until the agent judges the breakdown and acceptance criteria are ready.
 3. Write `task-plan.md`:
    - The **overall acceptance criteria / definition of done** for the task.
-   - Either an ordered **subtask checklist** (each entry `pending`), or an explicit **"no subtasks"** note when the task is small enough to handle in one pass.
+   - Either an ordered **subtask list** (each heading `pending`), or an explicit **"no subtasks"** note when the task is small enough to handle in one pass.
+   - **Planning Notes** capturing the durable context from the Q&A loop.
 4. This is high-level only — no per-subtask implementation steps yet (those come from `/plan-implementation`).
 
 ---
@@ -155,16 +160,16 @@ plus the overall definition of done — through iterative dialogue.
 **Scope:** whole task (no-subtasks path), a single subtask, or several subtasks at once — resolved per
 **Scope resolution** above.
 
-**Reads:** `task-plan.md`, `task-info.md`, task-level `decisions.md`, `coding-standards.md`, relevant codebase context.
+**Reads:** `task-plan.md` (incl. its Planning Notes), `task-info.md`, `coding-standards.md`, relevant codebase context.
 **Produces / modifies:**
 
-- **No-subtasks path:** `implementation-plan.md` at the task root (+ appends to task-level `decisions.md`).
-- **Subtask scope:** writes an `implementation-plan.md` and `decisions.md` into **each** covered subtask folder.
+- **No-subtasks path:** `implementation-plan.md` at the task root.
+- **Subtask scope:** writes an `implementation-plan.md` into **each** covered subtask folder.
 
 **How it works:**
 
 1. Resolve the active task and scope.
-2. Run a focused Q&A loop as needed; record decisions in the appropriate `decisions.md` (task-level or per-subtask).
+2. Run a focused Q&A loop as needed; capture the resulting decisions inline as **Planning Notes** within the relevant `implementation-plan.md`.
 3. Write the detailed plan: an ordered list of implementation steps **plus the acceptance criteria** for that scope.
 4. For a **multi-subtask** iteration, run a **single coherent planning session** but write one plan file per covered subtask, cross-referenced as the same iteration so they stay consistent.
 5. Advance the status of each covered subtask in `task-plan.md` to `planned`.
@@ -177,12 +182,12 @@ plus the overall definition of done — through iterative dialogue.
 
 **Scope:** same resolution as above — whatever was planned (whole task, one subtask, or several).
 
-**Reads:** the relevant `implementation-plan.md`(s), the matching `decisions.md`, `coding-standards.md`, repo rules.
+**Reads:** the relevant `implementation-plan.md`(s) (incl. their Planning Notes), `coding-standards.md`, repo rules.
 **Produces / modifies:** source code changes (no workflow artifact of its own).
 
 **How it works:**
 
-1. Resolve the active task and scope, and load the corresponding detailed plan(s) + decisions.
+1. Resolve the active task and scope, and load the corresponding detailed plan(s).
 2. Implement following the plan, coding standards, and repo rules. For a multi-subtask scope, read all covered subtask plans.
 3. Advance the status of each covered subtask in `task-plan.md` to `implemented`.
 4. Finish with a **short summary of what was done**, then wait for user feedback and suggestions before considering the step complete.
@@ -196,7 +201,7 @@ plus the overall definition of done — through iterative dialogue.
 **Scope:** a subtask (or several) by default, or the whole task (`--task`) for a cross-cutting review.
 
 **Reads:** code changes (diff), the relevant `implementation-plan.md` (incl. acceptance criteria) and
-`task-plan.md` (overall DoD), the matching `decisions.md`, `coding-standards.md`, repo rules.
+`task-plan.md` (overall DoD, incl. Planning Notes), `coding-standards.md`, repo rules.
 **Produces / modifies:**
 
 - **Subtask scope:** `review.md` in each covered subtask folder.
@@ -222,7 +227,7 @@ plus the overall definition of done — through iterative dialogue.
 
 1. **Determine the increment** from modified files + `task-plan.md` status (which subtask(s) just got implemented/reviewed). If there are changes beyond the resolved scope, ask whether to commit only scope-related changes or everything.
 2. **Detect whether this completes the task** — i.e. all other subtasks are already `committed` and no subtasks remain pending, or this is the whole-task / no-subtasks path:
-   - **Not the last** → commit just this increment and tick its checklist entry(ies) to `committed`.
+   - **Not the last** → commit just this increment and set its subtask heading(s) to `committed`.
    - **Last / whole task** → if changelog is practiced (per `workflow-config.md`), add the entry and **include it in this same commit**, then proceed to PR / wrap-up.
 3. Suggest a commit message (following configured conventions). Offer: proceed as-is, edit, or skip committing.
 
@@ -237,13 +242,13 @@ plus the overall definition of done — through iterative dialogue.
 /start-task ─────> specs/tasks/{task}/task-info.md  (+ branch)
         │
         v
-/plan-task ──────> HIGH-LEVEL plan: subtask checklist + status (SoT) + DoD
+/plan-task ──────> HIGH-LEVEL plan: subtask list + status (SoT) + DoD + planning notes
         │          (or marks the task as "no subtasks")  [iterative Q&A]
         │
         v
  ┌─── per iteration (scope = whole task | one subtask | several subtasks) ───┐
  │                                                                            │
- │  /plan-implementation ─> detailed plan + decisions for the scope           │
+ │  /plan-implementation ─> detailed plan (+ planning notes) for the scope     │
  │           │                                                                │
  │           v                                                                │
  │  /implement ──────────> code changes + summary; status → implemented       │
