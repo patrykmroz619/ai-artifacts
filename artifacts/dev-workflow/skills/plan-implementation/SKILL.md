@@ -1,14 +1,6 @@
 ---
 name: plan-implementation
 description: Use after /plan-task, when a chosen scope (one subtask, several subtasks, or the whole task) needs a precise, technical implementation plan before coding. Resolves the scope into a work-item, runs a structured Q&A to settle code placement, contracts, and edge cases, then writes one implementation-plan.md and advances the covered subtasks to "planned" in task-plan.md. Run before /implement.
-allowed-tools:
-  - Read
-  - Write
-  - Edit
-  - Glob
-  - Grep
-  - Bash
-  - AskUserQuestion
 ---
 
 # /plan-implementation — Plan the implementation (detailed, technical)

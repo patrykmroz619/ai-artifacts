@@ -1,13 +1,6 @@
 ---
 name: start-task
 description: Start a new task in the dev-workflow — create its specs/tasks/{task}/ workspace with a brief task-info.md source-of-truth and, optionally, a git branch. Use whenever the user runs /start-task, wants to start/begin/pick up a task, work on a ticket or issue, or is about to begin a fresh piece of work and needs a home for its planning artifacts — even if they don't say "start-task". Runs after /init-workflow, before /plan-task; reads specs/workflow-config.md to fetch task details from the configured tracker and propose a branch name.
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - Grep
-  - AskUserQuestion
 ---
 
 # /start-task — Start a task

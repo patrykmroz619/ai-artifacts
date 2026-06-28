@@ -1,13 +1,6 @@
 ---
 name: plan-task
 description: Use when a task workspace has been created by /start-task and the next step is high-level planning — brainstorms solution approaches with the user, surfaces tradeoffs, and decomposes the task into an ordered subtask plan (or declares it needs none). Writes task-plan.md. Run before /plan-implementation.
-allowed-tools:
-  - Read
-  - Write
-  - Glob
-  - Grep
-  - Bash
-  - AskUserQuestion
 ---
 
 # /plan-task — Plan the task (high level)
