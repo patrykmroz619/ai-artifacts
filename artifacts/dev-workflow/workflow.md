@@ -25,17 +25,20 @@ specs/
     {task-name}/
       task-info.md            # source of truth about the task
       task-plan.md            # HIGH-LEVEL plan: subtask list + status (SoT) + overall DoD + planning notes
-      implementation-plan.md  # ONLY in the no-subtasks path: detailed whole-task plan
-      review.md               # task-level (cross-cutting) review
-      subtasks/
-        {subtask-name}/
-          implementation-plan.md   # detailed plan for this subtask
-          review.md                # per-subtask review
+      implementation-plan.md  # ONLY the no-subtasks / whole-task path: detailed plan at task root
+      review.md               # ONLY the no-subtasks / whole-task path: cross-cutting review at task root
+      work-items/
+        {work-item-slug}/
+          implementation-plan.md   # the ONE detailed plan for this work-item
+          review.md                # the review report for this work-item
 ```
 
-A **subtask** is a vertical, commit-sized chunk of the task: it is planned in detail, implemented,
-reviewed, and committed on its own. The `subtasks/` folder only exists when `/plan-task` decides the
-task is worth splitting.
+A **subtask** is a logical slice of the task recorded in `task-plan.md` — it carries the
+decomposition and its status, but it is **not** a folder. A **work-item** is the unit the per-scope
+skills actually operate on: it covers **one subtask, several subtasks, or the whole task**, lives in
+its own `work-items/{slug}/` folder, and always holds **exactly one** `implementation-plan.md` (and
+later one `review.md`). The `work-items/` folder only exists when `/plan-task` splits the task into
+subtasks; the no-subtasks / whole-task path keeps its single plan and review flat at the task root.
 
 ### Two altitudes of planning
 
@@ -43,8 +46,9 @@ task is worth splitting.
   an ordered **subtask list** plus the overall definition of done. It is also the **single source
   of truth for subtask status**. If the task is small, it records "no subtasks" instead.
 - **Detailed plan** (`implementation-plan.md`, produced by `/plan-implementation`): the concrete,
-  step-by-step plan for a chosen **scope** — the whole task, a single subtask, or several subtasks at
-  once. This is what `/implement` executes against.
+  step-by-step plan for a chosen **work-item** — the whole task, a single subtask, or several subtasks
+  bundled together. There is **one** detailed plan per work-item, and it is what `/implement` executes
+  against.
 
 There is **no separate decision log**. Durable planning context — decisions made, rejected
 alternatives, constraints, risks, and codebase observations — is captured inline as **Planning Notes**
@@ -53,12 +57,15 @@ the relevant `implementation-plan.md`. One file per altitude, nothing to drift.
 
 ### Scope resolution (shared by plan-implementation / implement / review / finalize)
 
-These skills operate on a **scope** — whole task, one subtask, or several subtasks — resolved in this order:
+These skills operate on a **work-item** — whole task, one subtask, or several subtasks — resolved in this order:
 
-1. **Explicit argument** — subtask name(s) passed to the skill, or `--task` for whole-task scope. Wins.
-2. **Next pending subtask** — the first unchecked entry in `task-plan.md`.
-3. **No-subtasks path** — if the task has no subtasks, fall through to the whole-task `implementation-plan.md`.
-4. **Ask the user** — if the scope is still ambiguous.
+1. **Explicit argument** — subtask name(s) passed to the skill (mapped to their work-item), or `--task` for whole-task scope. Wins.
+2. **Next subtask at the skill's inbound phase** — the first subtask in `task-plan.md` still at the status this skill consumes: `pending` for `/plan-implementation`, `planned` for `/implement`, `implemented` for `/review`, `reviewed` for `/finalize`.
+3. **No-subtasks path** — if the task has no subtasks, fall through to the whole-task `implementation-plan.md` / `review.md` at the task root.
+4. **Ask the user** — if the scope is still ambiguous (e.g. several subtasks share the inbound phase).
+
+Once resolved, a subtask is mapped to its **work-item** via the `(work-item: \`slug\`)` annotation in
+`task-plan.md`, so the skill finds the one `implementation-plan.md` / `review.md` that covers it.
 
 The **task itself** is resolved as before: explicit task argument > current git branch inference >
 ask the user. Branches map to the **task**, not to subtasks.
@@ -70,14 +77,17 @@ skills advance as work progresses:
 
 ```
 ### 1. `subtask-a` — pending
-### 2. `subtask-b` — planned        (set by /plan-implementation)
-### 3. `subtask-c` — implemented    (set by /implement)
-### 4. `subtask-d` — reviewed       (set by /review)
-### 5. `subtask-e` — committed      (set by /finalize)
+### 2. `subtask-b` — planned      (work-item: `data-layer`)   (set by /plan-implementation)
+### 3. `subtask-c` — implemented  (work-item: `data-layer`)   (set by /implement)
+### 4. `subtask-d` — reviewed     (work-item: `api`)          (set by /review)
+### 5. `subtask-e` — committed    (work-item: `api`)          (set by /finalize)
 ```
 
-Each heading is followed by a short description of that subtask. This is the only place subtask status
-lives — no separate ledger to drift.
+Each heading is followed by a short description of that subtask. Once a subtask is folded into a
+work-item (at `/plan-implementation` time), its heading also carries the `(work-item: \`slug\`)`
+annotation — the two-way link between a subtask's status and the plan/review that covers it. A
+work-item advances the status of **all** the subtasks it covers, together. This is the only place
+subtask status lives — no separate ledger to drift.
 
 ### Configuration-driven integrations
 
@@ -155,24 +165,24 @@ plus the overall definition of done — through iterative dialogue.
 
 ### 4. `/plan-implementation` — Plan the implementation (detailed, flexible scope)
 
-**Purpose:** Turn the high-level plan into an actionable, step-by-step plan for a chosen scope.
+**Purpose:** Turn the high-level plan into an actionable, step-by-step plan for a chosen work-item.
 
-**Scope:** whole task (no-subtasks path), a single subtask, or several subtasks at once — resolved per
-**Scope resolution** above.
+**Scope:** whole task (no-subtasks path), a single subtask, or several subtasks bundled into one
+work-item — resolved per **Scope resolution** above.
 
 **Reads:** `task-plan.md` (incl. its Planning Notes), `task-info.md`, `coding-standards.md`, relevant codebase context.
 **Produces / modifies:**
 
-- **No-subtasks path:** `implementation-plan.md` at the task root.
-- **Subtask scope:** writes an `implementation-plan.md` into **each** covered subtask folder.
+- **No-subtasks / whole-task path:** `implementation-plan.md` at the task root.
+- **Subtask scope:** **one** `implementation-plan.md` in `work-items/{slug}/` covering the work-item.
 
 **How it works:**
 
-1. Resolve the active task and scope.
-2. Run a focused Q&A loop as needed; capture the resulting decisions inline as **Planning Notes** within the relevant `implementation-plan.md`.
-3. Write the detailed plan: an ordered list of implementation steps **plus the acceptance criteria** for that scope.
-4. For a **multi-subtask** iteration, run a **single coherent planning session** but write one plan file per covered subtask, cross-referenced as the same iteration so they stay consistent.
-5. Advance the status of each covered subtask in `task-plan.md` to `planned`.
+1. Resolve the active task and scope, and determine the work-item identity (reuse the subtask slug for a single subtask; propose a bundle slug for several).
+2. Run a focused Q&A loop as needed; capture the resulting decisions inline as **Planning Notes** within the `implementation-plan.md`.
+3. Get approval for the outline (affected files, contracts, steps), then write the detailed plan: target structure, contracts, ordered implementation steps, acceptance criteria, and verification for the work-item.
+4. For a **multi-subtask** work-item, run a **single coherent planning session** and write **one** plan covering all of them — not one file per subtask. The plan header lists the subtasks it covers.
+5. Advance the status of each covered subtask in `task-plan.md` to `planned` and annotate each with the work-item slug.
 
 ---
 
@@ -180,38 +190,42 @@ plus the overall definition of done — through iterative dialogue.
 
 **Purpose:** Carry out the detailed plan in code.
 
-**Scope:** same resolution as above — whatever was planned (whole task, one subtask, or several).
+**Scope:** same resolution as above — the work-item that was planned (whole task, one subtask, or several).
 
-**Reads:** the relevant `implementation-plan.md`(s) (incl. their Planning Notes), `coding-standards.md`, repo rules.
-**Produces / modifies:** source code changes (no workflow artifact of its own).
+**Reads:** the work-item's `implementation-plan.md` (incl. its Planning Notes), `coding-standards.md`, repo rules, and the real source files the plan names.
+**Produces / modifies:** source code changes; advances status in `task-plan.md`; and, only when the implementation departs materially from the plan, appends an `## Implementation Notes` section to that work-item's `implementation-plan.md`.
 
 **How it works:**
 
-1. Resolve the active task and scope, and load the corresponding detailed plan(s).
-2. Implement following the plan, coding standards, and repo rules. For a multi-subtask scope, read all covered subtask plans.
-3. Advance the status of each covered subtask in `task-plan.md` to `implemented`.
-4. Finish with a **short summary of what was done**, then wait for user feedback and suggestions before considering the step complete.
+1. Resolve the active task and work-item, and load its single `implementation-plan.md`.
+2. Implement the steps in order following the plan, contracts, coding standards, and repo rules; build against the current code, not the plan's snapshot. Pause and ask only on a genuine blocker.
+3. Run the plan's automated checks; fix failures you introduced and re-run until green or genuinely blocked. Record any material deviation in `## Implementation Notes`.
+4. Advance the status of each covered subtask in `task-plan.md` to `implemented`.
+5. Summarize what was done, hand the plan's **manual** verification to the user, and **iterate on feedback until the user explicitly accepts** before considering the step complete.
 
 ---
 
 ### 6. `/review` — Review (flexible scope)
 
-**Purpose:** Independent review of the changes against the plan and standards.
+**Purpose:** Independent, report-only review of the changes against the plan and standards.
 
-**Scope:** a subtask (or several) by default, or the whole task (`--task`) for a cross-cutting review.
+**Scope:** a work-item by default (one subtask, or several), or the whole task (`--task`) for a
+cross-cutting review. When several subtasks are unreviewed, the skill asks whether to review a
+specific one or all not-yet-reviewed work-items.
 
-**Reads:** code changes (diff), the relevant `implementation-plan.md` (incl. acceptance criteria) and
-`task-plan.md` (overall DoD, incl. Planning Notes), `coding-standards.md`, repo rules.
+**Reads:** code changes (diff), the work-item's `implementation-plan.md` (incl. acceptance criteria
+and any `## Implementation Notes`) and `task-plan.md` (overall DoD, incl. Planning Notes),
+`coding-standards.md`, repo rules.
 **Produces / modifies:**
 
-- **Subtask scope:** `review.md` in each covered subtask folder.
-- **Task scope:** `review.md` at the task root.
+- **Subtask scope:** one `review.md` per covered work-item, in `work-items/{slug}/`.
+- **No-subtasks / whole-task scope:** `review.md` at the task root.
 
 **How it works:**
 
-1. Analyze the code changes for adherence to coding standards and repo rules.
-2. Verify the implementation realizes the plan and satisfies the acceptance criteria / definition of done for the scope.
-3. Write findings, suggestions, and quality improvements to the scoped `review.md` (report captured as an artifact; the user decides what to act on). A follow-up `/implement` pass can address them.
+1. Analyze the code changes for plan adherence, acceptance criteria / DoD, coding standards, safety & quality, pattern consistency, and scope discipline.
+2. Run the plan's automated checks **read-only**, as evidence — a failure becomes a finding, it does not trigger a fix.
+3. Write findings to the scoped `review.md`, each with a **severity** (Blocker / Major / Minor), the evidence that makes it valid, and a concrete suggested fix. This is **report-only** — it never edits source; a follow-up `/implement` pass acts on the findings (which carry a `Status: open` hook).
 4. Advance the status of each covered subtask in `task-plan.md` to `reviewed`.
 
 ---
@@ -225,11 +239,13 @@ plus the overall definition of done — through iterative dialogue.
 
 **How it works:**
 
-1. **Determine the increment** from modified files + `task-plan.md` status (which subtask(s) just got implemented/reviewed). If there are changes beyond the resolved scope, ask whether to commit only scope-related changes or everything.
-2. **Detect whether this completes the task** — i.e. all other subtasks are already `committed` and no subtasks remain pending, or this is the whole-task / no-subtasks path:
+1. Resolve the work-item, then **gate on review**: if the scope isn't `reviewed`, or its `review.md` has open Blocker findings, **warn and let the user override** rather than hard-blocking.
+2. **Determine the increment** from modified files + the work-item's `task-plan.md` status. If there are changes beyond the resolved scope, ask whether to commit only scope-related changes or everything.
+3. **Detect whether this completes the task** — i.e. all other subtasks are already `committed` and none remain outstanding, or this is the whole-task / no-subtasks path:
    - **Not the last** → commit just this increment and set its subtask heading(s) to `committed`.
    - **Last / whole task** → if changelog is practiced (per `workflow-config.md`), add the entry and **include it in this same commit**, then proceed to PR / wrap-up.
-3. Suggest a commit message (following configured conventions). Offer: proceed as-is, edit, or skip committing.
+4. Suggest a commit message (following configured conventions). Offer: proceed as-is, edit, or skip committing. This skill **trusts the prior review** — it does not re-run the plan's automated checks.
+5. On task completion, optionally update the tracker (per config) and **prepare the PR**: always print the suggested title/body + `gh` command, and offer to push and open it when `gh` is available — never pushing or opening a PR without explicit confirmation.
 
 ---
 
@@ -246,26 +262,34 @@ plus the overall definition of done — through iterative dialogue.
         │          (or marks the task as "no subtasks")  [iterative Q&A]
         │
         v
- ┌─── per iteration (scope = whole task | one subtask | several subtasks) ───┐
+ ┌─── per work-item (= whole task | one subtask | several subtasks) ─────────┐
  │                                                                            │
- │  /plan-implementation ─> detailed plan (+ planning notes) for the scope     │
- │           │                                                                │
+ │  /plan-implementation ─> one implementation-plan.md for the work-item       │
+ │           │              (+ planning notes); status → planned               │
  │           v                                                                │
- │  /implement ──────────> code changes + summary; status → implemented       │
- │           │                                                                │
+ │  /implement ──────────> code changes; status → implemented;                │
+ │           │              iterate on feedback until the user accepts         │
  │           v                                                                │
- │  /review ─────────────> review.md (subtask- or task-scoped)                │
- │           │              (may loop back to /implement)                     │
+ │  /review ─────────────> one review.md per work-item; status → reviewed     │
+ │           │              (report-only; may loop back to /implement)        │
  │           v                                                                │
- │  /finalize ───────────> commit the scope; status → committed               │
- │                          (on the last subtask: + changelog in commit + PR) │
+ │  /finalize ───────────> commit the work-item; status → committed           │
+ │                          (on the last increment: + changelog in commit + PR)│
  └────────────────────────────────────────────────────────────────────────────┘
         │  (repeat until all subtasks committed)
         v
      task done (final /finalize handled changelog + PR/wrap-up)
 ```
 
-## Open questions / future
+## Standalone skills
 
-- Packaging as an installable registry scope (`artifacts/dev-workflow/`) is **deferred** — design only for now.
+Not every skill belongs to the task pipeline. These operate independently and read no task artifacts:
+
+- **`/review-pr` — Review someone else's pull request.** Puts the agent in the **reviewer's** seat (not the author's): it resolves a change from a `gh` PR or a local branch, diffs it against `main`/`master` (or a stated base), and writes a report to `specs/reviews/{pr-slug}.md` that **explains the change first** (a walkthrough with data-flow/sequence/component diagrams) and **lists findings second** (severity + confidence across correctness, safety, design/complexity, standards, pattern fit, and tests). It grills the solution for over-engineering and simpler alternatives, then collaborates on refining findings and phrasing comments. It never edits source and never advances task status — there are no plans, specs, or DoD involved, and it works on any repo even without a `specs/` directory.
+- **`/qa-scenarios` — Generate test scenarios for QA from your changes.** Produces a **manual-QA handoff document** from a diff (a `gh` PR or a local branch against `main`/`master`, plus uncommitted working-tree changes). Writes `specs/qa/{pr-slug}.md` with a **flexible, jargon-free description** of what the change does from a tester's perspective (prose, lists, subsections, or a diagram as the logic warrants) followed by **concise step-by-step test scenarios** (Preconditions/Steps/Expected) covering edge cases, variants, configurations, and the directly affected flows that could regress. Shared preconditions, test data, and step flows are factored into reusable named blocks to avoid duplication. Standalone — needs no plan or implementation artifacts, is black-box throughout, and never edits source.
+
+## Status / future
+
+- All seven skills are implemented under `artifacts/dev-workflow/skills/` (`init-workflow`, `start-task`, `plan-task`, `plan-implementation`, `implement`, `review`, `finalize`). This document is the high-level design; each `SKILL.md` is the authoritative spec for its step.
+- Wiring `dev-workflow` into the CLI as an installable registry scope (so `npx @patryk.mroz/artifacts install dev-workflow` distributes it) is **deferred**.
 - `coding-standards.md` content and templates are out of scope for this design.
