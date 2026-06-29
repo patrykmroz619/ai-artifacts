@@ -1,6 +1,6 @@
 ---
 name: init-workflow
-description: Initialize the markdown-artifact dev-workflow in this project — scaffold the specs/ root (coding-standards.md, workflow-config.md, tasks/) and interview the user to capture task-management, git, and changelog conventions. Use this whenever the user runs /init-workflow, or asks to "set up the dev workflow", "initialize specs", "bootstrap the workflow", "configure the task workflow", or wants a place for task planning/decision/review artifacts to live — even if they don't say "specs" explicitly. This is the one-time entry point that every other dev-workflow skill (/start-task, /plan-task, /plan-implementation, /implement, /review, /finalize) depends on.
+description: Initialize the markdown-artifact dev-workflow in this project — scaffold the specs/ root (coding-standards.md, workflow-config.md, tasks/) and interview the user to capture task-management, git, and changelog conventions. Use this whenever the user runs /init-workflow, or asks to "set up the dev workflow", "initialize specs", "bootstrap the workflow", "configure the task workflow", or wants a place for task planning/decision/review artifacts to live — even if they don't say "specs" explicitly. This is the one-time entry point that every other dev-workflow skill (/start-task, /plan-task, /plan-implementation, /implement, /review-implementation, /finalize) depends on.
 ---
 
 # /init-workflow — Initialize the dev-workflow

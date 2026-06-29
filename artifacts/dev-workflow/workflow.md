@@ -55,12 +55,12 @@ alternatives, constraints, risks, and codebase observations — is captured inli
 within the plan artifact it belongs to: task-level context in `task-plan.md`, scope-level context in
 the relevant `implementation-plan.md`. One file per altitude, nothing to drift.
 
-### Scope resolution (shared by plan-implementation / implement / review / finalize)
+### Scope resolution (shared by plan-implementation / implement / review-implementation / finalize)
 
 These skills operate on a **work-item** — whole task, one subtask, or several subtasks — resolved in this order:
 
 1. **Explicit argument** — subtask name(s) passed to the skill (mapped to their work-item), or `--task` for whole-task scope. Wins.
-2. **Next subtask at the skill's inbound phase** — the first subtask in `task-plan.md` still at the status this skill consumes: `pending` for `/plan-implementation`, `planned` for `/implement`, `implemented` for `/review`, `reviewed` for `/finalize`.
+2. **Next subtask at the skill's inbound phase** — the first subtask in `task-plan.md` still at the status this skill consumes: `pending` for `/plan-implementation`, `planned` for `/implement`, `implemented` for `/review-implementation`, `reviewed` for `/finalize`.
 3. **No-subtasks path** — if the task has no subtasks, fall through to the whole-task `implementation-plan.md` / `review.md` at the task root.
 4. **Ask the user** — if the scope is still ambiguous (e.g. several subtasks share the inbound phase).
 
@@ -79,7 +79,7 @@ skills advance as work progresses:
 ### 1. `subtask-a` — pending
 ### 2. `subtask-b` — planned      (work-item: `data-layer`)   (set by /plan-implementation)
 ### 3. `subtask-c` — implemented  (work-item: `data-layer`)   (set by /implement)
-### 4. `subtask-d` — reviewed     (work-item: `api`)          (set by /review)
+### 4. `subtask-d` — reviewed     (work-item: `api`)          (set by /review-implementation)
 ### 5. `subtask-e` — committed    (work-item: `api`)          (set by /finalize)
 ```
 
@@ -205,7 +205,7 @@ work-item — resolved per **Scope resolution** above.
 
 ---
 
-### 6. `/review` — Review (flexible scope)
+### 6. `/review-implementation` — Review implementation (flexible scope)
 
 **Purpose:** Independent, report-only review of the changes against the plan and standards.
 
@@ -270,7 +270,7 @@ and any `## Implementation Notes`) and `task-plan.md` (overall DoD, incl. Planni
  │  /implement ──────────> code changes; status → implemented;                │
  │           │              iterate on feedback until the user accepts         │
  │           v                                                                │
- │  /review ─────────────> one review.md per work-item; status → reviewed     │
+ │  /review-implementation ─> one review.md per work-item; status → reviewed     │
  │           │              (report-only; may loop back to /implement)        │
  │           v                                                                │
  │  /finalize ───────────> commit the work-item; status → committed           │
@@ -290,6 +290,6 @@ Not every skill belongs to the task pipeline. These operate independently and re
 
 ## Status / future
 
-- All seven skills are implemented under `artifacts/dev-workflow/skills/` (`init-workflow`, `start-task`, `plan-task`, `plan-implementation`, `implement`, `review`, `finalize`). This document is the high-level design; each `SKILL.md` is the authoritative spec for its step.
+- All seven skills are implemented under `artifacts/dev-workflow/skills/` (`init-workflow`, `start-task`, `plan-task`, `plan-implementation`, `implement`, `review-implementation`, `finalize`). This document is the high-level design; each `SKILL.md` is the authoritative spec for its step.
 - Wiring `dev-workflow` into the CLI as an installable registry scope (so `npx @patryk.mroz/artifacts install dev-workflow` distributes it) is **deferred**.
 - `coding-standards.md` content and templates are out of scope for this design.

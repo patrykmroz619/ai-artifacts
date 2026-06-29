@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Use after /plan-implementation, when a work-item's implementation-plan.md is ready to be carried out in code. Resolves the scope to its plan, implements the ordered steps against the stated contracts and coding standards, runs the plan's automated verification until green, records any material deviation back into the plan, and advances the covered subtasks to "implemented" in task-plan.md. Run before /review.
+description: Use after /plan-implementation, when a work-item's implementation-plan.md is ready to be carried out in code. Resolves the scope to its plan, implements the ordered steps against the stated contracts and coding standards, runs the plan's automated verification until green, records any material deviation back into the plan, and advances the covered subtasks to "implemented" in task-plan.md. Run before /review-implementation.
 ---
 
 # /implement — Carry out the plan in code
@@ -52,7 +52,7 @@ specs/tasks/{task}/
 
 Work through the plan's **Implementation Steps** in sequence:
 
-- Honor the **Contracts** exactly — signatures, schemas, routes, and types are the spine other work and `/review` depend on. Don't drift from them.
+- Honor the **Contracts** exactly — signatures, schemas, routes, and types are the spine other work and `/review-implementation` depend on. Don't drift from them.
 - Match the surrounding code's idiom, naming, layering, and error handling. Write code that reads like the code already there.
 - Treat decisions in the plan's Planning Notes and in `task-plan.md` as settled. This skill does not re-litigate **whether** — only carries out **how**.
 - Absorb small reality-vs-plan gaps inline (a renamed helper, an extra import, an obvious adjustment). These don't need a pause.
@@ -75,7 +75,7 @@ If the implementation departed **materially** from the plan — a contract had t
 - [What changed vs. the plan, and why. One bullet per material deviation — concise, not a diary.]
 ```
 
-This is the single artifact `/implement` writes, and it is co-located with the plan so `/review` sees it for free. **Skip the section entirely** when the implementation followed the plan — don't add an empty or trivial note.
+This is the single artifact `/implement` writes, and it is co-located with the plan so `/review-implementation` sees it for free. **Skip the section entirely** when the implementation followed the plan — don't add an empty or trivial note.
 
 ### Step 6: Update task-plan.md
 
@@ -132,15 +132,15 @@ Only the user's acceptance ends this step. Don't self-certify and move on; the s
 
 Once the user has accepted, close with the next step and stop — don't chain automatically:
 
-> **Next step:** run `/review` to check this work against the plan, acceptance criteria, and coding standards.
+> **Next step:** run `/review-implementation` to check this work against the plan, acceptance criteria, and coding standards.
 
 ## Notes
 
 - **Doing, not planning.** No Q&A loop. Execute the approved plan and ask only when a step is blocked or contradicted. If a decision genuinely needs reopening, that's a trip back to `/plan-implementation`, not improvisation here.
 - **Build against current code.** The plan is a snapshot; the repo is the truth. Re-read the files the plan names before changing them.
-- **Contracts are the spine.** Implement signatures, schemas, and routes exactly as planned — neighboring work and `/review` depend on them.
+- **Contracts are the spine.** Implement signatures, schemas, and routes exactly as planned — neighboring work and `/review-implementation` depend on them.
 - **Self-verify before claiming done.** A subtask becomes `implemented` only after the plan's automated checks pass; report anything still red instead of hiding it.
 - **One artifact, only when warranted.** The sole thing this skill writes (beyond code and status) is an `## Implementation Notes` section appended to the plan, and only for material deviations.
-- **Status lives in task-plan.md.** This skill advances covered subtasks `planned → implemented`; `/review` and `/finalize` carry them onward. There is no separate ledger.
+- **Status lives in task-plan.md.** This skill advances covered subtasks `planned → implemented`; `/review-implementation` and `/finalize` carry them onward. There is no separate ledger.
 - **The user accepts, not the agent.** Automated checks passing is necessary but not sufficient. After implementing, request manual verification and feedback, and iterate until the user explicitly signs off. Don't self-certify and move on.
-- **No auto-chain.** Once accepted, point to `/review` and stop.
+- **No auto-chain.** Once accepted, point to `/review-implementation` and stop.

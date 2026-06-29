@@ -70,7 +70,7 @@ Subtasks are implementation slices, not project-management phases. Each subtask 
 
 Keep the list coarse enough to guide implementation without turning into step-by-step instructions. A good subtask usually maps to one coherent code change or one reviewable implementation slice, not one function, one file edit, or one command. In the final plan, each subtask needs both a short filesystem-safe slug/status heading and a short description explaining what should be done in that step.
 
-Design subtasks for independence: each one should have a clear purpose, a reviewable code outcome, and enough context that `/plan-implementation`, `/implement`, `/review`, and `/finalize` can operate on it without needing unrelated subtasks in progress.
+Design subtasks for independence: each one should have a clear purpose, a reviewable code outcome, and enough context that `/plan-implementation`, `/implement`, `/review-implementation`, and `/finalize` can operate on it without needing unrelated subtasks in progress.
 
 **Merge pass — do this before presenting the list.** For each pair of adjacent subtasks, ask: _would a reviewer naturally review these together, in one sitting, as one change?_ If yes, merge them. Keep two subtasks separate only when at least one holds: they touch genuinely distinct code areas, one must land and be reviewed before the next can start, or combining them would produce a commit too large to review in one pass. Absent one of those, default to merging.
 
@@ -98,7 +98,7 @@ Iterate until approved. The approval gate is strict: no `task-plan.md` write unt
 ## Definition of Done
 
 [Overall acceptance criteria. Be specific: name behaviors, not vibes.
-These are what /review and /finalize will check the whole task against.
+These are what /review-implementation and /finalize will check the whole task against.
 Mention relevant files or folders inline here when acceptance criteria are tied to specific code areas.]
 
 ## Planning Notes
@@ -184,7 +184,7 @@ Do not create separate subtasks for testing, manual verification, documentation-
 
 Choose "no subtasks" when: single clear deliverable, ≤2 distinct areas of the codebase, can be meaningfully reviewed and committed in one pass.
 
-**Default to fewer, larger subtasks.** When unsure whether two slices are one subtask or two, make them one. Splitting later during `/plan-implementation` is cheap; an over-fragmented plan adds workflow overhead (a `/plan-implementation` + `/implement` + `/review` cycle per subtask) with no benefit. A typical task is 1–4 subtasks; treat 5+ as a signal to re-check whether some should merge.
+**Default to fewer, larger subtasks.** When unsure whether two slices are one subtask or two, make them one. Splitting later during `/plan-implementation` is cheap; an over-fragmented plan adds workflow overhead (a `/plan-implementation` + `/implement` + `/review-implementation` cycle per subtask) with no benefit. A typical task is 1–4 subtasks; treat 5+ as a signal to re-check whether some should merge.
 
 ## Notes
 
@@ -193,4 +193,4 @@ Choose "no subtasks" when: single clear deliverable, ≤2 distinct areas of the 
 - **Diagrams are optional.** Use Mermaid only when it explains something a short paragraph cannot; omit it for straightforward tasks.
 - **Planning Notes are durable context, not a transcript.** Include what future agents need to understand why the task is shaped this way; omit conversational history that no longer matters.
 - **Check task-info.md first.** If the task description already specifies approach or acceptance criteria, absorb it as a prior decision — don't make the user repeat themselves.
-- **Subtask status lives here.** Downstream skills (`/plan-implementation`, `/implement`, `/review`, `/finalize`) update the status in each subtask heading as they progress. This is the only status ledger.
+- **Subtask status lives here.** Downstream skills (`/plan-implementation`, `/implement`, `/review-implementation`, `/finalize`) update the status in each subtask heading as they progress. This is the only status ledger.

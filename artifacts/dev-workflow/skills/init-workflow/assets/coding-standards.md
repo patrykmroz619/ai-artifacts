@@ -1,6 +1,6 @@
 # Coding Standards
 
-The dev-workflow skills (/plan-task, /implement, /review) read this file so planning,
+The dev-workflow skills (/plan-task, /implement, /review-implementation) read this file so planning,
 implementation, and review stay aligned with your project's conventions.
 
 ## References

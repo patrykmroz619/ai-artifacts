@@ -1,9 +1,9 @@
 ---
-name: review
+name: review-implementation
 description: Use after /implement, when a work-item's changes need an independent review against its implementation-plan.md, acceptance criteria, and coding standards. Resolves the scope from task-plan.md (asks when several subtasks are unreviewed), analyzes the diff for plan adherence, safety, quality, and pattern compliance, then writes a review.md of findings (severity + why-it's-valid + suggested fixes) and advances the covered subtasks to "reviewed". Report-only — it never edits source; a later /implement pass acts on the findings. Run before /finalize.
 ---
 
-# /review — Independent review of a work-item
+# /review-implementation — Independent review of a work-item
 
 Review a resolved **work-item**'s changes against the plan that produced them — its `implementation-plan.md`, the acceptance criteria, the task's Definition of Done, and the project's coding standards. The output is a `review.md` of findings, each with a severity, the evidence that makes it valid, and a concrete suggested fix.
 
@@ -175,7 +175,7 @@ Findings: <N blockers · N majors · N minors>
 
 Then close with the next step and stop — don't chain automatically:
 
-- **If there are Blocker or Major findings:** > **Next step:** run `/implement` to address the findings in `review.md`, then re-run `/review`.
+- **If there are Blocker or Major findings:** > **Next step:** run `/implement` to address the findings in `review.md`, then re-run `/review-implementation`.
 - **Otherwise:** > **Next step:** run `/finalize` to commit this increment.
 
 ## Notes

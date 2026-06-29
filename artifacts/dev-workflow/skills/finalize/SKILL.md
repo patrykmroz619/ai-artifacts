@@ -1,6 +1,6 @@
 ---
 name: finalize
-description: Use after /review, when a reviewed work-item is ready to commit. Resolves the scope, stages the increment's changes, suggests a commit message following the project's conventions, commits, and advances the covered subtasks to "committed" in task-plan.md. On the increment that completes the task, also adds the changelog entry (folded into the same commit) and prepares a PR. Reads workflow-config.md for git, changelog, and tracker conventions. The final step of the dev-workflow.
+description: Use after /review-implementation, when a reviewed work-item is ready to commit. Resolves the scope, stages the increment's changes, suggests a commit message following the project's conventions, commits, and advances the covered subtasks to "committed" in task-plan.md. On the increment that completes the task, also adds the changelog entry (folded into the same commit) and prepares a PR. Reads workflow-config.md for git, changelog, and tracker conventions. The final step of the dev-workflow.
 ---
 
 # /finalize — Commit the increment and wrap up
@@ -12,7 +12,7 @@ Commit the work just reviewed for a resolved **work-item**, advance its subtasks
 
 ## The work-item model
 
-A **work-item** is the unit `/plan-implementation` planned, `/implement` built, and `/review` reviewed: one subtask, several subtasks, or the whole task, with one `implementation-plan.md` and one `review.md`. `/finalize` commits that work-item as one increment and advances all the subtasks it covers `reviewed → committed`. Status lives only in `task-plan.md`.
+A **work-item** is the unit `/plan-implementation` planned, `/implement` built, and `/review-implementation` reviewed: one subtask, several subtasks, or the whole task, with one `implementation-plan.md` and one `review.md`. `/finalize` commits that work-item as one increment and advances all the subtasks it covers `reviewed → committed`. Status lives only in `task-plan.md`.
 
 **Finalize contract:** resolve the scope, confirm it's cleanly reviewed (warn if not), commit only the resolved increment following the project's git conventions, then advance status. On the task-completing increment, fold in the changelog and prepare the PR. Never push or open a PR without explicit confirmation; never commit changes outside the resolved scope without asking.
 
@@ -104,7 +104,7 @@ Then close and stop — don't chain automatically:
 - **Config-driven and graceful.** Read `workflow-config.md` for git, changelog, and tracker conventions. No changelog section → no changelog step. Tracker or `gh` unavailable → fall back to manual and say so; never fabricate a transition or a remote action.
 - **Scope discipline.** Commit only the resolved increment. When the tree holds unrelated changes, ask before sweeping them in — don't bundle silently.
 - **Changelog rides the completing commit.** When practiced, the entry is added on the task-completing increment and folded into that same commit, not committed separately.
-- **No re-verification here.** This skill trusts `/review`; it does not re-run the plan's automated checks. A change made after review is the user's responsibility — that's why the commit gate warns rather than guaranteeing green.
+- **No re-verification here.** This skill trusts `/review-implementation`; it does not re-run the plan's automated checks. A change made after review is the user's responsibility — that's why the commit gate warns rather than guaranteeing green.
 - **Confirmation before outward actions.** Committing is local and expected; pushing and opening a PR are outward-facing and require explicit confirmation every time.
 - **Status lives in task-plan.md.** This skill advances covered subtasks `reviewed → committed` — the terminal state. There is no separate ledger.
 - **No auto-chain.** Summarize, point to the next increment or declare the task done, and stop.

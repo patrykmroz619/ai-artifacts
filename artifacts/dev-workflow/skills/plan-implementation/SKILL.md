@@ -12,7 +12,7 @@ Turn the high-level `task-plan.md` into one precise, actionable `implementation-
 
 ## The work-item model
 
-A **subtask** is a logical slice recorded in `task-plan.md` — it carries decomposition and status, but it is not a folder. A **work-item** is the unit this skill plans and the unit `/implement`, `/review`, and `/finalize` operate on. A work-item covers **one subtask, several subtasks, or the whole task**, and it always produces **exactly one** `implementation-plan.md`.
+A **subtask** is a logical slice recorded in `task-plan.md` — it carries decomposition and status, but it is not a folder. A **work-item** is the unit this skill plans and the unit `/implement`, `/review-implementation`, and `/finalize` operate on. A work-item covers **one subtask, several subtasks, or the whole task**, and it always produces **exactly one** `implementation-plan.md`.
 
 ```
 specs/tasks/{task}/
@@ -22,7 +22,7 @@ specs/tasks/{task}/
   work-items/
     {work-item-slug}/
       implementation-plan.md       # the ONE detailed plan for this work-item
-      review.md                    # later, from /review
+      review.md                    # later, from /review-implementation
 ```
 
 **Status stays per-subtask** in `task-plan.md`. A work-item advances the status of **all** subtasks it covers, together, and annotates each with its work-item slug:
@@ -189,7 +189,7 @@ Close with the next step and stop — don't chain automatically:
 - **Technical altitude.** This is where placement, contracts, and concrete steps live. `task-plan.md` owns the *what*; this plan owns the *how*. Don't restate the high-level breakdown — reference it.
 - **One plan per work-item.** A scope spanning several subtasks produces a single `implementation-plan.md`, not one per subtask. The header lists the subtasks it covers; `task-plan.md` annotates each of them with the work-item slug.
 - **Respect upstream decisions.** Treat `task-plan.md`'s Planning Notes and Definition of Done as settled. Q&A at this stage is for implementation decisions the codebase can't answer, not for re-opening the breakdown.
-- **Contracts are the spine.** When a work-item introduces or changes an interface, show its exact shape — neighboring work and `/review` depend on it.
+- **Contracts are the spine.** When a work-item introduces or changes an interface, show its exact shape — neighboring work and `/review-implementation` depend on it.
 - **Code snippets are the exception.** Default to describing intent + contract + file. Add a snippet only when the change is genuinely non-obvious.
 - **Diagrams are optional.** Use Mermaid only when it explains a flow that prose cannot; omit it for linear or obvious work.
 - **Status lives in task-plan.md.** This skill advances covered subtasks to `planned`; downstream skills carry them to `implemented`, `reviewed`, `committed`. There is no separate ledger.
