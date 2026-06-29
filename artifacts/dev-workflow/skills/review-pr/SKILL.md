@@ -1,6 +1,6 @@
 ---
 name: review-pr
-description: Use when you need to review someone else's pull/merge request as the reviewer. Resolves the change from a gh PR (number/URL) or a local branch, diffs it against main/master (or a stated base), and produces a review report that first explains what the change does — a walkthrough with data-flow/sequence/component diagrams — and then lists findings (severity + confidence + why-it-matters) across correctness, safety, design/complexity, standards, pattern fit, and tests. Grills the solution for over-engineering and simpler alternatives. Writes the report to specs/reviews/ and then collaborates: explain deeper, refine or challenge findings, help phrase comments for the author. Standalone — not part of the task pipeline; never edits source.
+description: Use when you need to review someone else's pull/merge request as the reviewer. Resolves the change from a gh PR, glab MR, or local branch, diffs it against main/master (or a stated base), and produces a review report that first explains what the change does — a walkthrough with data-flow/sequence/component diagrams — and then lists findings (severity + confidence + why-it-matters) across correctness, safety, design/complexity, standards, pattern fit, and tests. Grills the solution for over-engineering and simpler alternatives. Writes the report to specs/reviews/ and then collaborates: explain deeper, refine or challenge findings, help phrase comments for the author. Standalone — not part of the task pipeline; never edits source.
 ---
 
 # /review-pr — Review someone else's pull request
@@ -9,7 +9,7 @@ Support **you, the reviewer**, in reviewing another author's pull/merge request.
 
 This skill is for the **reviewer's** seat: it analyzes and reports, it **never edits source**, and it never points at a "fix" step — the author owns the fix. There are no plans, specs, or task artifacts here; this is a standalone skill outside the task pipeline.
 
-**Reads:** the PR (description + diff via `gh`, or a local branch diff), the surrounding code the change touches, `specs/coding-standards.md` if present, and repo rules (`CLAUDE.md` / `AGENTS.md` / `.cursor/rules`).
+**Reads:** the PR/MR metadata via `gh`/`glab`, the checked-out local branch diff, the surrounding code the change touches, `specs/coding-standards.md` if present, and repo rules (`CLAUDE.md` / `AGENTS.md` / `.cursor/rules`).
 **Produces:** one report at `specs/reviews/{pr-slug}.md`, plus a chat summary and a collaborative follow-up.
 
 ## What makes a good PR review here
@@ -21,11 +21,9 @@ This skill is for the **reviewer's** seat: it analyzes and reports, it **never e
 
 ## Severity
 
-| Severity    | Meaning                                                                                          |
-| ----------- | ----------------------------------------------------------------------------------------------- |
-| **Blocker** | Must change before merge. Correctness bug, security hole, data-safety risk, broken behavior.    |
-| **Major**   | Should change. Reliability, design, or standards problem that will bite later.                  |
-| **Minor**   | Optional. Nits and small suggestions — record them, but they don't gate the merge.              |
+- **Blocker:** Must change before merge. Correctness bug, security hole, data-safety risk, broken behavior.
+- **Major:** Should change. Reliability, design, or standards problem that will bite later.
+- **Minor:** Optional. Nits and small suggestions — record them, but they don't gate the merge.
 
 **Confidence (per finding):** High (verified against the code) · Medium (likely, some assumption) · Low (worth raising as a question, may be a false positive — you decide whether to surface it).
 
@@ -36,11 +34,13 @@ This skill is for the **reviewer's** seat: it analyzes and reports, it **never e
 ### Step 1: Resolve the change and the base
 
 1. **Source of the change:**
-   - **`gh` PR (number or URL)** → use `gh pr view <id> --json title,body,headRefName,baseRefName,author` for context and `gh pr diff <id>` for the diff. Check out locally with `gh pr checkout <id>` only if you need to run code/checks. Requires `gh`; if it's unavailable, say so and fall back to the local-branch path.
-   - **Local branch** (explicit name, or the current branch) → diff it against the base.
+   - **`gh` PR (number or URL)** → use `gh pr view <id> --json title,body,headRefName,baseRefName,author,url` for metadata/context, then check out the branch locally with `gh pr checkout <id>`. Do **not** use `gh pr diff`, `gh pr view --json files`, or remote file/diff APIs as the review input.
+   - **`glab` MR (number or URL)** → use `glab mr view <id>` (JSON fields when available: title, description, source branch, target branch, author, web URL) for metadata/context, then check out the source branch locally with `glab mr checkout <id>` or the repository's equivalent `git fetch` + `git switch`. Do **not** use `glab mr diff`, MR file lists, or remote file/diff APIs as the review input.
+   - **Local branch** (explicit name, or the current branch) → switch to that branch if needed, then diff it against the base.
 2. **Base branch:** use the PR's `baseRefName` when known; otherwise auto-detect `main` or `master`; honor an explicitly stated base when the user names one.
-3. **Establish the diff:** `git diff <base>...<head>` (three-dot, to compare against the merge-base, not unrelated base movement). Capture the file list and the full diff.
-4. If the diff is empty or the source can't be resolved, stop and report what's missing — don't guess.
+3. **Preserve local workflow/spec work before checkout:** inspect `git status --porcelain`. If there are uncommitted local changes in `specs/`, `.claude/`, `.cursor/`, `CLAUDE.md`, `AGENTS.md`, or other workflow artifacts, treat them as the reviewer's local workspace, not part of the PR/MR. Do not stage, commit, discard, or review them. Let the checkout carry them when possible; if checkout would overwrite them, stash only those paths, check out the PR/MR branch, then immediately re-apply the stash so they remain uncommitted.
+4. **Establish the diff locally after checkout:** `git diff <base>...HEAD` (three-dot, to compare against the merge-base, not unrelated base movement). Capture the file list and the full diff from the local repo only, excluding uncommitted workflow/spec artifacts from the review context.
+5. If the diff is empty or the source can't be resolved, stop and report what's missing — don't guess.
 
 ### Step 2: Build understanding
 
@@ -76,7 +76,7 @@ If the branch is checked out and the project's checks are obvious (lint / typech
 
 Write to `specs/reviews/{pr-slug}.md` (slug from the PR number/title or branch name; create `specs/reviews/` if absent). **Understanding first, findings second** — embed Mermaid diagrams in the understanding section wherever they explain the change faster than prose.
 
-```markdown
+````markdown
 # PR Review: <title>
 
 **Source:** PR #123 (or branch `feature/x`)  ·  **Base:** main  ·  **Author:** <name>
@@ -143,7 +143,7 @@ If there are no findings, say so and give the Approve verdict.]
 
 [Genuine uncertainties — things that look wrong but might be intentional given context
 you don't have. Phrase as questions to ask, not assertions.]
-```
+````
 
 ### Step 7: Self-review the report
 
