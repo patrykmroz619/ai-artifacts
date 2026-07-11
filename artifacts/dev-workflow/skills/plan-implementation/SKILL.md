@@ -34,7 +34,7 @@ specs/tasks/{task}/
 
 The plan's own header lists the subtasks it covers — that is the two-way link that lets downstream skills resolve a subtask to its plan.
 
-**Planning contract:** resolve the scope, explore the codebase, settle the technical decisions through structured Q&A one at a time, get approval for the outline, then write the plan and update `task-plan.md`. Do not write `implementation-plan.md` or touch `task-plan.md` until the user approves the proposed steps, affected files, and contracts.
+**Planning contract:** resolve the scope, explore the codebase, settle the technical decisions through structured Q&A (clustering related questions into short rounds), get approval for the outline, then write the plan and update `task-plan.md`. Do not write `implementation-plan.md` or touch `task-plan.md` until the user approves the proposed steps, affected files, and contracts.
 
 ## Process
 
@@ -56,11 +56,13 @@ The plan's own header lists the subtasks it covers — that is the two-way link 
 
 Summarize findings in 3–5 bullets before asking anything: which files this work-item will touch, the patterns to follow, and any complexity signals. Don't ask the user what the codebase already answers.
 
-### Step 2: Structured Q&A — one decision at a time
+### Step 2: Structured Q&A — settle every technical decision
 
-Ask one focused question at a time. Prefer multiple choice when it helps the user decide; use open-ended questions only when the answer space is genuinely unknown. After each answer, capture the durable decision and judge whether enough is settled to write the plan. Stop when you could write a confident `implementation-plan.md`, not before.
+Work in short, focused rounds. **Group 2–3 tightly related questions into one round** when they share context (e.g. placement + layering + naming for the same module); keep unrelated decisions in separate rounds. Prefer multiple choice when it helps the user decide; use open-ended questions only when the answer space is genuinely unknown. After each round, capture the durable decision and look for the next gap.
 
 This altitude is about **HOW**, not whether. Decisions already made in `task-plan.md`'s Planning Notes or Definition of Done are settled — do not re-litigate them. Ask only what the codebase can't answer and the plan genuinely needs.
+
+**Coverage checklist — sweep all applicable rows below before you propose the outline.** Don't stop at the first plan you *could* write; keep going until each relevant technical decision is settled. **When unsure whether you've covered enough, ask one more round** — err toward more questions, not fewer.
 
 **Question categories to draw from:**
 
@@ -70,17 +72,18 @@ This altitude is about **HOW**, not whether. Decisions already made in `task-pla
 | Contract / interface shape — signatures, schemas, types, routes | [S] |
 | Data model — tables, fields, relationships, migrations          | [S] |
 | Error handling — failure modes, retries, surfaced messages      | [S] |
+| Edge cases — boundaries and failure modes to handle explicitly  | [S] |
+| Non-functional requirements — perf, security, UX, compat        | [S] |
 | Integration points — what this calls and what calls it          | [S] |
 | Sequencing within the work-item — ordering, dependencies        | [S] |
-| Edge cases — boundaries to handle explicitly                    | [S] |
 | Verification — which checks to automate vs verify manually      | [S] |
 
 **Rules:**
 
-- One decision per AskUserQuestion call, 2–4 options per question.
+- One round per AskUserQuestion call — up to 3 tightly related questions, 2–4 options each. Split unrelated decisions across rounds.
 - For approach / tradeoff questions: mark exactly one option `⭐ Recommended`, and format options as `[What this does.] · Strength: [advantage] · Tradeoff: [cost]`. Ground recommendations in codebase research — not guessing.
 - Don't re-ask anything `task-plan.md`, `task-info.md`, or coding standards already settle.
-- After each answer, ask yourself: _"Could I write a confident implementation-plan.md right now?"_ If yes, move to Step 3.
+- After each round, check the coverage checklist: any applicable row still open → ask about it next. Move to Step 3 only once every relevant decision is settled.
 
 **After each answer**, keep track of the decisions, constraints, rejected alternatives, and codebase observations that the plan or future workflow steps will need. These become the concise **Planning Notes** of the plan — not a transcript.
 
@@ -95,7 +98,7 @@ Present a concise approval summary before writing anything:
 
 Keep it tight — this is for alignment, not the final artifact. Don't mirror the full template here.
 
-Then get approval with options to write the plan, adjust the steps, revisit a decision, or change the contracts. Iterate until approved. The gate is strict: **no `implementation-plan.md` write and no `task-plan.md` edit until the user approves the steps, affected files, and contracts.**
+Then, **in a plain message** (not an `AskUserQuestion`), invite the user to respond: reply to adjust the steps, contracts, or a decision — or say go and you'll write the plan. Let the user answer in free text. Iterate until approved. The gate is strict: **no `implementation-plan.md` write and no `task-plan.md` edit until the user approves the steps, affected files, and contracts.**
 
 ### Step 4: Write the implementation plan
 
@@ -120,14 +123,20 @@ Write to the resolved location:
 
 ## Architecture / Data Flow
 
-[Optional Mermaid diagram. Include only when it clarifies a non-trivial data flow, business-logic branch, state transition, or component boundary. Omit entirely when a diagram would be decorative.]
+[**Prefer diagrams over dense prose here.** Reach for one or more Mermaid diagrams whenever they clarify a data flow, business-logic branch, state transition, or component boundary — and include **more than one** when they cover different concerns (e.g. a sequence diagram for a request flow *and* an ERD for the data model). Pick the types that fit: flow, sequence, state, component/dependency, ERD. Mermaid is for relationships and flows; the file layout lives in **Target Structure** as an ASCII tree, not here. Omit this section only for trivial, linear work where a diagram would be decorative.]
 
 ## Target Structure
 
-[The files and folders this work-item creates or modifies — where new code lives. One line of responsibility each.]
+[Show the files and folders this work-item creates or modifies as an **ASCII tree in a fenced code block**, so the hierarchy is visible at a glance — not a flat list. Tag each node `[create]` or `[modify]`, include new directories as tree nodes, and give one line of responsibility each.]
 
-- Create: `path/to/new.ext` — [what it holds and why it lives here]
-- Modify: `path/to/existing.ext` — [what changes]
+```
+src/
+  auth/
+    jwt.ts            [create]  issue + verify access/refresh tokens
+    middleware.ts     [modify]  wire in the verifyAccess guard
+  routes/
+    login.ts          [create]  POST /login, returns a token pair
+```
 
 ## Contracts
 
@@ -142,7 +151,7 @@ Write to the resolved location:
 
 ## Acceptance Criteria
 
-[Scoped Definition of Done — the subset of task-plan.md's overall DoD that this work-item is responsible for. Name observable behavior or outcomes.]
+[Scoped Definition of Done — the subset of task-plan.md's overall DoD that this work-item is responsible for, written as **objective, testable statements** a reviewer can verify (optional EARS phrasing: "When <trigger>, the system shall <response>").]
 
 ## Verification
 
@@ -165,11 +174,12 @@ Touch only the status and annotation on the covered headings. Leave the rest of 
 Read the written `implementation-plan.md` with fresh eyes and fix issues inline:
 
 1. Remove placeholders, TBDs, and vague language ("add appropriate error handling", "handle edge cases").
-2. Check that every step names real files and that those files appear in **Target Structure**.
+2. Check that every step names real files and that those files appear in **Target Structure**, which is rendered as an ASCII tree (not a flat list).
 3. Check that contracts are concrete — exact signatures/schemas/routes, not "an interface for X".
-4. Check that Acceptance Criteria name observable outcomes and stay within this work-item's scope.
-5. Check that Verification commands are real and runnable, with a clear automated / manual split.
-6. Check that the plan did not bleed into another work-item's scope.
+4. Check that Acceptance Criteria are objective and testable, name observable outcomes, and stay within this work-item's scope.
+5. Check that a diagram is present wherever a flow, boundary, or data shape would otherwise be dense prose.
+6. Check that Verification commands are real and runnable, with a clear automated / manual split.
+7. Check that the plan did not bleed into another work-item's scope.
 
 ### Step 7: Summarize and hand off
 
@@ -191,5 +201,5 @@ Close with the next step and stop — don't chain automatically:
 - **Respect upstream decisions.** Treat `task-plan.md`'s Planning Notes and Definition of Done as settled. Q&A at this stage is for implementation decisions the codebase can't answer, not for re-opening the breakdown.
 - **Contracts are the spine.** When a work-item introduces or changes an interface, show its exact shape — neighboring work and `/review-implementation` depend on it.
 - **Code snippets are the exception.** Default to describing intent + contract + file. Add a snippet only when the change is genuinely non-obvious.
-- **Diagrams are optional.** Use Mermaid only when it explains a flow that prose cannot; omit it for linear or obvious work.
+- **Prefer diagrams over dense prose.** Reach for Mermaid (flow, sequence, state, component/dependency, ERD) whenever a flow, boundary, or data shape would otherwise be a paragraph the reader has to reconstruct — and use more than one when they cover different concerns. Render the file layout as an ASCII tree in **Target Structure**, not as a diagram. Skip diagrams only for trivial, linear work.
 - **Status lives in task-plan.md.** This skill advances covered subtasks to `planned`; downstream skills carry them to `implemented`, `reviewed`, `committed`. There is no separate ledger.

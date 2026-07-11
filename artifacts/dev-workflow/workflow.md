@@ -152,9 +152,10 @@ plus the overall definition of done — through iterative dialogue.
 
 1. **Analyze the codebase first** to understand the context of the task — this drives better questions and a better breakdown.
 2. Run an **iterative Q&A loop**:
-   - Ask a _small_ set of questions per iteration (later questions may depend on earlier answers — don't overload).
+   - Ask in short rounds — cluster 2–3 tightly related questions together, keep unrelated decisions in separate rounds (later questions may depend on earlier answers).
+   - Sweep a coverage checklist (scope, approach + alternatives, edge cases, non-functional needs, risks, dependencies, acceptance criteria, decomposition) before proposing; err toward one more round.
    - Keep track of the durable context the answers produce — it becomes the **Planning Notes** section of `task-plan.md`.
-   - Repeat until the agent judges the breakdown and acceptance criteria are ready.
+   - Present the breakdown for approval as a **plain message** (not an `AskUserQuestion`); repeat until the user approves.
 3. Write `task-plan.md`:
    - The **overall acceptance criteria / definition of done** for the task.
    - Either an ordered **subtask list** (each heading `pending`), or an explicit **"no subtasks"** note when the task is small enough to handle in one pass.
@@ -180,7 +181,7 @@ work-item — resolved per **Scope resolution** above.
 
 1. Resolve the active task and scope, and determine the work-item identity (reuse the subtask slug for a single subtask; propose a bundle slug for several).
 2. Run a focused Q&A loop as needed; capture the resulting decisions inline as **Planning Notes** within the `implementation-plan.md`.
-3. Get approval for the outline (affected files, contracts, steps), then write the detailed plan: target structure, contracts, ordered implementation steps, acceptance criteria, and verification for the work-item.
+3. Get approval for the outline (affected files, contracts, steps) as a **plain message**, then write the detailed plan: target structure (rendered as an ASCII directory tree), contracts, ordered implementation steps, acceptance criteria, and verification for the work-item. Plans **prefer diagrams** over dense prose — Mermaid for flows/relationships, the ASCII tree for file layout.
 4. For a **multi-subtask** work-item, run a **single coherent planning session** and write **one** plan covering all of them — not one file per subtask. The plan header lists the subtasks it covers.
 5. Advance the status of each covered subtask in `task-plan.md` to `planned` and annotate each with the work-item slug.
 

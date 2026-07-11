@@ -12,7 +12,7 @@ Produce the high-level plan for a task: break it into an ordered subtask plan, o
 
 `task-plan.md` is the **single source of truth for task-level planning context and subtask status** throughout the rest of the workflow. Every downstream skill reads and updates it.
 
-**Planning contract:** explore the codebase first, clarify one decision at a time, propose alternatives with tradeoffs, get user approval for the breakdown, then write `task-plan.md`. Do not write or update the plan artifact until the user approves the proposed Definition of Done and subtask split / no-subtasks choice.
+**Planning contract:** explore the codebase first, cluster related decisions into short question rounds, propose alternatives with tradeoffs, brainstorm until the coverage checklist is satisfied (not merely until you *could* write something), get user approval for the breakdown, then write `task-plan.md`. Do not write or update the plan artifact until the user approves the proposed Definition of Done and subtask split / no-subtasks choice.
 
 ## Process
 
@@ -30,13 +30,24 @@ Summarize findings in 3–5 bullets before moving on: what relevant code exists,
 
 Before detailed questions, do a scope check. If the task spans independent deliverables or subsystems, call that out and steer toward a subtask split, or ask whether the task itself should be split before planning continues.
 
-### Step 2: Brainstorm — one decision at a time
+### Step 2: Brainstorm — cover the space thoroughly
 
-Ask one focused question at a time. Prefer multiple choice when it helps the user decide quickly; use open-ended questions only when the answer space is genuinely unknown. After each answer: capture the durable context that should survive into `task-plan.md`, then judge whether you have enough clarity to propose a breakdown. If gaps remain — open questions about approach, scope, unknowns, or acceptance criteria — ask the next focused question. Stop when you can confidently write `task-plan.md`, not before.
+Brainstorm in short, focused rounds. **Group 2–3 tightly related questions into one round** when they share context (e.g. three facets of the same approach decision); keep unrelated decisions in separate rounds so the user isn't overloaded. Prefer multiple choice when it helps the user decide quickly; use open-ended questions only when the answer space is genuinely unknown. After each round: capture the durable context that should survive into `task-plan.md`, then look for the next gap.
 
-Start with the highest-leverage planning decision. If the implementation approach is uncertain, present 2–3 concrete options with tradeoffs and mark one recommended option.
+Start with the highest-leverage planning decision. If the implementation approach is uncertain, present 2–3 concrete options with tradeoffs and mark one recommended option. If scope, acceptance criteria, dependencies, risks, or decomposition are more uncertain than the approach, ask about that first instead. Approach recommendations must come from codebase research — not guessing.
 
-If scope, acceptance criteria, dependencies, risks, or decomposition are more uncertain than the approach, ask about that first instead. Approach recommendations must come from codebase research — not guessing.
+**Coverage checklist — sweep all of this before you propose a breakdown.** Don't stop at the first plan you *could* write; keep going until each dimension is either settled or explicitly judged not-applicable:
+
+- Scope — what's in vs. out
+- Solution approach **+ the alternatives you considered and rejected**
+- Edge cases and failure modes to handle
+- Non-functional needs — performance, security, UX, compatibility (whichever apply)
+- Risks & unknowns — anything needing investigation or a spike
+- Dependencies / integrations
+- Acceptance criteria (Definition of Done)
+- Decomposition — how to slice the work
+
+**When unsure whether you've covered enough, ask one more round.** Err toward more questions, not fewer.
 
 **Question categories to draw from:**
 
@@ -44,6 +55,8 @@ If scope, acceptance criteria, dependencies, risks, or decomposition are more un
 | ----------------------------------------------------------- | --- |
 | Scope — what's in vs. out                                   | [D] |
 | Solution approach — how to tackle the core challenge        | [S] |
+| Edge cases — boundaries and failure modes to handle         | [S] |
+| Non-functional requirements — perf, security, UX, compat    | [D] |
 | Risk & unknowns — what needs investigation or a spike first | [S] |
 | Subtask granularity — how to slice the work                 | [S] |
 | Definition of done — overall acceptance criteria            | [D] |
@@ -54,11 +67,11 @@ If scope, acceptance criteria, dependencies, risks, or decomposition are more un
 
 **Rules:**
 
-- One decision per AskUserQuestion call, 2–4 options per question
+- One round per AskUserQuestion call — up to 3 tightly related questions, 2–4 options each. Split unrelated decisions across rounds.
 - For approach / tradeoff questions: mark exactly one option `⭐ Recommended`, format options as `[What this does.] · Strength: [advantage] · Tradeoff: [cost]`
 - Don't ask what `task-info.md` already specifies — absorb it as a prior decision
 - Don't ask for low-level implementation details — those belong to `/plan-implementation`
-- After each answer, ask yourself: _"Could I write a confident task-plan.md right now?"_ If yes, move to Step 3. If not, identify the next most important decision and ask about that.
+- After each round, check the coverage checklist: any dimension still open and relevant → ask about it next. Move to Step 3 only once the whole checklist is settled or explicitly not-applicable.
 
 **After each answer**, keep track of the decisions, agent findings, constraints, risks, rejected alternatives, dependencies, and codebase observations that future workflow steps may need. These are not a chronological transcript; they become concise `Planning Notes` in `task-plan.md`.
 
@@ -76,11 +89,11 @@ Design subtasks for independence: each one should have a clear purpose, a review
 
 Do not create a separate code-areas section. Attach file or folder references directly to the plan text when the surrounding sentence refers to a specific area, likely change, important pattern, or constraint. This can be in the Definition of Done, a diagram explanation, a no-subtasks note, or any subtask description. Do not list every file searched.
 
-If a visual would materially clarify the approach, include an optional Mermaid diagram before the subtask list. Use it for non-trivial flows, architecture boundaries, state transitions, or data movement; skip it for linear or obvious work.
+**Prefer a diagram wherever it clarifies more than a paragraph would.** Include a Mermaid diagram before the subtask list whenever the approach involves a flow, an architecture boundary, a state transition, or data movement — reach for the visual first and fall back to prose only when a diagram would add nothing. Pick the type that fits: flow, sequence, state, component/dependency, or an ERD for data shape. The only thing to skip is a genuinely decorative diagram on trivial, linear work.
 
 For a small task, propose the no-subtasks path in one sentence and include a concise Definition of Done summary. Leave the full no-subtasks artifact shape for Step 4.
 
-Then get approval with options to write the plan, adjust subtasks, revisit the approach, or keep the task whole with no subtasks.
+Then, **in a plain message** (not an `AskUserQuestion`), invite the user to respond: reply to adjust the breakdown, Definition of Done, or approach, keep the task whole with no subtasks — or say go and you'll write `task-plan.md`. Let the user answer in free text.
 
 Iterate until approved. The approval gate is strict: no `task-plan.md` write until the user approves the proposed Definition of Done and subtask split / no-subtasks choice.
 
@@ -97,9 +110,9 @@ Iterate until approved. The approval gate is strict: no `task-plan.md` write unt
 
 ## Definition of Done
 
-[Overall acceptance criteria. Be specific: name behaviors, not vibes.
-These are what /review-implementation and /finalize will check the whole task against.
-Mention relevant files or folders inline here when acceptance criteria are tied to specific code areas.]
+[Overall acceptance criteria, written as **objective, testable statements** — each one names a behavior a reviewer can verify, not a vibe. Optional EARS phrasing where it fits: "When <trigger>, the system shall <response>." These are what /review-implementation and /finalize will check the whole task against. Mention relevant files or folders inline here when acceptance criteria are tied to specific code areas.
+
+Close with a short **Out of scope / Non-goals** line naming what this task deliberately does not do, so later steps don't over-reach.]
 
 ## Planning Notes
 
@@ -107,7 +120,7 @@ Mention relevant files or folders inline here when acceptance criteria are tied 
 
 ## Solution Diagram
 
-[Optional. Include a Mermaid diagram only when it helps explain a non-trivial flow, architecture boundary, state transition, or data movement. Omit this section entirely when a diagram would be decorative. Add a short note with inline file/folder references if they help explain the boundary or flow.]
+[**Prefer a diagram here** whenever the approach involves a flow, architecture boundary, state transition, or data movement — a Mermaid visual usually beats a dense paragraph. Pick the type that fits: flow, sequence, state, component/dependency, or ERD for data shape. Add a short note with inline file/folder references if they help explain the boundary or flow. Omit this section only when the work is trivial/linear and a diagram would be purely decorative.]
 
 ## Subtasks
 
@@ -135,7 +148,7 @@ For the no-subtasks path:
 
 ## Definition of Done
 
-[Acceptance criteria.]
+[Objective, testable acceptance criteria (optional EARS phrasing). Close with a short **Out of scope / Non-goals** line.]
 
 ## Planning Notes
 
@@ -151,7 +164,7 @@ This task will be handled in a single implementation pass. Mention important fil
 Before summarizing, read the written `task-plan.md` with fresh eyes and fix issues inline:
 
 1. Remove placeholders, TBDs, and vague language.
-2. Check that Definition of Done names observable behavior or outcomes.
+2. Check that Definition of Done names observable, testable behavior or outcomes, and includes an Out of scope / Non-goals line.
 3. Check that subtasks are implementation slices, not chores, phases, or verification-only tasks.
 4. Check that Planning Notes contain durable context, not a chronological transcript.
 5. Check that the plan stays high-level and does not include `/plan-implementation` details.
@@ -190,7 +203,7 @@ Choose "no subtasks" when: single clear deliverable, ≤2 distinct areas of the 
 
 - **High-level only.** Don't detail HOW each subtask will be implemented — that's `/plan-implementation`'s job. Resist the urge to write implementation steps here.
 - **Code references are contextual.** Do not create a standalone code-areas section. Reference files or folders inline only when they orient implementation, identify likely changes, or preserve important context from codebase research.
-- **Diagrams are optional.** Use Mermaid only when it explains something a short paragraph cannot; omit it for straightforward tasks.
+- **Prefer diagrams over dense prose.** Reach for a Mermaid diagram (flow, sequence, state, component/dependency, ERD) whenever the approach has a flow, boundary, or data shape a reader would otherwise have to reconstruct from a paragraph. Skip one only for trivial, linear work where it would be decorative.
 - **Planning Notes are durable context, not a transcript.** Include what future agents need to understand why the task is shaped this way; omit conversational history that no longer matters.
 - **Check task-info.md first.** If the task description already specifies approach or acceptance criteria, absorb it as a prior decision — don't make the user repeat themselves.
 - **Subtask status lives here.** Downstream skills (`/plan-implementation`, `/implement`, `/review-implementation`, `/finalize`) update the status in each subtask heading as they progress. This is the only status ledger.

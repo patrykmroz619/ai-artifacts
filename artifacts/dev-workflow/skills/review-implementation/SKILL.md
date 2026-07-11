@@ -173,7 +173,7 @@ Verdict: <Approved | Needs attention | Rejected>
 Findings: <N blockers · N majors · N minors>
 ```
 
-Then close with the next step and stop — don't chain automatically:
+Then close with the next step, as a **plain message** (not an `AskUserQuestion`), and stop — don't chain automatically:
 
 - **If there are Blocker or Major findings:** > **Next step:** run `/implement` to address the findings in `review.md`, then re-run `/review-implementation`.
 - **Otherwise:** > **Next step:** run `/finalize` to commit this increment.

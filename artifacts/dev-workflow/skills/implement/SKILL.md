@@ -116,7 +116,7 @@ Then **explicitly hand the manual verification to the user and ask for feedback.
 >
 > Anything to change, or does this look good?
 
-Use `AskUserQuestion` when a structured accept/revise prompt fits; use plain prose when you're inviting open-ended feedback. If the plan lists no manual checks, still ask the user to confirm the result is what they wanted.
+Deliver this as a **plain message**, not an `AskUserQuestion` — the user replies in free text (a comment, a failed check, or "looks good"). If the plan lists no manual checks, still ask the user to confirm the result is what they wanted.
 
 ### Step 9: Iterate until accepted
 

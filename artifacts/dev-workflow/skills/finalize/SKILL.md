@@ -94,7 +94,7 @@ task-plan.md   subtasks → committed: a, b
 Changelog: <added | n/a>     Task complete: <yes | no>
 ```
 
-Then close and stop — don't chain automatically:
+Then close, as a **plain message** (not an `AskUserQuestion`), and stop — don't chain automatically:
 
 - **If subtasks remain** (task not complete): > **Next step:** run `/plan-implementation` (or `/implement` if the next work-item is already planned) to start the next increment.
 - **If the task is complete:** state that the task is done and, if a PR was prepared/opened, point to it. Nothing left to chain.
