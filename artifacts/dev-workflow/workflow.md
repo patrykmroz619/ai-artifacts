@@ -19,18 +19,18 @@ truth for all workflow artifacts and is committed to the repo (living documentat
 
 ```
 specs/
-  coding-standards.md         # project coding standards (placeholder, filled manually)
-  workflow-config.md          # workflow configuration (task mgmt, git conventions, changelog, ...)
-  tasks/
-    {task-name}/
-      task-info.md            # source of truth about the task
-      task-plan.md            # HIGH-LEVEL plan: subtask list + status (SoT) + overall DoD + planning notes
-      implementation-plan.md  # ONLY the no-subtasks / whole-task path: detailed plan at task root
-      review.md               # ONLY the no-subtasks / whole-task path: cross-cutting review at task root
-      work-items/
-        {work-item-slug}/
-          implementation-plan.md   # the ONE detailed plan for this work-item
-          review.md                # the review report for this work-item
+├── coding-standards.md # project coding standards (placeholder, filled manually)
+├── workflow-config.md # workflow configuration (task mgmt, git conventions, changelog, ...)
+└── tasks/
+    └── {task-name}/
+        ├── task-info.md # source of truth about the task
+        ├── task-plan.md # HIGH-LEVEL plan: subtask list + status (SoT) + overall DoD + planning notes
+        ├── implementation-plan.md # ONLY the no-subtasks / whole-task path: detailed plan at task root
+        ├── review.md # ONLY the no-subtasks / whole-task path: cross-cutting review at task root
+        └── work-items/
+            └── {work-item-slug}/
+                ├── implementation-plan.md # the ONE detailed plan for this work-item
+                └── review.md # the review report for this work-item
 ```
 
 A **subtask** is a logical slice of the task recorded in `task-plan.md` — it carries the

@@ -18,13 +18,13 @@ A **work-item** is the unit `/plan-implementation` planned and `/implement` buil
 
 ```
 specs/tasks/{task}/
-  task-plan.md                     # subtask list + status (SoT) + DoD
-  implementation-plan.md           # no-subtasks / whole-task path (flat, at root)
-  review.md                        # no-subtasks / whole-task review (flat, at root)
-  work-items/
-    {work-item-slug}/
-      implementation-plan.md
-      review.md                    # the report this skill writes
+├── task-plan.md # subtask list + status (SoT) + DoD
+├── implementation-plan.md # no-subtasks / whole-task path (flat, at root)
+├── review.md # no-subtasks / whole-task review (flat, at root)
+└── work-items/
+    └── {work-item-slug}/
+        ├── implementation-plan.md
+        └── review.md # the report this skill writes
 ```
 
 **Review contract:** resolve the scope, read the plan and changes, analyze across the review dimensions, write `review.md`, then advance the covered subtasks to `reviewed`. Don't edit source. Don't advance status until the report is written.

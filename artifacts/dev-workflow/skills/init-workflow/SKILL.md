@@ -19,10 +19,10 @@ than leaving holes.
 
 ```
 specs/
-  coding-standards.md   # references your existing rules files; extend it if you want
-  workflow-config.md    # filled from the interview below
-  tasks/
-    .gitkeep            # keeps the (initially empty) tasks/ dir tracked in git
+├── coding-standards.md # references your existing rules files; extend it if you want
+├── workflow-config.md # filled from the interview below
+└── tasks/
+    └── .gitkeep # keeps the (initially empty) tasks/ dir tracked in git
 ```
 
 `specs/` is meant to be **committed** — it's living documentation that travels with the repo, so

@@ -16,13 +16,13 @@ A **subtask** is a logical slice recorded in `task-plan.md` — it carries decom
 
 ```
 specs/tasks/{task}/
-  task-info.md
-  task-plan.md                     # subtask list + status (SoT) + DoD + planning notes
-  implementation-plan.md           # ONLY the no-subtasks / whole-task path (flat, at root)
-  work-items/
-    {work-item-slug}/
-      implementation-plan.md       # the ONE detailed plan for this work-item
-      review.md                    # later, from /review-implementation
+├── task-info.md
+├── task-plan.md # subtask list + status (SoT) + DoD + planning notes
+├── implementation-plan.md # ONLY the no-subtasks / whole-task path (flat, at root)
+└── work-items/
+    └── {work-item-slug}/
+        ├── implementation-plan.md # the ONE detailed plan for this work-item
+        └── review.md # later, from /review-implementation
 ```
 
 **Status stays per-subtask** in `task-plan.md`. A work-item advances the status of **all** subtasks it covers, together, and annotates each with its work-item slug:

@@ -16,11 +16,11 @@ A **work-item** is the unit `/plan-implementation` planned and the unit this ski
 
 ```
 specs/tasks/{task}/
-  task-plan.md                     # subtask list + status (SoT) + DoD + planning notes
-  implementation-plan.md           # no-subtasks / whole-task path (flat, at root)
-  work-items/
-    {work-item-slug}/
-      implementation-plan.md       # the ONE plan this skill executes
+├── task-plan.md # subtask list + status (SoT) + DoD + planning notes
+├── implementation-plan.md # no-subtasks / whole-task path (flat, at root)
+└── work-items/
+    └── {work-item-slug}/
+        └── implementation-plan.md # the ONE plan this skill executes
 ```
 
 **Execution contract:** resolve the scope to its plan, build against the current code (not the plan's snapshot), follow the contracts exactly, run the automated checks until green or genuinely blocked, then advance status. Don't claim a subtask is `implemented` until the plan's automated verification passes.

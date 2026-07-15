@@ -17,7 +17,7 @@ your task tracker and from what you tell the agent. It stays lean on purpose: de
 
 ```
 specs/tasks/{task-name}/
-  task-info.md          # brief source-of-truth for the task
+└── task-info.md # brief source-of-truth for the task
 ```
 
 …plus, when you opt in, a git branch for the task. Branches map to the **task**, not to subtasks.
