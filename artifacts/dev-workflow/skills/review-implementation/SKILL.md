@@ -51,7 +51,7 @@ specs/tasks/{task}/
      - **Exactly one** unreviewed work-item → review it.
      - **More than one** → ask with `AskUserQuestion`: review **a specific subtask/work-item** or **all not-yet-reviewed**.
    - **No-subtasks path** → review the whole task (`review.md` at the task root).
-3. For an "all not-reviewed" or multi-subtask selection, gather the set of covered work-items. Each gets its **own** `review.md`, written from a single analysis pass (Step 6).
+3. For an "all not-reviewed" or multi-subtask selection, gather the set of covered work-items. Each gets its **own** `review.md`, written from a single analysis pass (Step 5).
 4. **Check for an existing `review.md`** at a resolved location. If one exists, this is a re-review: note its prior verdict and open findings, and write a fresh report rather than silently appending.
 
 ### Step 2: Read context
@@ -86,11 +86,7 @@ Scan the changes against each dimension and collect findings:
 
 Be precise and evidence-based: "`src/auth/handler.ts:42` — query built by string concatenation, vulnerable to injection" — not "there might be a security issue". Don't flag style preferences that don't matter; if the code works and follows the plan, minor formatting is a Minor observation at most.
 
-### Step 5: Run the plan's automated checks (read-only)
-
-Run the plan's **Automated** verification commands (tests, lint, typecheck, build) with Bash, purely as evidence. Record each command and its pass/fail with the relevant output. **Do not fix anything** — a failing check becomes a finding, it doesn't trigger an edit. Note the plan's **Manual** verification items as outstanding context for the report; don't mark them done.
-
-### Step 6: Write review.md
+### Step 5: Write review.md
 
 For each covered work-item, write `review.md` to:
 
@@ -119,8 +115,8 @@ For each covered work-item, write `review.md` to:
 
 ## Verification
 
-**Automated:** [each command run → pass/fail, with output for failures]
-**Manual:** [items from the plan still needing a human check]
+**Automated:** [status carried over from /implement's hand-off — not re-run here]
+**Manual:** [items from the plan still outstanding per /implement's hand-off]
 
 ## Findings
 
@@ -141,7 +137,7 @@ If there are no findings at all, state that explicitly and give the Approved ver
 
 Keep findings concrete and capped at what's worth acting on — consolidate related nits rather than padding the list. The `Status: open` field is the hook a later `/implement` pass flips when it addresses a finding.
 
-### Step 7: Update task-plan.md
+### Step 6: Update task-plan.md
 
 Advance each covered subtask `implemented → reviewed` in `task-plan.md`, preserving its work-item annotation:
 
@@ -152,7 +148,7 @@ Advance each covered subtask `implemented → reviewed` in `task-plan.md`, prese
 
 For the no-subtasks / whole-task path there is no per-subtask status to advance — the `review.md` at the task root is the record. Touch only the status on the covered headings; leave everything else in `task-plan.md` untouched.
 
-### Step 8: Self-review the report
+### Step 7: Self-review the report
 
 Read each written `review.md` with fresh eyes and fix issues inline before handing off:
 
@@ -162,7 +158,7 @@ Read each written `review.md` with fresh eyes and fix issues inline before handi
 4. The dimension verdicts are consistent with the findings listed.
 5. The report stayed within the work-item's scope and didn't drift into unrelated code.
 
-### Step 9: Summarize and hand off
+### Step 8: Summarize and hand off
 
 Print a tight status block:
 
