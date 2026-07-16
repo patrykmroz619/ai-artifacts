@@ -66,6 +66,8 @@ infer the equivalent phase from which artifacts exist at the task root (no `impl
 - **Multiple subtasks at different phases** → the next command targets the **earliest-phase**
   outstanding subtask (matches the scope-resolution order every other skill already uses), named
   explicitly by slug.
+- **A `reviewed` subtask whose `review.md` still has `Status: open` findings** → the next command is
+  `/triage-findings`, not `/finalize`. `reviewed` alone doesn't mean the findings were dealt with.
 - **All subtasks `committed`** (or the no-subtasks path fully done) → say the task is complete; if a PR
   was never opened, suggest `/finalize` can still prepare one.
 - **Drift flagged in Step 2** → mention it before the recommendation; if it makes the "next step" itself
@@ -91,7 +93,7 @@ Flags: {none | list of drift/mismatch notes from Step 2-3}
 
 Close with the recommendation:
 
-> **Next step:** run `/finalize subtask-b` — it's reviewed with no open Blockers.
+> **Next step:** run `/triage-findings subtask-b` — it's reviewed, but its `review.md` still has 1 open Major finding to decide.
 
 If nothing is in progress yet (task exists, no subtasks touched), point to `/plan-task` or
 `/plan-implementation` as appropriate instead.

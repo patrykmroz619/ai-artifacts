@@ -59,7 +59,7 @@ the relevant `implementation-plan.md`. One file per altitude, nothing to drift.
 These skills operate on a **work-item** — whole task, one subtask, or several subtasks — resolved in this order:
 
 1. **Explicit argument** — subtask name(s) passed to the skill (mapped to their work-item), or `--task` for whole-task scope. Wins.
-2. **Next subtask at the skill's inbound phase** — the first subtask in `task-plan.md` still at the status this skill consumes: `pending` for `/plan-implementation`, `planned` for `/implement`, `implemented` for `/review-implementation`, `reviewed` for `/finalize`.
+2. **Next subtask at the skill's inbound phase** — the first subtask in `task-plan.md` still at the status this skill consumes: `pending` for `/plan-implementation`, `planned` for `/implement`, `implemented` for `/review-implementation`, `reviewed` for `/finalize`. `/triage-findings` is the exception: it consumes `reviewed` subtasks whose `review.md` still has `Status: open` findings, and advances no status of its own.
 3. **No-subtasks path** — if the task has no subtasks, fall through to the whole-task `implementation-plan.md` / `review.md` at the task root.
 4. **Ask the user** — if the scope is still ambiguous (e.g. several subtasks share the inbound phase).
 
@@ -226,12 +226,30 @@ and any `## Implementation Notes`) and `task-plan.md` (overall DoD, incl. Planni
 
 1. Analyze the code changes for plan adherence, acceptance criteria / DoD, coding standards, safety & quality, pattern consistency, and scope discipline.
 2. Run the plan's automated checks **read-only**, as evidence — a failure becomes a finding, it does not trigger a fix.
-3. Write findings to the scoped `review.md`, each with a **severity** (Blocker / Major / Minor), the evidence that makes it valid, and a concrete suggested fix. This is **report-only** — it never edits source; a follow-up `/implement` pass acts on the findings (which carry a `Status: open` hook).
+3. Write findings to the scoped `review.md`, each with a **severity** (Blocker / Major / Minor), the evidence that makes it valid, and a concrete suggested fix. This is **report-only** — it never edits source; `/triage-findings` acts on the findings (which carry a `Status: open` hook).
 4. Advance the status of each covered subtask in `task-plan.md` to `reviewed`.
 
 ---
 
-### 7. `/finalize` — Finalize (flexible, self-detecting)
+### 7. `/triage-findings` — Resolve the review's findings (flexible scope)
+
+**Purpose:** Walk a `review.md`'s open findings with the user and close each one — the acting counterpart to the report-only review.
+
+**Scope:** the work-item whose `review.md` has open findings; a `review.md` path can also be passed directly (resume triage). When several work-items have open findings, the skill asks which — and triages one report at a time.
+
+**Reads:** the work-item's `review.md` (the findings ledger), its `implementation-plan.md` (contracts, acceptance criteria, verification), `task-plan.md` (DoD), `workflow-config.md` (Coding standards), repo rules, and the source at each finding's location.
+**Produces / modifies:** source changes for approved fixes; a `Status:` on every finding in `review.md` plus a refreshed header (counts + verdict); and, only when a fix departs materially from the plan, an `## Implementation Notes` bullet on that work-item's `implementation-plan.md`.
+
+**How it works:**
+
+1. Resolve the scope to a `review.md`; re-read the code at each finding's location, since the review is a snapshot and the code may have moved.
+2. Walk the open findings in severity order (Blocker → Major → Minor), one `AskUserQuestion` each, carrying the finding, why it's valid, and the suggested fix(es). Every finding is closed by a **user decision** — `fixed` / `skipped` / `accepted` (with justification) / `deferred` / `dismissed` / `stale` — never by the agent's own judgment that it's trivial. Decisions are written back per finding, so an interrupted session resumes cleanly.
+3. Apply only approved fixes, minimal and targeted; then re-run the plan's automated checks and record any material deviation.
+4. **Advances no subtask status** — the covered subtasks stay `reviewed`. The per-finding statuses are the ledger, and `/finalize`'s open-Blocker gate reads them.
+
+---
+
+### 8. `/finalize` — Finalize (flexible, self-detecting)
 
 **Purpose:** Commit the current increment and, when the task is complete, wrap it up (changelog, PR).
 
@@ -272,7 +290,12 @@ and any `## Implementation Notes`) and `task-plan.md` (overall DoD, incl. Planni
  │           │              iterate on feedback until the user accepts         │
  │           v                                                                │
  │  /review-implementation ─> one review.md per work-item; status → reviewed     │
- │           │              (report-only; may loop back to /implement)        │
+ │           │              (report-only — never edits source)                │
+ │           v                                                                │
+ │  /triage-findings ────> decide each finding with the user; apply approved  │
+ │           │              fixes; findings → fixed/skipped/accepted/…        │
+ │           │              (status unchanged; big fixes may loop back to     │
+ │           │               /review-implementation)                          │
  │           v                                                                │
  │  /finalize ───────────> commit the work-item; status → committed           │
  │                          (on the last increment: + changelog in commit + PR)│
@@ -292,5 +315,5 @@ Not every skill belongs to the task pipeline. These operate independently and re
 
 ## Status / future
 
-- All ten skills are implemented under `artifacts/dev-workflow/skills/`: the seven-step pipeline (`init-workflow`, `start-task`, `plan-task`, `plan-implementation`, `implement`, `review-implementation`, `finalize`) plus the standalone `review-pr`, `qa-scenarios`, `workflow-status`. This document is the high-level design; each `SKILL.md` is the authoritative spec for its step.
+- All eleven skills are implemented under `artifacts/dev-workflow/skills/`: the eight-step pipeline (`init-workflow`, `start-task`, `plan-task`, `plan-implementation`, `implement`, `review-implementation`, `triage-findings`, `finalize`) plus the standalone `review-pr`, `qa-scenarios`, `workflow-status`. This document is the high-level design; each `SKILL.md` is the authoritative spec for its step.
 - Wiring `dev-workflow` into the CLI as an installable registry scope (so `npx @patryk.mroz/artifacts install dev-workflow` distributes it) is **deferred**.

@@ -1,13 +1,13 @@
 ---
 name: review-implementation
-description: Use after /implement, when a work-item's changes need an independent review against its implementation-plan.md, acceptance criteria, and coding standards. Resolves the scope from task-plan.md (asks when several subtasks are unreviewed), analyzes the diff for plan adherence, safety, quality, and pattern compliance, then writes a review.md of findings (severity + why-it's-valid + suggested fixes) and advances the covered subtasks to "reviewed". Report-only — it never edits source; a later /implement pass acts on the findings. Run before /finalize.
+description: Use after /implement, when a work-item's changes need an independent review against its implementation-plan.md, acceptance criteria, and coding standards. Resolves the scope from task-plan.md (asks when several subtasks are unreviewed), analyzes the diff for plan adherence, safety, quality, and pattern compliance, then writes a review.md of findings (severity + why-it's-valid + suggested fixes) and advances the covered subtasks to "reviewed". Report-only — it never edits source; /triage-findings acts on the findings. Run before /triage-findings.
 ---
 
 # /review-implementation — Independent review of a work-item
 
 Review a resolved **work-item**'s changes against the plan that produced them — its `implementation-plan.md`, the acceptance criteria, the task's Definition of Done, and the project's coding standards. The output is a `review.md` of findings, each with a severity, the evidence that makes it valid, and a concrete suggested fix.
 
-This skill is **report-only**: it analyzes and writes the report, it does **not** edit source code. The user decides what to act on, and a later `/implement` pass addresses the findings. Keeping review separate from fixing is what makes the review independent.
+This skill is **report-only**: it analyzes and writes the report, it does **not** edit source code. The user decides what to act on in `/triage-findings`, which walks the findings and applies the fixes they approve. Keeping review separate from fixing is what makes the review independent.
 
 **Reads:** the work-item's `implementation-plan.md` (Target Structure, Contracts, Acceptance Criteria, Verification, and any `## Implementation Notes`), `specs/tasks/{task}/task-plan.md` (Definition of Done), `specs/workflow-config.md` (Coding standards), repo rules, and the actual code changes (diff).
 **Produces:** one `review.md` per covered work-item (beside its plan), and status updates in `task-plan.md`.
@@ -135,7 +135,7 @@ If there are no findings at all, state that explicitly and give the Approved ver
 - **Status:** open
 ```
 
-Keep findings concrete and capped at what's worth acting on — consolidate related nits rather than padding the list. The `Status: open` field is the hook a later `/implement` pass flips when it addresses a finding.
+Keep findings concrete and capped at what's worth acting on — consolidate related nits rather than padding the list. The `Status: open` field is the hook `/triage-findings` flips when the user decides a finding.
 
 ### Step 6: Update task-plan.md
 
@@ -171,12 +171,12 @@ Findings: <N blockers · N majors · N minors>
 
 Then close with the next step, as a **plain message** (not an `AskUserQuestion`), and stop — don't chain automatically:
 
-- **If there are Blocker or Major findings:** > **Next step:** run `/implement` to address the findings in `review.md`, then re-run `/review-implementation`.
-- **Otherwise:** > **Next step:** run `/finalize` to commit this increment.
+- **If there are any findings:** > **Next step:** run `/triage-findings` to walk the findings in `review.md` and decide each one.
+- **If there are no findings at all:** > **Next step:** run `/finalize` to commit this increment.
 
 ## Notes
 
-- **Report-only.** This skill analyzes and writes `review.md`; it never edits source. Findings are acted on by a later `/implement` pass — that separation is what keeps the review independent.
+- **Report-only.** This skill analyzes and writes `review.md`; it never edits source. Findings are acted on by `/triage-findings` — that separation is what keeps the review independent.
 - **Evidence over opinion.** Every finding names a location and the concrete risk or violated standard. "Might be a problem somewhere" is not a finding.
 - **Don't flag style for its own sake.** If the code works and follows the plan, minor formatting differences are Minor observations, not Majors.
 - **The plan can be wrong too.** If the implementation faithfully followed a flawed plan (e.g. an insecure approach), flag the underlying issue — review catches plan defects, not just code defects.

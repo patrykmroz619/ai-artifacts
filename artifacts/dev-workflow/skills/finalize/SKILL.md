@@ -32,10 +32,10 @@ A **work-item** is the unit `/plan-implementation` planned, `/implement` built, 
 
 Before staging anything, confirm the scope is cleanly reviewed:
 
-- If the covered subtask is **not yet `reviewed`** (still `pending`/`planned`/`implemented`), surface that — the workflow order is implement → review → finalize.
-- Read the work-item's `review.md` (if present) and check for **open Blocker findings** (`Severity: Blocker`, `Status: open`).
+- If the covered subtask is **not yet `reviewed`** (still `pending`/`planned`/`implemented`), surface that — the workflow order is implement → review → triage → finalize.
+- Read the work-item's `review.md` (if present) and check for **open Blocker findings** (`Severity: Blocker`, `Status: open`). A Blocker the user consciously closed as `accepted` or `dismissed` in `/triage-findings` is not a gate — only `open` ones are.
 
-If either check is off, **warn and ask** (`AskUserQuestion`) whether to commit anyway or cancel — don't hard-block, but don't proceed silently either. The user may have addressed things outside the workflow; the decision is theirs. If the scope is clean (`reviewed`, no open Blockers), continue without prompting.
+If either check is off, **warn and ask** (`AskUserQuestion`) whether to commit anyway or cancel — don't hard-block, but don't proceed silently either. Point at `/triage-findings` as the way to resolve open findings properly, but the decision is theirs. If the scope is clean (`reviewed`, no open Blockers), continue without prompting.
 
 ### Step 3: Determine the increment
 
