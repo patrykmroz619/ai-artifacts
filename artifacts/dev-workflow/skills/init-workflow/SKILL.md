@@ -1,6 +1,6 @@
 ---
 name: init-workflow
-description: Initialize the markdown-artifact dev-workflow in this project — scaffold the specs/ root (coding-standards.md, workflow-config.md, tasks/) and interview the user to capture task-management, git, and changelog conventions. Use this whenever the user runs /init-workflow, or asks to "set up the dev workflow", "initialize specs", "bootstrap the workflow", "configure the task workflow", or wants a place for task planning/decision/review artifacts to live — even if they don't say "specs" explicitly. This is the one-time entry point that every other dev-workflow skill (/start-task, /plan-task, /plan-implementation, /implement, /review-implementation, /finalize) depends on.
+description: Initialize the markdown-artifact dev-workflow in this project — scaffold the specs/ root (workflow-config.md, tasks/) and interview the user to capture task-management, git, changelog, and coding-standards conventions. Use this whenever the user runs /init-workflow, or asks to "set up the dev workflow", "initialize specs", "bootstrap the workflow", "configure the task workflow", or wants a place for task planning/decision/review artifacts to live — even if they don't say "specs" explicitly. This is the one-time entry point that every other dev-workflow skill (/start-task, /plan-task, /plan-implementation, /implement, /review-implementation, /finalize) depends on.
 ---
 
 # /init-workflow — Initialize the dev-workflow
@@ -19,8 +19,7 @@ than leaving holes.
 
 ```
 specs/
-├── coding-standards.md # references your existing rules files; extend it if you want
-├── workflow-config.md # filled from the interview below
+├── workflow-config.md # filled from the interview below — task mgmt, git, changelog, coding standards
 └── tasks/
     └── .gitkeep # keeps the (initially empty) tasks/ dir tracked in git
 ```
@@ -38,32 +37,15 @@ rather than overwriting what's there. Note the outcome (`created`, `completed`, 
 final summary. This matters because the user may have partially filled an artifact, and a re-run
 should finish the job, not erase it.
 
-**`specs/coding-standards.md`** — if absent, copy it from the bundled template at
-`assets/coding-standards.md` (resolve relative to this skill's directory). **Before writing it, look
-for existing standards:** scan the repo's rules/instruction files — e.g. `CLAUDE.md`, `AGENTS.md`,
-`.cursor/rules/` (`.mdc` files), `.cursorrules`, `.github/copilot-instructions.md`, `.windsurfrules`
-— for anything that reads like a coding standard (language idioms, naming, formatting, testing, error
-handling, file layout). If you find any, **reference the source files rather than copying their
-content.** Those files stay authoritative; this artifact just points the workflow at them. Fill the
-template's "References" section with one pointer per file (path + a one-line note on what it covers).
-If nothing relevant was found, delete the "References" section before writing.
-
-Don't ask the user to restate or duplicate what the referenced files already say — referencing them
-is enough. The template's "Project conventions" section is optional: it's there only so the user can
-*extend* the standards with extra rules if they want, not a placeholder they're obliged to fill.
-
-If `coding-standards.md` already exists, leave the user's content alone — at most append references
-to rules files not already mentioned there, and tell the user.
-
 **`specs/tasks/`** — create the directory, and add an empty `.gitkeep` inside it so the otherwise-empty
 dir is tracked in git. /start-task populates it later (one folder per task); the per-task layout is
 documented there and in the workflow design, so no README is needed here.
 
 **`specs/workflow-config.md`** — filled in Step 2. If it already exists, don't recreate it; instead
-read it and check each section (task management, git conventions, changelog) for completeness. Run
-the interview **only for the sections that are missing or incomplete**, and ask the user before
-changing anything they've already filled in. If it's fully populated, show it and ask whether to keep
-it as-is or revisit anything.
+read it and check each section (task management, git conventions, changelog, coding standards) for
+completeness. Run the interview **only for the sections that are missing or incomplete**, and ask the
+user before changing anything they've already filled in. If it's fully populated, show it and ask
+whether to keep it as-is or revisit anything.
 
 ### Step 2: Interview to fill `workflow-config.md`
 
@@ -79,7 +61,7 @@ genuinely open-ended details that don't fit options well — pasted credentials,
 custom branch pattern.
 
 Ask in **small batches** rather than one giant form — group related questions into a single
-`AskUserQuestion` call, let earlier answers inform later ones, and keep it conversational. Cover three
+`AskUserQuestion` call, let earlier answers inform later ones, and keep it conversational. Cover four
 areas:
 
 **1. Task management.** Which system, if any. **Ask the user first — never infer the tracker from
@@ -129,6 +111,21 @@ changeset tooling like `.changeset/`). Let the finding shape the question:
 > Whether a changelog section ends up in the config is what tells /finalize whether and where to add
 > an entry.
 
+**4. Coding standards.** Scan the repo's rules/instruction files — e.g. `CLAUDE.md`, `AGENTS.md`,
+`.cursor/rules/` (`.mdc` files), `.cursorrules`, `.github/copilot-instructions.md`, `.windsurfrules`
+— for anything that reads like a coding standard (language idioms, naming, formatting, testing, error
+handling, file layout). If you find any, **reference the source files rather than copying their
+content** — those files stay authoritative; the config's `## Coding standards` section just points
+the workflow at them. Fill it with one bullet per file (path + a one-line note on what it covers). If
+nothing relevant was found, leave the section out of the written config entirely.
+
+Don't ask the user to restate or duplicate what the referenced files already say — referencing them
+is enough. This isn't a place for a separate list of extra conventions: if the project wants more
+standards enforced, they belong in a rules file, not duplicated into workflow config.
+
+If `workflow-config.md` already has a `## Coding standards` section, leave the user's content alone —
+at most append references to rules files not already mentioned there, and tell the user.
+
 Then write `specs/workflow-config.md` from the bundled template at `assets/workflow-config.md`
 (resolve relative to this skill's directory), substituting the captured answers for the
 angle-bracketed placeholders. The template has no changelog section: **add a `## Changelog` section
@@ -140,18 +137,18 @@ entirely — its absence is what tells /finalize not to prompt for entries.
 Print a short status block showing what was created vs. already present:
 
 ```
-specs/coding-standards.md   [created | completed | present]
 specs/workflow-config.md    [created | completed | present]
 specs/tasks/                [created | present]
 ```
 
 Where `completed` means the artifact already existed and you filled in missing pieces. If you
-referenced rules files in `coding-standards.md`, call that out so the user knows to review them.
+referenced rules files in `workflow-config.md`'s Coding standards section, call that out so the user
+knows to review them.
 
 Then close with two pointers, and stop — don't chain into another skill:
 
-- **Review `specs/coding-standards.md`.** It already points at your existing rules files; you only
-  need to touch it if you want to add conventions beyond what those files cover.
+- **Review `workflow-config.md`'s Coding standards section.** It already points at your existing
+  rules files; you only need to touch it if the references need adjusting.
 - **Next step:** run `/start-task` when you're ready to begin work. It reads `workflow-config.md` to
   fetch task details and propose a branch.
 

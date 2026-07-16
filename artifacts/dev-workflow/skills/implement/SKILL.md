@@ -7,7 +7,7 @@ description: Use after /plan-implementation, when a work-item's implementation-p
 
 Execute the approved `implementation-plan.md` for a resolved **work-item** — the whole task, a single subtask, or several subtasks bundled together. This is a **doing** skill, not a planning one: it follows the contracts and ordered steps the plan already settled, runs the plan's automated checks until they pass, records any material deviation back into the plan, then advances the covered subtasks to `implemented`. It does not re-plan; reopening a settled decision means going back to `/plan-implementation`.
 
-**Reads:** the work-item's `implementation-plan.md` (Target Structure, Contracts, Steps, Acceptance Criteria, Verification), `specs/tasks/{task}/task-plan.md` (Definition of Done), `specs/coding-standards.md`, repo rules, and the real source files the plan names.
+**Reads:** the work-item's `implementation-plan.md` (Target Structure, Contracts, Steps, Acceptance Criteria, Verification), `specs/tasks/{task}/task-plan.md` (Definition of Done), `specs/workflow-config.md` (Coding standards), repo rules, and the real source files the plan names.
 **Produces:** source code changes; status updates in `task-plan.md`; and, only when the implementation departs materially from the plan, a short `## Implementation Notes` section appended to that work-item's `implementation-plan.md`.
 
 ## The work-item model
@@ -45,7 +45,7 @@ specs/tasks/{task}/
 ### Step 2: Read context
 
 1. Read the resolved `implementation-plan.md` in full: **Target Structure**, **Contracts**, **Implementation Steps**, **Acceptance Criteria**, and **Verification**. These are the spec for this run.
-2. Read `task-plan.md`'s **Definition of Done** for the covered subtasks, `specs/coding-standards.md`, and repo rules (`CLAUDE.md` / `AGENTS.md` / `.cursor/rules`).
+2. Read `task-plan.md`'s **Definition of Done** for the covered subtasks, `specs/workflow-config.md`'s Coding standards section, and repo rules (`CLAUDE.md` / `AGENTS.md` / `.cursor/rules`).
 3. **Re-read the actual files the plan names** with Read/Glob/Grep. Build against current reality — the codebase may have moved since the plan was written. If it has moved enough that a step no longer makes sense, that is a deviation to surface (Step 4), not something to silently route around.
 
 ### Step 3: Implement the steps in order

@@ -19,8 +19,7 @@ truth for all workflow artifacts and is committed to the repo (living documentat
 
 ```
 specs/
-├── coding-standards.md # project coding standards (placeholder, filled manually)
-├── workflow-config.md # workflow configuration (task mgmt, git conventions, changelog, ...)
+├── workflow-config.md # workflow configuration (task mgmt, git conventions, changelog, coding standards, ...)
 └── tasks/
     └── {task-name}/
         ├── task-info.md # source of truth about the task
@@ -96,6 +95,7 @@ subtask status lives — no separate ledger to drift.
 - **Task management** (Jira / Linear / GitHub Issues / none) and the access mechanism (MCP server, CLI such as `gh`, or manual).
 - **Git conventions** (branch naming, commit style).
 - **Changelog** practice (maintained or not, file location/format).
+- **Coding standards** — references to the repo's existing rules files (e.g. `CLAUDE.md`, `.cursor/rules`); no content of its own, just pointers to what stays authoritative.
 
 Skills read this file to decide whether to auto-fetch task data, propose branch names, prompt for changelog entries, etc. When an integration is configured but unavailable, skills degrade gracefully to manual input.
 
@@ -109,7 +109,7 @@ Skills read this file to decide whether to auto-fetch task data, propose branch 
 
 **Produces / modifies:**
 
-- Creates `specs/` with `coding-standards.md` (placeholder), `workflow-config.md`, and an empty `tasks/` dir.
+- Creates `specs/` with `workflow-config.md` and an empty `tasks/` dir.
 
 **How it works:**
 
@@ -118,7 +118,7 @@ Skills read this file to decide whether to auto-fetch task data, propose branch 
    - Which task management system (if any) and the integration mechanism.
    - For the chosen system, **verify availability** — check for the required MCP server or CLI (e.g. Jira/Linear MCP, `gh` CLI). If missing, ask the user to configure one of the supported options and record the choice.
    - Git branch/commit conventions; changelog practice.
-3. Leave `coding-standards.md` as a placeholder for manual completion (point the user to it).
+   - Coding standards: scan the repo's rules files and record references to them (path + what each covers), rather than copying their content.
 
 ---
 
@@ -145,7 +145,7 @@ Skills read this file to decide whether to auto-fetch task data, propose branch 
 **Purpose:** Produce a high-level plan: decompose the task into subtasks (or decide it needs none),
 plus the overall definition of done — through iterative dialogue.
 
-**Reads:** `task-info.md`, `coding-standards.md`, relevant codebase context.
+**Reads:** `task-info.md`, `workflow-config.md` (Coding standards), relevant codebase context.
 **Produces / modifies:** `task-plan.md` in the task dir.
 
 **How it works:**
@@ -171,7 +171,7 @@ plus the overall definition of done — through iterative dialogue.
 **Scope:** whole task (no-subtasks path), a single subtask, or several subtasks bundled into one
 work-item — resolved per **Scope resolution** above.
 
-**Reads:** `task-plan.md` (incl. its Planning Notes), `task-info.md`, `coding-standards.md`, relevant codebase context.
+**Reads:** `task-plan.md` (incl. its Planning Notes), `task-info.md`, `workflow-config.md` (Coding standards), relevant codebase context.
 **Produces / modifies:**
 
 - **No-subtasks / whole-task path:** `implementation-plan.md` at the task root.
@@ -193,7 +193,7 @@ work-item — resolved per **Scope resolution** above.
 
 **Scope:** same resolution as above — the work-item that was planned (whole task, one subtask, or several).
 
-**Reads:** the work-item's `implementation-plan.md` (incl. its Planning Notes), `coding-standards.md`, repo rules, and the real source files the plan names.
+**Reads:** the work-item's `implementation-plan.md` (incl. its Planning Notes), `workflow-config.md` (Coding standards), repo rules, and the real source files the plan names.
 **Produces / modifies:** source code changes; advances status in `task-plan.md`; and, only when the implementation departs materially from the plan, appends an `## Implementation Notes` section to that work-item's `implementation-plan.md`.
 
 **How it works:**
@@ -216,7 +216,7 @@ specific one or all not-yet-reviewed work-items.
 
 **Reads:** code changes (diff), the work-item's `implementation-plan.md` (incl. acceptance criteria
 and any `## Implementation Notes`) and `task-plan.md` (overall DoD, incl. Planning Notes),
-`coding-standards.md`, repo rules.
+`workflow-config.md` (Coding standards), repo rules.
 **Produces / modifies:**
 
 - **Subtask scope:** one `review.md` per covered work-item, in `work-items/{slug}/`.
@@ -288,9 +288,9 @@ Not every skill belongs to the task pipeline. These operate independently and re
 
 - **`/review-pr` — Review someone else's pull request.** Puts the agent in the **reviewer's** seat (not the author's): it resolves a change from a `gh` PR or a local branch, diffs it against `main`/`master` (or a stated base), and writes a report to `specs/reviews/{pr-slug}.md` that **explains the change first** (a walkthrough with data-flow/sequence/component diagrams) and **lists findings second** (severity + confidence across correctness, safety, design/complexity, standards, pattern fit, and tests). It grills the solution for over-engineering and simpler alternatives, then collaborates on refining findings and phrasing comments. It never edits source and never advances task status — there are no plans, specs, or DoD involved, and it works on any repo even without a `specs/` directory.
 - **`/qa-scenarios` — Generate test scenarios for QA from your changes.** Produces a **manual-QA handoff document** from a diff (a `gh` PR or a local branch against `main`/`master`, plus uncommitted working-tree changes). Writes `specs/qa/{pr-slug}.md` with a **flexible, jargon-free description** of what the change does from a tester's perspective (prose, lists, subsections, or a diagram as the logic warrants) followed by **concise step-by-step test scenarios** (Preconditions/Steps/Expected) covering edge cases, variants, configurations, and the directly affected flows that could regress. Shared preconditions, test data, and step flows are factored into reusable named blocks to avoid duplication. Standalone — needs no plan or implementation artifacts, is black-box throughout, and never edits source.
+- **`/workflow-status` — Re-entry snapshot: where a task stands, what's next.** The pickup point after stepping away from a task. Resolves the active task (explicit arg, else current-branch inference), reads `task-plan.md` and each referenced work-item's `implementation-plan.md` / `review.md`, and cross-checks that against light git state (branch match, working-tree cleanliness, a log skim). Reports each subtask's phase, flags any drift between recorded status and what's actually on disk, and closes with **one** recommended next command — the earliest-phase outstanding subtask, following the same resolution order the pipeline skills already use. Read-only throughout: it never edits `task-plan.md`, source, or git state, even when it finds drift.
 
 ## Status / future
 
-- All seven skills are implemented under `artifacts/dev-workflow/skills/` (`init-workflow`, `start-task`, `plan-task`, `plan-implementation`, `implement`, `review-implementation`, `finalize`). This document is the high-level design; each `SKILL.md` is the authoritative spec for its step.
+- All ten skills are implemented under `artifacts/dev-workflow/skills/`: the seven-step pipeline (`init-workflow`, `start-task`, `plan-task`, `plan-implementation`, `implement`, `review-implementation`, `finalize`) plus the standalone `review-pr`, `qa-scenarios`, `workflow-status`. This document is the high-level design; each `SKILL.md` is the authoritative spec for its step.
 - Wiring `dev-workflow` into the CLI as an installable registry scope (so `npx @patryk.mroz/artifacts install dev-workflow` distributes it) is **deferred**.
-- `coding-standards.md` content and templates are out of scope for this design.

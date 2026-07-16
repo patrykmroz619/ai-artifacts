@@ -9,7 +9,7 @@ Support **you, the reviewer**, in reviewing another author's pull/merge request.
 
 This skill is for the **reviewer's** seat: it analyzes and reports, it **never edits source**, and it never points at a "fix" step — the author owns the fix. There are no plans, specs, or task artifacts here; this is a standalone skill outside the task pipeline.
 
-**Reads:** the PR/MR metadata via `gh`/`glab`, the checked-out local branch diff, the surrounding code the change touches, `specs/coding-standards.md` if present, and repo rules (`CLAUDE.md` / `AGENTS.md` / `.cursor/rules`).
+**Reads:** the PR/MR metadata via `gh`/`glab`, the checked-out local branch diff, the surrounding code the change touches, `specs/workflow-config.md`'s Coding standards section if present, and repo rules (`CLAUDE.md` / `AGENTS.md` / `.cursor/rules`).
 **Produces:** one report at `specs/reviews/{pr-slug}.md`, plus a chat summary and a collaborative follow-up.
 
 ## What makes a good PR review here
@@ -52,7 +52,7 @@ This is the foundation of the report, not an afterthought.
 
 ### Step 3: Load the standards to measure against
 
-1. Read `specs/coding-standards.md` if it exists, plus repo rules (`CLAUDE.md` / `AGENTS.md` / `.cursor/rules`).
+1. Read `specs/workflow-config.md`'s Coding standards section if it exists, plus repo rules (`CLAUDE.md` / `AGENTS.md` / `.cursor/rules`).
 2. If `specs/` is absent (this is the author's project, not yours), **degrade gracefully**: rely on repo rules and the idioms inferred from 1–2 neighboring files. Don't invent standards the project doesn't hold itself to.
 
 ### Step 4: Analyze across dimensions

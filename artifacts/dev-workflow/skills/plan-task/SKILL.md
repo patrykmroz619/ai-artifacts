@@ -7,7 +7,7 @@ description: Use when a task workspace has been created by /start-task and the n
 
 Produce the high-level plan for a task: break it into an ordered subtask plan, or decide it needs none. Before writing anything, brainstorm with the user — explore approaches, surface tradeoffs, and reach alignment — so the breakdown reflects real decisions rather than guesses.
 
-**Reads:** `specs/tasks/{task}/task-info.md`, `specs/coding-standards.md`, relevant codebase context
+**Reads:** `specs/tasks/{task}/task-info.md`, `specs/workflow-config.md` (Coding standards), relevant codebase context
 **Produces:** `specs/tasks/{task}/task-plan.md`
 
 `task-plan.md` is the **single source of truth for task-level planning context and subtask status** throughout the rest of the workflow. Every downstream skill reads and updates it.
@@ -22,7 +22,7 @@ Before asking anything, do the homework:
 
 1. Check that `specs/workflow-config.md` and `specs/tasks/{task}/task-info.md` both exist. If the task folder is missing, stop and point the user to `/start-task`.
 2. Read `task-info.md` fully — this is the task definition.
-3. Read `specs/coding-standards.md` if present.
+3. Read `specs/workflow-config.md`'s Coding standards section if present.
 4. **If `task-plan.md` already exists**, read it — this is a resumed run. Show the current state and ask whether to continue from where things left off or restart planning.
 5. Explore the codebase: use Glob and Grep to find files and patterns the task will touch. Look for existing conventions, similar features, and architecture constraints that should inform the breakdown.
 

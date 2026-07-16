@@ -14,3 +14,10 @@ Update by re-running /init-workflow or by editing this file directly.
 
 - **Branch naming:** <e.g. feat/{ticket}-{slug}, or "ask each time">
 - **Commit style:** <e.g. Conventional Commits>
+
+## Coding standards
+
+> Existing rules files in this repo that already define coding standards. Treat these as
+> authoritative — follow them when planning, implementing, and reviewing.
+
+- `<path/to/rules-file>` — <one line on what standards it covers>

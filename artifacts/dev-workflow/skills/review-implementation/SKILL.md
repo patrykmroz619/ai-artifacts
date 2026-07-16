@@ -9,7 +9,7 @@ Review a resolved **work-item**'s changes against the plan that produced them �
 
 This skill is **report-only**: it analyzes and writes the report, it does **not** edit source code. The user decides what to act on, and a later `/implement` pass addresses the findings. Keeping review separate from fixing is what makes the review independent.
 
-**Reads:** the work-item's `implementation-plan.md` (Target Structure, Contracts, Acceptance Criteria, Verification, and any `## Implementation Notes`), `specs/tasks/{task}/task-plan.md` (Definition of Done), `specs/coding-standards.md`, repo rules, and the actual code changes (diff).
+**Reads:** the work-item's `implementation-plan.md` (Target Structure, Contracts, Acceptance Criteria, Verification, and any `## Implementation Notes`), `specs/tasks/{task}/task-plan.md` (Definition of Done), `specs/workflow-config.md` (Coding standards), repo rules, and the actual code changes (diff).
 **Produces:** one `review.md` per covered work-item (beside its plan), and status updates in `task-plan.md`.
 
 ## The work-item model
@@ -59,7 +59,7 @@ specs/tasks/{task}/
 For each covered work-item:
 
 1. Read its `implementation-plan.md` in full — **Target Structure**, **Contracts**, **Acceptance Criteria**, **Verification**, and any **`## Implementation Notes`** (the deviations `/implement` recorded; these are prime review targets).
-2. Read `task-plan.md`'s **Definition of Done** for the covered subtasks, `specs/coding-standards.md`, and repo rules (`CLAUDE.md` / `AGENTS.md` / `.cursor/rules`).
+2. Read `task-plan.md`'s **Definition of Done** for the covered subtasks, `specs/workflow-config.md`'s Coding standards section, and repo rules (`CLAUDE.md` / `AGENTS.md` / `.cursor/rules`).
 3. Treat the plan as the ground truth for *intent* and the standards as the ground truth for *quality*. The review measures the code against both.
 
 ### Step 3: Establish the diff
@@ -79,7 +79,7 @@ Scan the changes against each dimension and collect findings:
 
 - **Plan Adherence** — does the implementation realize the plan's steps and contracts? Intent mismatches, skipped items, undocumented deviations (cross-check `## Implementation Notes`).
 - **Acceptance Criteria / DoD** — does the work satisfy the scope's acceptance criteria and the slice of the task DoD it owns?
-- **Coding Standards & Repo Rules** — violations of `coding-standards.md` and the repo's rules files.
+- **Coding Standards & Repo Rules** — violations of `workflow-config.md`'s referenced coding standards and the repo's rules files.
 - **Safety & Quality** — security (injection, secrets, missing authz at boundaries), performance (N+1, unbounded loops, missing pagination), reliability (unhandled errors at external boundaries, races, resource leaks), data safety (destructive ops, unsafe migrations).
 - **Pattern Consistency** — compare against 1–2 similar existing files; flag substantive mismatches (naming, layering, error handling), not trivial style.
 - **Scope Discipline** — changes that reach beyond this work-item's scope.
