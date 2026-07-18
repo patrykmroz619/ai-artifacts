@@ -121,7 +121,8 @@ branch                                 <name | none>
 Then close with the next step and stop — don't chain into another skill:
 
 - **Next step:** run `/plan-task` to break this task into subtasks (or decide it needs none) and set
-  the overall definition of done.
+  the overall definition of done. Copy it to the clipboard first
+  (best-effort: `Set-Clipboard`/`pbcopy`/`xclip`).
 
 ## Notes
 

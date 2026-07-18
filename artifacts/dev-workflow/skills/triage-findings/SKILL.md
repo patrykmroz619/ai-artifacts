@@ -147,11 +147,15 @@ Checks: <cmd> ✓  <cmd> ✓   Deviations: <n recorded, or none>
 Verdict: <Approved | Needs attention | Rejected>
 ```
 
+Resolve the exact next command using this work-item's covered subtask slug(s) (or `--task` on the
+no-subtasks path) for whichever branch below applies, and copy it to the clipboard
+(best-effort: `Set-Clipboard`/`pbcopy`/`xclip`).
+
 Then close with the next step, as a **plain message** (not an `AskUserQuestion`), and stop — don't chain automatically:
 
-- **If the fixes were architectural or wide-blast-radius** (a contract changed, a module boundary moved, several files restructured): > **Next step:** re-run `/review-implementation` — these fixes are big enough to deserve a fresh look.
-- **If any Blocker is still `open`:** > **Next step:** the review is still Rejected on `<F-ids>`. Re-run `/triage-findings` to resolve them, or accept the risk explicitly before `/finalize`.
-- **Otherwise:** > **Next step:** run `/finalize` to commit this increment.
+- **If the fixes were architectural or wide-blast-radius** (a contract changed, a module boundary moved, several files restructured): > **Next step:** re-run `/review-implementation data-layer` — these fixes are big enough to deserve a fresh look.
+- **If any Blocker is still `open`:** > **Next step:** the review is still Rejected on `<F-ids>`. Re-run `/triage-findings data-layer` to resolve them, or accept the risk explicitly before `/finalize`.
+- **Otherwise:** > **Next step:** run `/finalize data-layer` to commit this increment.
 
 ## Notes
 
@@ -162,4 +166,4 @@ Then close with the next step, as a **plain message** (not an `AskUserQuestion`)
 - **Write decisions as you go.** `review.md` is updated per finding, not in a batch at the end — that's what makes an interrupted session resumable.
 - **Status lives in two places, deliberately.** Subtask phase stays in `task-plan.md` (`reviewed`, untouched here); per-finding resolution lives in `review.md`. `/finalize` reads both.
 - **Skipping is a legitimate outcome.** A review that ends with four skips and one fix is a successful triage, not a failure.
-- **No auto-chain.** Summarize, point to the next step, and stop.
+- **No auto-chain.** Summarize, point to the next step, and stop. Copying the resolved command to the clipboard is a convenience, not an invocation — never run the next skill yourself.

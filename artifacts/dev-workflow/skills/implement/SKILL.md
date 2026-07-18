@@ -130,9 +130,13 @@ Only the user's acceptance ends this step. Don't self-certify and move on; the s
 
 ### Step 10: Hand off
 
-Once the user has accepted, close with the next step and stop — don't chain automatically:
+Once the user has accepted, resolve the exact next command — `/review-implementation
+{subtask-slug(s)}` for the covered subtask(s), or `/review-implementation --task` on the
+no-subtasks path — and copy it to the clipboard (best-effort: `Set-Clipboard`/`pbcopy`/`xclip`).
+Close with the
+next step and stop — don't chain automatically:
 
-> **Next step:** run `/review-implementation` to check this work against the plan, acceptance criteria, and coding standards.
+> **Next step:** run `/review-implementation data-layer` to check this work against the plan, acceptance criteria, and coding standards.
 
 ## Notes
 
@@ -143,4 +147,4 @@ Once the user has accepted, close with the next step and stop — don't chain au
 - **One artifact, only when warranted.** The sole thing this skill writes (beyond code and status) is an `## Implementation Notes` section appended to the plan, and only for material deviations.
 - **Status lives in task-plan.md.** This skill advances covered subtasks `planned → implemented`; `/review-implementation` and `/finalize` carry them onward. There is no separate ledger.
 - **The user accepts, not the agent.** Automated checks passing is necessary but not sufficient. After implementing, request manual verification and feedback, and iterate until the user explicitly signs off. Don't self-certify and move on.
-- **No auto-chain.** Once accepted, point to `/review-implementation` and stop.
+- **No auto-chain.** Once accepted, point to `/review-implementation` and stop. Copying the resolved command to the clipboard is a convenience, not an invocation — never run the next skill yourself.

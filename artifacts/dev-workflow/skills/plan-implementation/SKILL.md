@@ -190,9 +190,11 @@ task-plan.md                                          subtasks → planned: a, b
 Steps: [N]   Contracts changed: [N]
 ```
 
-Close with the next step and stop — don't chain automatically:
+Resolve the exact next command — `/implement {subtask-slug(s)}` for the covered subtask(s) just
+planned, or `/implement --task` on the no-subtasks path — and copy it to the clipboard
+(best-effort: `Set-Clipboard`/`pbcopy`/`xclip`). Close with the next step and stop — don't chain automatically:
 
-> **Next step:** run `/implement` to carry out this plan in code.
+> **Next step:** run `/implement data-layer` to carry out this plan in code.
 
 ## Notes
 

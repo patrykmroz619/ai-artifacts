@@ -99,6 +99,21 @@ subtask status lives — no separate ledger to drift.
 
 Skills read this file to decide whether to auto-fetch task data, propose branch names, prompt for changelog entries, etc. When an integration is configured but unavailable, skills degrade gracefully to manual input.
 
+### Next-step hand-off
+
+Every skill closes with a `> **Next step:** run \`/command\`` blockquote and explicitly stops —
+chaining into the next skill is always the human's call, never automatic. Two things make that
+hand-off actionable rather than just informative:
+
+- **The command is fully resolved, not bare.** Each skill already resolves its own scope in Step 1
+  (subtask slug(s), or `--task` for the whole-task path). The hand-off carries that same value
+  into the next command instead of dropping it, e.g. `` `/implement data-layer` `` rather than a
+  bare `` `/implement` ``.
+- **Best-effort clipboard copy.** The skill copies that exact command to the OS clipboard —
+  `Set-Clipboard` (Windows), `pbcopy` (macOS), or `wl-copy`/`xclip`/`xsel` (Linux) — so continuing
+  the pipeline is paste-and-run. Best-effort: skip silently if none are available, never block or
+  fail over it. Copying isn't running — "stop, don't chain automatically" still holds.
+
 ---
 
 ## Steps / Skills

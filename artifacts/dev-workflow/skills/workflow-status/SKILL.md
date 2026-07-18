@@ -91,7 +91,8 @@ Subtasks
 Flags: {none | list of drift/mismatch notes from Step 2-3}
 ```
 
-Close with the recommendation:
+Copy the recommended command to the clipboard (best-effort: `Set-Clipboard`/`pbcopy`/`xclip`), then close with the
+recommendation:
 
 > **Next step:** run `/triage-findings subtask-b` — it's reviewed, but its `review.md` still has 1 open Major finding to decide.
 
@@ -107,3 +108,4 @@ If nothing is in progress yet (task exists, no subtasks touched), point to `/pla
   rule the rest of the workflow uses; only ask the user when the task itself is ambiguous (Step 1).
 - **Cheap by design.** This is meant to be run often, right after opening the project — keep git
   inspection light (status + a log skim), not a full diff review.
+- **No auto-chain.** Copying the recommended command to the clipboard is a convenience, not an invocation — never run it yourself.

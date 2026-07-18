@@ -169,10 +169,14 @@ Verdict: <Approved | Needs attention | Rejected>
 Findings: <N blockers · N majors · N minors>
 ```
 
+Resolve the exact next command using this work-item's covered subtask slug(s) (or `--task` on the
+no-subtasks path) — `/triage-findings {scope}` if there are findings, otherwise `/finalize
+{scope}` — and copy it to the clipboard (best-effort: `Set-Clipboard`/`pbcopy`/`xclip`).
+
 Then close with the next step, as a **plain message** (not an `AskUserQuestion`), and stop — don't chain automatically:
 
-- **If there are any findings:** > **Next step:** run `/triage-findings` to walk the findings in `review.md` and decide each one.
-- **If there are no findings at all:** > **Next step:** run `/finalize` to commit this increment.
+- **If there are any findings:** > **Next step:** run `/triage-findings data-layer` to walk the findings in `review.md` and decide each one.
+- **If there are no findings at all:** > **Next step:** run `/finalize data-layer` to commit this increment.
 
 ## Notes
 
@@ -183,4 +187,4 @@ Then close with the next step, as a **plain message** (not an `AskUserQuestion`)
 - **Cross-check Implementation Notes.** The deviations `/implement` recorded are the highest-yield place to look for drift and undocumented scope.
 - **One review.md per work-item.** A multi-subtask or "all not-reviewed" selection produces one report per work-item from a single analysis pass — not a merged report.
 - **Status lives in task-plan.md.** This skill advances covered subtasks `implemented → reviewed`; `/finalize` carries them to `committed`. There is no separate ledger.
-- **No auto-chain.** Summarize, point to the next step, and stop.
+- **No auto-chain.** Summarize, point to the next step, and stop. Copying the resolved command to the clipboard is a convenience, not an invocation — never run the next skill yourself.

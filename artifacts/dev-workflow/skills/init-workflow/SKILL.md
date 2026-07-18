@@ -149,8 +149,9 @@ Then close with two pointers, and stop — don't chain into another skill:
 
 - **Review `workflow-config.md`'s Coding standards section.** It already points at your existing
   rules files; you only need to touch it if the references need adjusting.
-- **Next step:** run `/start-task` when you're ready to begin work. It reads `workflow-config.md` to
-  fetch task details and propose a branch.
+- **Next step:** run `/start-task` when you're ready to begin work. It reads `workflow-config.md`
+  to fetch task details and propose a branch. Copy it to the clipboard first
+  (best-effort: `Set-Clipboard`/`pbcopy`/`xclip`).
 
 ## Notes
 

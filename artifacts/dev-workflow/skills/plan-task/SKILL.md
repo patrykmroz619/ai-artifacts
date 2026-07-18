@@ -177,9 +177,11 @@ specs/tasks/{task-name}/task-plan.md    [created]
 Subtasks: [N]   (or: no subtasks)
 ```
 
-Close with the next step and stop — don't chain automatically:
+Resolve the exact next command — `/plan-implementation {first-pending-subtask-slug}`, or
+`/plan-implementation --task` on the no-subtasks path — and copy it to the clipboard
+(best-effort: `Set-Clipboard`/`pbcopy`/`xclip`). Close with the next step and stop — don't chain automatically:
 
-> **Next step:** run `/plan-implementation` to turn the first subtask (or the whole task) into a step-by-step implementation plan.
+> **Next step:** run `/plan-implementation subtask-a` to turn the first subtask (or the whole task, `--task`) into a step-by-step implementation plan.
 
 ## Subtask naming
 
