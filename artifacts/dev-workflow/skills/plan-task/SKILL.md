@@ -20,7 +20,7 @@ Produce the high-level plan for a task: break it into an ordered subtask plan, o
 
 Before asking anything, do the homework:
 
-1. Check that `specs/workflow-config.md` and `specs/tasks/{task}/task-info.md` both exist. If the task folder is missing, stop and point the user to `/start-task`.
+1. **Resolve the task:** explicit task argument > inference from the current git branch > ask the user. Confirm `specs/workflow-config.md` and `specs/tasks/{task}/task-info.md` both exist. If the task folder is missing, stop and point the user to `/start-task`.
 2. Read `task-info.md` fully — this is the task definition.
 3. Read `specs/workflow-config.md`'s Coding standards section if present.
 4. **If `task-plan.md` already exists**, read it — this is a resumed run. Show the current state and ask whether to continue from where things left off or restart planning.

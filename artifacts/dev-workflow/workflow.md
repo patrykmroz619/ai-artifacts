@@ -106,9 +106,9 @@ chaining into the next skill is always the human's call, never automatic. Two th
 hand-off actionable rather than just informative:
 
 - **The command is fully resolved, not bare.** Each skill already resolves its own scope in Step 1
-  (subtask slug(s), or `--task` for the whole-task path). The hand-off carries that same value
-  into the next command instead of dropping it, e.g. `` `/implement data-layer` `` rather than a
-  bare `` `/implement` ``.
+  (task name, subtask slug(s), or `--task` for the whole-task path). The hand-off carries that same
+  value into the next command instead of dropping it, e.g. `` `/plan-task add-oauth-login` `` or
+  `` `/implement data-layer` `` rather than a bare `` `/plan-task` `` or `` `/implement` ``.
 - **Best-effort clipboard copy.** The skill copies that exact command to the OS clipboard —
   `Set-Clipboard` (Windows), `pbcopy` (macOS), or `wl-copy`/`xclip`/`xsel` (Linux) — so continuing
   the pipeline is paste-and-run. Best-effort: skip silently if none are available, never block or
@@ -294,7 +294,7 @@ and any `## Implementation Notes`) and `task-plan.md` (overall DoD, incl. Planni
 /start-task ─────> specs/tasks/{task}/task-info.md  (+ branch)
         │
         v
-/plan-task ──────> HIGH-LEVEL plan: subtask list + status (SoT) + DoD + planning notes
+/plan-task {task} ─> HIGH-LEVEL plan: subtask list + status (SoT) + DoD + planning notes
         │          (or marks the task as "no subtasks")  [iterative Q&A]
         │
         v
