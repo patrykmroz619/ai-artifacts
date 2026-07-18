@@ -101,9 +101,10 @@ naming it explicitly by slug — `/plan-implementation {slug}` if it's still `pe
 (best-effort: `Set-Clipboard`/`pbcopy`/`xclip`).
 
 Then close, as a **plain message** (not an `AskUserQuestion`), and stop — don't chain
-automatically. Append "(copied to clipboard)" only if the copy succeeded:
+automatically. Put the bolded **(copied to clipboard)** right after the command, only if the copy
+succeeded:
 
-- **If subtasks remain** (task not complete): > **Next step:** run `/plan-implementation subtask-c` (or `/implement subtask-c` if it's already planned) to start the next increment. (copied to clipboard)
+- **If subtasks remain** (task not complete): > **Next step:** run `/plan-implementation subtask-c` **(copied to clipboard)** (or `/implement subtask-c` if it's already planned) to start the next increment.
 - **If the task is complete:** state that the task is done and, if a PR was prepared/opened, point to it. Nothing left to chain.
 
 ## Notes

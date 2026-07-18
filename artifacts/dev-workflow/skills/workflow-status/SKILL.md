@@ -91,10 +91,11 @@ Subtasks
 Flags: {none | list of drift/mismatch notes from Step 2-3}
 ```
 
-Copy the recommended command to the clipboard (best-effort: `Set-Clipboard`/`pbcopy`/`xclip`), then close with the
-recommendation, appending "(copied to clipboard)" only if the copy succeeded:
+Copy the recommended command to the clipboard (best-effort: `Set-Clipboard`/`pbcopy`/`xclip`), then
+close with the recommendation. Put the bolded **(copied to clipboard)** right after the command,
+only if the copy succeeded:
 
-> **Next step:** run `/triage-findings subtask-b` — it's reviewed, but its `review.md` still has 1 open Major finding to decide. (copied to clipboard)
+> **Next step:** run `/triage-findings subtask-b` **(copied to clipboard)** — it's reviewed, but its `review.md` still has 1 open Major finding to decide.
 
 If nothing is in progress yet (task exists, no subtasks touched), point to `/plan-task` or
 `/plan-implementation` as appropriate instead.

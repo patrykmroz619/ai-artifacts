@@ -174,10 +174,11 @@ no-subtasks path) — `/triage-findings {scope}` if there are findings, otherwis
 {scope}` — and copy it to the clipboard (best-effort: `Set-Clipboard`/`pbcopy`/`xclip`).
 
 Then close with the next step, as a **plain message** (not an `AskUserQuestion`), and stop — don't
-chain automatically. Append "(copied to clipboard)" only if the copy succeeded:
+chain automatically. Put the bolded **(copied to clipboard)** right after the command, only if the
+copy succeeded:
 
-- **If there are any findings:** > **Next step:** run `/triage-findings data-layer` to walk the findings in `review.md` and decide each one. (copied to clipboard)
-- **If there are no findings at all:** > **Next step:** run `/finalize data-layer` to commit this increment. (copied to clipboard)
+- **If there are any findings:** > **Next step:** run `/triage-findings data-layer` **(copied to clipboard)** to walk the findings in `review.md` and decide each one.
+- **If there are no findings at all:** > **Next step:** run `/finalize data-layer` **(copied to clipboard)** to commit this increment.
 
 ## Notes
 

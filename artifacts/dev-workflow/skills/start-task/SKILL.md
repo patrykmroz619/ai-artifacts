@@ -120,9 +120,10 @@ branch                                 <name | none>
 
 Then close with the next step and stop — don't chain into another skill:
 
-- **Next step:** run `/plan-task` to break this task into subtasks (or decide it needs none) and set
-  the overall definition of done. Copy it to the clipboard first
-  (best-effort: `Set-Clipboard`/`pbcopy`/`xclip`) — tell the user "(copied to clipboard)" if it succeeds.
+- **Next step:** run `/plan-task` **(copied to clipboard)** to break this task into subtasks (or
+  decide it needs none) and set the overall definition of done. Copy it to the clipboard first
+  (best-effort: `Set-Clipboard`/`pbcopy`/`xclip`) — put the bolded **(copied to clipboard)** right
+  after the command, only if the copy succeeded.
 
 ## Notes
 

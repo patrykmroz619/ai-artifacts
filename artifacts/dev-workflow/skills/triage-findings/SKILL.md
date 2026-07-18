@@ -152,11 +152,12 @@ no-subtasks path) for whichever branch below applies, and copy it to the clipboa
 (best-effort: `Set-Clipboard`/`pbcopy`/`xclip`).
 
 Then close with the next step, as a **plain message** (not an `AskUserQuestion`), and stop — don't
-chain automatically. Append "(copied to clipboard)" only if the copy succeeded:
+chain automatically. Put the bolded **(copied to clipboard)** right after the command, only if the
+copy succeeded:
 
-- **If the fixes were architectural or wide-blast-radius** (a contract changed, a module boundary moved, several files restructured): > **Next step:** re-run `/review-implementation data-layer` — these fixes are big enough to deserve a fresh look. (copied to clipboard)
-- **If any Blocker is still `open`:** > **Next step:** the review is still Rejected on `<F-ids>`. Re-run `/triage-findings data-layer` to resolve them, or accept the risk explicitly before `/finalize`. (copied to clipboard)
-- **Otherwise:** > **Next step:** run `/finalize data-layer` to commit this increment. (copied to clipboard)
+- **If the fixes were architectural or wide-blast-radius** (a contract changed, a module boundary moved, several files restructured): > **Next step:** re-run `/review-implementation data-layer` **(copied to clipboard)** — these fixes are big enough to deserve a fresh look.
+- **If any Blocker is still `open`:** > **Next step:** the review is still Rejected on `<F-ids>`. Re-run `/triage-findings data-layer` **(copied to clipboard)** to resolve them, or accept the risk explicitly before `/finalize`.
+- **Otherwise:** > **Next step:** run `/finalize data-layer` **(copied to clipboard)** to commit this increment.
 
 ## Notes
 

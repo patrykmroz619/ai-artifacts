@@ -112,9 +112,9 @@ hand-off actionable rather than just informative:
 - **Best-effort clipboard copy.** The skill copies that exact command to the OS clipboard —
   `Set-Clipboard` (Windows), `pbcopy` (macOS), or `wl-copy`/`xclip`/`xsel` (Linux) — so continuing
   the pipeline is paste-and-run. Best-effort: skip silently if none are available, never block or
-  fail over it. When the copy succeeds, the hand-off line says so (`(copied to clipboard)`), so
-  the user knows without checking. Copying isn't running — "stop, don't chain automatically"
-  still holds.
+  fail over it. When the copy succeeds, the hand-off line says so with a bolded
+  **(copied to clipboard)** right after the command, so the user knows without checking. Copying
+  isn't running — "stop, don't chain automatically" still holds.
 
 ---
 
