@@ -179,9 +179,10 @@ Subtasks: [N]   (or: no subtasks)
 
 Resolve the exact next command — `/plan-implementation {first-pending-subtask-slug}`, or
 `/plan-implementation --task` on the no-subtasks path — and copy it to the clipboard
-(best-effort: `Set-Clipboard`/`pbcopy`/`xclip`). Close with the next step and stop — don't chain automatically:
+(best-effort: `Set-Clipboard`/`pbcopy`/`xclip`). Close with the next step and stop — don't chain
+automatically, and append "(copied to clipboard)" only if the copy succeeded:
 
-> **Next step:** run `/plan-implementation subtask-a` to turn the first subtask (or the whole task, `--task`) into a step-by-step implementation plan.
+> **Next step:** run `/plan-implementation subtask-a` to turn the first subtask (or the whole task, `--task`) into a step-by-step implementation plan. (copied to clipboard)
 
 ## Subtask naming
 

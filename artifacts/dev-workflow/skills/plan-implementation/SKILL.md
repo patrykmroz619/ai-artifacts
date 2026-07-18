@@ -192,9 +192,10 @@ Steps: [N]   Contracts changed: [N]
 
 Resolve the exact next command — `/implement {subtask-slug(s)}` for the covered subtask(s) just
 planned, or `/implement --task` on the no-subtasks path — and copy it to the clipboard
-(best-effort: `Set-Clipboard`/`pbcopy`/`xclip`). Close with the next step and stop — don't chain automatically:
+(best-effort: `Set-Clipboard`/`pbcopy`/`xclip`). Close with the next step and stop — don't chain
+automatically, and append "(copied to clipboard)" only if the copy succeeded:
 
-> **Next step:** run `/implement data-layer` to carry out this plan in code.
+> **Next step:** run `/implement data-layer` to carry out this plan in code. (copied to clipboard)
 
 ## Notes
 

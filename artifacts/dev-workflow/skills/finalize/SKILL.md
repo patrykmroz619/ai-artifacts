@@ -100,9 +100,10 @@ naming it explicitly by slug — `/plan-implementation {slug}` if it's still `pe
 `/implement {slug}` if it's already `planned` — then copy it to the clipboard
 (best-effort: `Set-Clipboard`/`pbcopy`/`xclip`).
 
-Then close, as a **plain message** (not an `AskUserQuestion`), and stop — don't chain automatically:
+Then close, as a **plain message** (not an `AskUserQuestion`), and stop — don't chain
+automatically. Append "(copied to clipboard)" only if the copy succeeded:
 
-- **If subtasks remain** (task not complete): > **Next step:** run `/plan-implementation subtask-c` (or `/implement subtask-c` if it's already planned) to start the next increment.
+- **If subtasks remain** (task not complete): > **Next step:** run `/plan-implementation subtask-c` (or `/implement subtask-c` if it's already planned) to start the next increment. (copied to clipboard)
 - **If the task is complete:** state that the task is done and, if a PR was prepared/opened, point to it. Nothing left to chain.
 
 ## Notes

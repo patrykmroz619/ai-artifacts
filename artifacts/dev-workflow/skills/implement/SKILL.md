@@ -133,10 +133,10 @@ Only the user's acceptance ends this step. Don't self-certify and move on; the s
 Once the user has accepted, resolve the exact next command — `/review-implementation
 {subtask-slug(s)}` for the covered subtask(s), or `/review-implementation --task` on the
 no-subtasks path — and copy it to the clipboard (best-effort: `Set-Clipboard`/`pbcopy`/`xclip`).
-Close with the
-next step and stop — don't chain automatically:
+Close with the next step and stop — don't chain automatically, and append "(copied to clipboard)"
+only if the copy succeeded:
 
-> **Next step:** run `/review-implementation data-layer` to check this work against the plan, acceptance criteria, and coding standards.
+> **Next step:** run `/review-implementation data-layer` to check this work against the plan, acceptance criteria, and coding standards. (copied to clipboard)
 
 ## Notes
 
