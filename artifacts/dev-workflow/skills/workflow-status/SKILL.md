@@ -91,11 +91,13 @@ Subtasks
 Flags: {none | list of drift/mismatch notes from Step 2-3}
 ```
 
-Copy the recommended command to the clipboard (best-effort: `Set-Clipboard`/`pbcopy`/`xclip`), then
-close with the recommendation. Put the bolded **(copied to clipboard)** right after the command,
-only if the copy succeeded:
+The recommended command names the task explicitly, same as every other pipeline hand-off — this
+is a re-entry point, so the next skill can't be assumed to infer the task from the branch. Copy it
+to the clipboard (best-effort: `Set-Clipboard`/`pbcopy`/`xclip`), then close with the
+recommendation. Put the bolded **(copied to clipboard)** right after the command, only if the copy
+succeeded:
 
-> **Next step:** run `/triage-findings subtask-b` **(copied to clipboard)** — it's reviewed, but its `review.md` still has 1 open Major finding to decide.
+> **Next step:** run `/triage-findings add-oauth-login subtask-b` **(copied to clipboard)** — it's reviewed, but its `review.md` still has 1 open Major finding to decide.
 
 If nothing is in progress yet (task exists, no subtasks touched), point to `/plan-task` or
 `/plan-implementation` as appropriate instead.

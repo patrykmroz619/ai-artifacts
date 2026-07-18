@@ -147,17 +147,17 @@ Checks: <cmd> ✓  <cmd> ✓   Deviations: <n recorded, or none>
 Verdict: <Approved | Needs attention | Rejected>
 ```
 
-Resolve the exact next command using this work-item's covered subtask slug(s) (or `--task` on the
-no-subtasks path) for whichever branch below applies, and copy it to the clipboard
-(best-effort: `Set-Clipboard`/`pbcopy`/`xclip`).
+Resolve the exact next command using the task name plus this work-item's covered subtask slug(s)
+(or just the task name, no `--task` needed, on the no-subtasks path) for whichever branch below
+applies, and copy it to the clipboard (best-effort: `Set-Clipboard`/`pbcopy`/`xclip`).
 
 Then close with the next step, as a **plain message** (not an `AskUserQuestion`), and stop — don't
 chain automatically. Put the bolded **(copied to clipboard)** right after the command, only if the
 copy succeeded:
 
-- **If the fixes were architectural or wide-blast-radius** (a contract changed, a module boundary moved, several files restructured): > **Next step:** re-run `/review-implementation data-layer` **(copied to clipboard)** — these fixes are big enough to deserve a fresh look.
-- **If any Blocker is still `open`:** > **Next step:** the review is still Rejected on `<F-ids>`. Re-run `/triage-findings data-layer` **(copied to clipboard)** to resolve them, or accept the risk explicitly before `/finalize`.
-- **Otherwise:** > **Next step:** run `/finalize data-layer` **(copied to clipboard)** to commit this increment.
+- **If the fixes were architectural or wide-blast-radius** (a contract changed, a module boundary moved, several files restructured): > **Next step:** re-run `/review-implementation add-oauth-login data-layer` **(copied to clipboard)** — these fixes are big enough to deserve a fresh look.
+- **If any Blocker is still `open`:** > **Next step:** the review is still Rejected on `<F-ids>`. Re-run `/triage-findings add-oauth-login data-layer` **(copied to clipboard)** to resolve them, or accept the risk explicitly before `/finalize`.
+- **Otherwise:** > **Next step:** run `/finalize add-oauth-login data-layer` **(copied to clipboard)** to commit this increment.
 
 ## Notes
 

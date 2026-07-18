@@ -177,13 +177,14 @@ specs/tasks/{task-name}/task-plan.md    [created]
 Subtasks: [N]   (or: no subtasks)
 ```
 
-Resolve the exact next command — `/plan-implementation {first-pending-subtask-slug}`, or
-`/plan-implementation --task` on the no-subtasks path — and copy it to the clipboard
-(best-effort: `Set-Clipboard`/`pbcopy`/`xclip`). Close with the next step and stop — don't chain
-automatically. Put the bolded **(copied to clipboard)** right after the command, only if the copy
-succeeded:
+Resolve the exact next command — `/plan-implementation {task-name} {first-pending-subtask-slug}`
+when the task has subtasks, or `/plan-implementation {task-name}` (no `--task` needed — the
+no-subtasks path resolves automatically once no scope is given) on the no-subtasks path — and copy
+it to the clipboard (best-effort: `Set-Clipboard`/`pbcopy`/`xclip`). Close with the next step and
+stop — don't chain automatically. Put the bolded **(copied to clipboard)** right after the
+command, only if the copy succeeded:
 
-> **Next step:** run `/plan-implementation subtask-a` **(copied to clipboard)** to turn the first subtask (or the whole task, `--task`) into a step-by-step implementation plan.
+> **Next step:** run `/plan-implementation add-oauth-login subtask-a` **(copied to clipboard)** to turn the first subtask (or the whole task) into a step-by-step implementation plan.
 
 ## Subtask naming
 

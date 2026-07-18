@@ -96,15 +96,15 @@ Changelog: <added | n/a>     Task complete: <yes | no>
 
 If subtasks remain, resolve the exact next command by finding the **earliest-phase** outstanding
 subtask in `task-plan.md` (the same earliest-phase-first lookup `/workflow-status` uses) and
-naming it explicitly by slug — `/plan-implementation {slug}` if it's still `pending`, or
-`/implement {slug}` if it's already `planned` — then copy it to the clipboard
-(best-effort: `Set-Clipboard`/`pbcopy`/`xclip`).
+naming the task plus that subtask explicitly by slug — `/plan-implementation {task-name} {slug}`
+if it's still `pending`, or `/implement {task-name} {slug}` if it's already `planned` — then copy
+it to the clipboard (best-effort: `Set-Clipboard`/`pbcopy`/`xclip`).
 
 Then close, as a **plain message** (not an `AskUserQuestion`), and stop — don't chain
 automatically. Put the bolded **(copied to clipboard)** right after the command, only if the copy
 succeeded:
 
-- **If subtasks remain** (task not complete): > **Next step:** run `/plan-implementation subtask-c` **(copied to clipboard)** (or `/implement subtask-c` if it's already planned) to start the next increment.
+- **If subtasks remain** (task not complete): > **Next step:** run `/plan-implementation add-oauth-login subtask-c` **(copied to clipboard)** (or `/implement add-oauth-login subtask-c` if it's already planned) to start the next increment.
 - **If the task is complete:** state that the task is done and, if a PR was prepared/opened, point to it. Nothing left to chain.
 
 ## Notes

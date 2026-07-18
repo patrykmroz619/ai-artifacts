@@ -169,16 +169,17 @@ Verdict: <Approved | Needs attention | Rejected>
 Findings: <N blockers · N majors · N minors>
 ```
 
-Resolve the exact next command using this work-item's covered subtask slug(s) (or `--task` on the
-no-subtasks path) — `/triage-findings {scope}` if there are findings, otherwise `/finalize
-{scope}` — and copy it to the clipboard (best-effort: `Set-Clipboard`/`pbcopy`/`xclip`).
+Resolve the exact next command using the task name plus this work-item's covered subtask slug(s)
+(or just the task name, no `--task` needed, on the no-subtasks path) — `/triage-findings
+{task-name} {scope}` if there are findings, otherwise `/finalize {task-name} {scope}` — and copy
+it to the clipboard (best-effort: `Set-Clipboard`/`pbcopy`/`xclip`).
 
 Then close with the next step, as a **plain message** (not an `AskUserQuestion`), and stop — don't
 chain automatically. Put the bolded **(copied to clipboard)** right after the command, only if the
 copy succeeded:
 
-- **If there are any findings:** > **Next step:** run `/triage-findings data-layer` **(copied to clipboard)** to walk the findings in `review.md` and decide each one.
-- **If there are no findings at all:** > **Next step:** run `/finalize data-layer` **(copied to clipboard)** to commit this increment.
+- **If there are any findings:** > **Next step:** run `/triage-findings add-oauth-login data-layer` **(copied to clipboard)** to walk the findings in `review.md` and decide each one.
+- **If there are no findings at all:** > **Next step:** run `/finalize add-oauth-login data-layer` **(copied to clipboard)** to commit this increment.
 
 ## Notes
 

@@ -69,6 +69,15 @@ Once resolved, a subtask is mapped to its **work-item** via the `(work-item: \`s
 The **task itself** is resolved as before: explicit task argument > current git branch inference >
 ask the user. Branches map to the **task**, not to subtasks.
 
+**Hand-off syntax:** every hand-off command names the task as its leading argument —
+`` /{command} {task-name} {scope} `` — because the task can't always be inferred from the branch
+(branch creation is optional in `/start-task`). Once the task is named, the scope argument follows
+the same fallback the skill already uses: pass subtask slug(s) when the task has them; **pass
+nothing** on the no-subtasks path — the "no-subtasks path" step in the resolution order already
+selects whole-task scope once no scope argument is given, so a trailing `--task` is redundant
+there. `--task` stays meaningful only as an explicit **override**, to force whole-task scope on a
+task that *does* have subtasks — that's a user-driven call, not something a default hand-off emits.
+
 ### Subtask status in `task-plan.md`
 
 `task-plan.md` lists each subtask as a heading carrying its slug and a phase tag, which the per-scope
@@ -105,10 +114,11 @@ Every skill closes with a `> **Next step:** run \`/command\`` blockquote and exp
 chaining into the next skill is always the human's call, never automatic. Two things make that
 hand-off actionable rather than just informative:
 
-- **The command is fully resolved, not bare.** Each skill already resolves its own scope in Step 1
-  (task name, subtask slug(s), or `--task` for the whole-task path). The hand-off carries that same
-  value into the next command instead of dropping it, e.g. `` `/plan-task add-oauth-login` `` or
-  `` `/implement data-layer` `` rather than a bare `` `/plan-task` `` or `` `/implement` ``.
+- **The command is fully resolved, not bare.** Each skill already resolves its own task and scope
+  in Step 1. The hand-off carries the task name and (when applicable) the scope into the next
+  command instead of dropping them, e.g. `` `/plan-task add-oauth-login` `` or
+  `` `/implement add-oauth-login data-layer` `` rather than a bare `` `/plan-task` `` or
+  `` `/implement data-layer` ``.
 - **Best-effort clipboard copy.** The skill copies that exact command to the OS clipboard —
   `Set-Clipboard` (Windows), `pbcopy` (macOS), or `wl-copy`/`xclip`/`xsel` (Linux) — so continuing
   the pipeline is paste-and-run. Best-effort: skip silently if none are available, never block or
