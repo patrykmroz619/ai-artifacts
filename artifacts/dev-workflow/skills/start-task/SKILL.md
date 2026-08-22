@@ -51,6 +51,16 @@ You need two things: a short human title and (if a tracker is configured) the ta
 - **If the user's opening message already describes the task**, use it — don't ask redundant
   questions. Only ask for what's genuinely missing.
 
+**Treat message input as its own source, kept separate from the tracker fetch.** When the user's
+invoking message carries content beyond a bare task reference — extra constraints, scope notes,
+requirements, "also make sure X" asides — hold onto that content distinctly rather than letting a
+subsequent tracker fetch overwrite or absorb it. If a tracker is also fetched, compare the two:
+- If the message content is consistent with the tracker (or simply adds to it), no interruption is
+  needed — both will be merged in Step 4.
+- If the message content **contradicts** the tracker (not just covers different ground, but actually
+  disagrees with it), stop and use `AskUserQuestion` to show both versions and ask the user which one
+  is correct. Don't silently prefer either side and don't guess.
+
 The point of this step is to land on a **clear goal** — an unambiguous statement of what will be
 built or changed. If the initial input or the fetched ticket is vague, thin, or missing the actual
 objective ("fix the thing", an empty ticket body, a one-word title), don't paper over it: ask the
@@ -82,6 +92,12 @@ you gathered:
   and the user's input. Aim for brevity, but **don't drop details to hit a length** — if the sources
   are rich, capture everything that matters (constraints, specific behaviors, edge cases mentioned).
   The artifact stays short when the inputs are short, and grows only as far as the inputs demand.
+  Every detail the user typed in their invoking message must show up here (or in Acceptance hints, if
+  it's acceptance-shaped) — never trimmed for brevity or dropped because it looked covered by the
+  tracker. Merge, don't duplicate, where message and tracker describe the same thing without conflict.
+  Where Step 2 surfaced a genuine conflict and the user resolved it, write the resolved version and
+  add a short parenthetical noting it was clarified with the user, so a later reader understands why
+  the Summary doesn't match the linked ticket verbatim.
 - **Acceptance hints** — any "done when" cues or acceptance criteria from the tracker or the user.
   Preserve all of them when several are given. If there are none, remove the section rather than
   leaving an empty placeholder.
@@ -133,6 +149,9 @@ Then close with the next step and stop — don't chain into another skill:
   yield a short artifact; detailed inputs are preserved in full.
 - **Honor the configured integration.** Fetch from the tracker when it's actually available, and fall
   back to manual input transparently when it isn't — never fabricate ticket details.
+- **User-supplied message input always wins.** Anything the user types in their invoking message is
+  preserved in full in `task-info.md` and takes priority over tracker content — ask the user when the
+  two genuinely conflict, don't guess or silently pick one.
 - **Don't clobber existing work.** A re-run on an existing task name resumes that workspace rather
   than overwriting it.
 - **The branch belongs to the task.** Downstream skills infer the active task from the current
