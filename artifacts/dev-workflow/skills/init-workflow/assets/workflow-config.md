@@ -15,6 +15,15 @@ Update by re-running /init-workflow or by editing this file directly.
 - **Branch naming:** <e.g. feat/{ticket}-{slug}, or "ask each time">
 - **Commit style:** <e.g. Conventional Commits>
 
+## Autopilot
+
+> How an unattended `/autopilot` run is allowed to finish. It commits locally either way;
+> this decides whether it may also push and open a PR/MR. Absent section = report only.
+
+- **Completion mode:** <open PR/MR | report only>
+- **Remote host:** <GitHub (`gh`) | GitLab (`glab`) | other | n/a>
+- **Notes:** <base branch, draft or ready, reviewers/labels — anything an unattended run needs to open the PR/MR correctly>
+
 ## Coding standards
 
 > Existing rules files in this repo that already define coding standards. Treat these as

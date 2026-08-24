@@ -42,8 +42,9 @@ dir is tracked in git. /start-task populates it later (one folder per task); the
 documented there and in the workflow design, so no README is needed here.
 
 **`specs/workflow-config.md`** — filled in Step 2. If it already exists, don't recreate it; instead
-read it and check each section (task management, git conventions, changelog, coding standards) for
-completeness. Run the interview **only for the sections that are missing or incomplete**, and ask the
+read it and check each section (task management, git conventions, changelog, autopilot, coding
+standards) for completeness. A config written before a section existed simply lacks it — that's a
+gap to fill, not a reason to leave it out. Run the interview **only for the sections that are missing or incomplete**, and ask the
 user before changing anything they've already filled in. If it's fully populated, show it and ask
 whether to keep it as-is or revisit anything.
 
@@ -61,7 +62,7 @@ genuinely open-ended details that don't fit options well — pasted credentials,
 custom branch pattern.
 
 Ask in **small batches** rather than one giant form — group related questions into a single
-`AskUserQuestion` call, let earlier answers inform later ones, and keep it conversational. Cover four
+`AskUserQuestion` call, let earlier answers inform later ones, and keep it conversational. Cover five
 areas:
 
 **1. Task management.** Which system, if any. **Ask the user first — never infer the tracker from
@@ -111,7 +112,31 @@ changeset tooling like `.changeset/`). Let the finding shape the question:
 > Whether a changelog section ends up in the config is what tells /finalize whether and where to add
 > an entry.
 
-**4. Coding standards.** Scan the repo's rules/instruction files — e.g. `CLAUDE.md`, `AGENTS.md`,
+**4. Autopilot.** `/autopilot` runs the whole task pipeline unattended, and it never stops to ask —
+so how far it's allowed to go has to be decided **here, in advance**. It always commits locally. The
+question is whether it may also **push the branch and open a PR/MR** when it finishes a task.
+
+**Detect first, then ask**, as with the changelog: check whether a remote is configured and whether
+`gh` or `glab` is installed and authenticated (`gh auth status` / `glab auth status`). Then offer the
+two modes with their honest consequences:
+
+> - **Open PR/MR** — the run ends with a pushed branch and an opened PR/MR whose body carries the
+>   decisions the agents made. Fastest, and the review happens on the PR. Requires a working CLI.
+> - **Report only** — the run commits locally and stops there, printing the exact `gh pr create` /
+>   `glab mr create` command. Nothing leaves the machine without a human running that command.
+
+Record the choice, the remote host, and any details an unattended run needs to open the PR/MR
+correctly (base branch, draft vs ready, reviewers or labels) in the config's **Notes**.
+
+Two rules carry over from area 1: **only record what's actually available** — don't set `open PR/MR`
+against a CLI that isn't authenticated, or `/auto-finalize` will fall back to report-only anyway; and
+**don't infer the answer from installed tooling** — a working `gh` says nothing about whether the
+project wants an agent pushing to it. Ask.
+
+If the user doesn't use `/autopilot` at all, `report only` is the right record — it's also what an
+absent section means, so downstream behavior is identical either way.
+
+**5. Coding standards.** Scan the repo's rules/instruction files — e.g. `CLAUDE.md`, `AGENTS.md`,
 `.cursor/rules/` (`.mdc` files), `.cursorrules`, `.github/copilot-instructions.md`, `.windsurfrules`
 — for anything that reads like a coding standard (language idioms, naming, formatting, testing, error
 handling, file layout). If you find any, **reference the source files rather than copying their
@@ -131,6 +156,9 @@ Then write `specs/workflow-config.md` from the bundled template at `assets/workf
 angle-bracketed placeholders. The template has no changelog section: **add a `## Changelog` section
 only when the user maintains one**, recording its location/format. If they don't, leave it out
 entirely — its absence is what tells /finalize not to prompt for entries.
+
+The `## Autopilot` section, by contrast, is in the template and is **always written** — recording
+`report only` explicitly is better than leaving the mode implicit.
 
 ### Step 3: Summarize and point the way
 

@@ -159,6 +159,9 @@ src/
 **Manual:** [Human checks — UI/UX behavior, real-world cases, anything not coverable by a command.]
 ```
 
+`/implement` later appends a `## Verification Log` section recording the actual result of running
+these commands — analogous to `## Implementation Notes`, this plan doesn't write it up front.
+
 ### Step 5: Update task-plan.md
 
 Edit `task-plan.md` to reflect that this scope is planned:

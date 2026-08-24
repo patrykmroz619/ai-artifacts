@@ -58,7 +58,7 @@ specs/tasks/{task}/
 
 For each covered work-item:
 
-1. Read its `implementation-plan.md` in full — **Target Structure**, **Contracts**, **Acceptance Criteria**, **Verification**, and any **`## Implementation Notes`** (the deviations `/implement` recorded; these are prime review targets).
+1. Read its `implementation-plan.md` in full — **Target Structure**, **Contracts**, **Acceptance Criteria**, **Verification**, any **`## Implementation Notes`** (the deviations `/implement` recorded; these are prime review targets), and **`## Verification Log`** (the automated-check result `/implement` or `/triage-findings` last recorded — this is what Step 5's Verification section quotes; never re-run the checks yourself).
 2. Read `task-plan.md`'s **Definition of Done** for the covered subtasks, `specs/workflow-config.md`'s Coding standards section, and repo rules (`CLAUDE.md` / `AGENTS.md` / `.cursor/rules`).
 3. Treat the plan as the ground truth for *intent* and the standards as the ground truth for *quality*. The review measures the code against both.
 
@@ -115,8 +115,8 @@ For each covered work-item, write `review.md` to:
 
 ## Verification
 
-**Automated:** [status carried over from /implement's hand-off — not re-run here]
-**Manual:** [items from the plan still outstanding per /implement's hand-off]
+**Automated:** [copied from the plan's `## Verification Log` — not re-run here]
+**Manual:** [copied from the plan's `## Verification Log` — items still outstanding]
 
 ## Findings
 
@@ -184,6 +184,7 @@ copy succeeded:
 ## Notes
 
 - **Report-only.** This skill analyzes and writes `review.md`; it never edits source. Findings are acted on by `/triage-findings` — that separation is what keeps the review independent.
+- **Never re-run automated verification.** `/implement` and `/triage-findings` own that; this skill reads their recorded `## Verification Log` and quotes it as-is. If the plan has no `## Verification Log` at all, that's a finding to raise (e.g. a Major: "no recorded verification result"), not a cue to run the commands yourself.
 - **Evidence over opinion.** Every finding names a location and the concrete risk or violated standard. "Might be a problem somewhere" is not a finding.
 - **Don't flag style for its own sake.** If the code works and follows the plan, minor formatting differences are Minor observations, not Majors.
 - **The plan can be wrong too.** If the implementation faithfully followed a flawed plan (e.g. an insecure approach), flag the underlying issue — review catches plan defects, not just code defects.

@@ -104,6 +104,7 @@ subtask status lives — no separate ledger to drift.
 - **Task management** (Jira / Linear / GitHub Issues / none) and the access mechanism (MCP server, CLI such as `gh`, or manual).
 - **Git conventions** (branch naming, commit style).
 - **Changelog** practice (maintained or not, file location/format).
+- **Autopilot** — the completion mode for unattended runs: `open PR/MR` (the run may push and open the PR/MR itself) or `report only` (it commits locally and prints the command). An absent section means `report only`. This is a **pre-authorization**, decided while a human is present, because `/autopilot` never stops to ask mid-run.
 - **Coding standards** — references to the repo's existing rules files (e.g. `CLAUDE.md`, `.cursor/rules`); no content of its own, just pointers to what stays authoritative.
 
 Skills read this file to decide whether to auto-fetch task data, propose branch names, prompt for changelog entries, etc. When an integration is configured but unavailable, skills degrade gracefully to manual input.
@@ -341,7 +342,74 @@ Not every skill belongs to the task pipeline. These operate independently and re
 - **`/research-solution` — Research an architecture or solution approach through parallel subagents.** For complex or unfamiliar problems, features, or initiatives where the right approach isn't obvious — including ones too large for a single task. The agent scopes a research brief, splits it into independent streams (candidate libraries/frameworks, managed services, a web-search discovery stream for comparable open-source projects), dispatches them in parallel, then dispatches a second wave of one subagent per project the discovery stream actually surfaced — never a project picked from the agent's own memory — requiring those subagents to read and cite real source, not just docs. Synthesizes a recommendation into `specs/research/{slug}.md`. Task-agnostic: reads and writes no task artifacts, can run before any task exists, and can seed one or several later `/start-task` runs. Never edits source.
 - **`/workflow-status` — Re-entry snapshot: where a task stands, what's next.** The pickup point after stepping away from a task. Resolves the active task (explicit arg, else current-branch inference), reads `task-plan.md` and each referenced work-item's `implementation-plan.md` / `review.md`, and cross-checks that against light git state (branch match, working-tree cleanliness, a log skim). Reports each subtask's phase, flags any drift between recorded status and what's actually on disk, and closes with **one** recommended next command — the earliest-phase outstanding subtask, following the same resolution order the pipeline skills already use. Read-only throughout: it never edits `task-plan.md`, source, or git state, even when it finds drift.
 
+## Autonomous pipeline (`/autopilot`)
+
+The pipeline above is human-in-the-loop by design: every skill stops, prints the next command, and
+waits for a person. `/autopilot` is the opposite mode — the same seven stages, every subtask, run
+end to end in one unattended pass. It exists alongside the core skills and **changes none of them**.
+
+### Shape
+
+A **coordinator** skill (`/autopilot`) plus an `auto-` counterpart for each of the seven pipeline
+stages. The coordinator never plans, implements, or commits: it reads the state on disk, decides
+which stage runs next, dispatches a **subagent** to run that stage's `auto-` skill, verifies what
+actually changed on disk, and loops. Stages never hand off to each other — the coordinator is the
+sole router, and `task-plan.md` remains the only status ledger.
+
+```
+/autopilot {task}
+     │
+     │  reads task-plan.md → routes to the earliest-phase outstanding subtask
+     v
+  dispatch subagent ─> /auto-{stage} ─> writes artifacts + advances status
+     │                                   returns a structured stage report
+     v
+  re-read disk (the report is not trusted; the files are)
+     │
+     ├─> sanity-check any Low-confidence decision with a second agent
+     │     └─> on "revise": one bounded amend pass, then move on
+     v
+  loop until every subtask is committed, a stage blocks, or progress stalls
+```
+
+### Why the `auto-` skills exist
+
+`AskUserQuestion` is not available inside a delegated subagent — a property of the harness, not
+something a skill can opt out of — so a dispatched stage cannot reach the human. Autonomy therefore
+has to be written into the stage instructions rather than reached for at runtime. Each `auto-` skill is a **thin override**: it points at its core counterpart,
+says "follow that exactly", and replaces only the specific steps that ask, propose for approval, or
+iterate until the user accepts. There is no second copy of the stage logic to drift.
+
+- `/auto-start-task`, `/auto-plan-task`, `/auto-plan-implementation` — decisions come from the task
+  brief and codebase evidence instead of Q&A rounds; approval gates are skipped.
+- `/auto-implement` — no blocker pause and no acceptance loop; manual verification is performed where
+  possible and reported as outstanding where not.
+- `/auto-review-implementation` — nearly unchanged; it was already report-only.
+- `/auto-triage-findings` — the per-finding question becomes a fixed severity rubric. `accepted` and
+  `dismissed` are never used: both encode a human taking a risk or overruling the reviewer.
+- `/auto-finalize` — commits without confirmation, hard-stops on an unfixed Blocker, and pushes or
+  opens a PR/MR only when the config's **Autopilot completion mode** pre-authorized it.
+
+### Accountability
+
+Every call an agent makes that a human would have been asked about is appended to
+`specs/tasks/{task}/decisions.md` — decision, alternatives considered, rationale with evidence, and a
+**confidence rating** (High / Medium / Low) against a fixed rubric. Any `Low` entry triggers a
+second-agent sanity check by the coordinator before the run proceeds, and `/auto-finalize` folds the
+crucial decisions and their rejected alternatives into the PR/MR body, so a reviewer sees why the
+calls were made and not just the diff. The shared rules live in
+`skills/autopilot/assets/autonomy-contract.md`.
+
+### Deliberate limits
+
+- **One question, up front.** `/autopilot` confirms the task, the stages, and the completion mode
+  before starting. After that nothing pauses — including on Blocker findings.
+- **No cost or retry ceiling**, by choice. The only stop guards are a blocked stage and a no-progress
+  check (two dispatches for the same scope that fail to move the ledger).
+- **Scope, not gating, is the mitigation.** This mode is for straightforward tasks. Contested
+  architecture, risky migrations, and high-blast-radius work want the core skills and a human.
+
 ## Status / future
 
-- All twelve skills are implemented under `artifacts/dev-workflow/skills/`: the eight-step pipeline (`init-workflow`, `start-task`, `plan-task`, `plan-implementation`, `implement`, `review-implementation`, `triage-findings`, `finalize`) plus the standalone `review-pr`, `qa-scenarios`, `workflow-status`, `research-solution`. This document is the high-level design; each `SKILL.md` is the authoritative spec for its step.
+- All twenty-one skills are implemented under `artifacts/dev-workflow/skills/`: the eight-step pipeline (`init-workflow`, `start-task`, `plan-task`, `plan-implementation`, `implement`, `review-implementation`, `triage-findings`, `finalize`), the standalone `review-pr`, `qa-scenarios`, `workflow-status`, `research-solution`, `add-task-to-backlog`, and the autonomous set (`autopilot` plus the seven `auto-` stage skills). This document is the high-level design; each `SKILL.md` is the authoritative spec for its step.
 - Wiring `dev-workflow` into the CLI as an installable registry scope (so `npx @patryk.mroz/artifacts install dev-workflow` distributes it) is **deferred**.

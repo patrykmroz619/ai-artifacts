@@ -111,8 +111,9 @@ If anything was fixed:
 1. Run the plan's **Automated** verification — the exact tests, lint, typecheck, and build commands it names (use Bash).
 2. **Fix what the fixes broke** and re-run, looping until green or you hit a genuine blocker (an environment problem, a pre-existing failure unrelated to this work, or a contradiction that needs the user).
 3. **Never silently skip a red check.** If something is still failing at the end, report it with the actual output and say why.
+4. **Update the plan's `## Verification Log`** in place (overwrite, not append) with the fresh result — same format `/implement` uses, naming this skill and the date. It's now the current source of truth for automated-check status; a later `/review-implementation` reads it instead of re-running anything.
 
-If nothing was fixed — every finding skipped, accepted, deferred, or dismissed — skip this step entirely rather than re-running green checks for nothing.
+If nothing was fixed — every finding skipped, accepted, deferred, or dismissed — skip this step entirely rather than re-running green checks for nothing. The existing `## Verification Log` from `/implement` is still accurate; leave it untouched.
 
 ### Step 5: Record material deviations (only if any)
 
@@ -166,6 +167,7 @@ copy succeeded:
 - **Minimal, targeted edits.** Fix what the finding names. No opportunistic refactoring, no improving code nobody flagged.
 - **Contracts still bind.** A fix that breaks the plan's contracts is a deviation to record (Step 5), not a free improvement.
 - **Write decisions as you go.** `review.md` is updated per finding, not in a batch at the end — that's what makes an interrupted session resumable.
+- **Keep the Verification Log current.** It's the only record a later `/review-implementation` trusts — if you fixed anything, overwrite it in Step 4; if you didn't, leave `/implement`'s entry alone rather than re-running checks just to refresh a timestamp.
 - **Status lives in two places, deliberately.** Subtask phase stays in `task-plan.md` (`reviewed`, untouched here); per-finding resolution lives in `review.md`. `/finalize` reads both.
 - **Skipping is a legitimate outcome.** A review that ends with four skips and one fix is a successful triage, not a failure.
 - **No auto-chain.** Summarize, point to the next step, and stop. Copying the resolved command to the clipboard is a convenience, not an invocation — never run the next skill yourself.

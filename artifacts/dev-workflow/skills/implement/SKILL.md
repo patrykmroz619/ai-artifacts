@@ -64,6 +64,18 @@ Work through the plan's **Implementation Steps** in sequence:
 2. **Fix failures you introduced** and re-run, looping until the checks are green or you hit a genuine blocker (an environment problem, a pre-existing failure unrelated to this work, or a contradiction that needs the user).
 3. **Never silently skip a red check.** If something is still failing at the end, report it with the actual output and say why — a pre-existing failure, a blocked dependency, or a real defect to address.
 4. Note the plan's **Manual** verification items in the hand-off summary so the user knows what still needs a human check; don't mark them done yourself.
+5. **Write the result to the plan** — append or overwrite a `## Verification Log` section on **this work-item's** `implementation-plan.md`:
+
+   ```markdown
+   ## Verification Log
+
+   **Automated:** ✓ passed — `npm test`, `npm run lint` (run by /implement, 2026-08-24)
+   **Manual:** outstanding — [items copied from the plan's Verification → Manual, still unchecked]
+   ```
+
+   Use the actual commands run and their outcome — including a still-red check, named honestly,
+   with why. This is the **only** durable record of automated-check status; `/review-implementation`
+   reads it instead of re-running anything, so it must be accurate.
 
 ### Step 5: Record material deviations (only if any)
 
@@ -108,6 +120,9 @@ task-plan.md               subtasks → implemented: a, b
 Checks: <cmd> ✓  <cmd> ✓   Deviations: <n recorded, or none>
 ```
 
+`Checks:` mirrors what Step 4.5 just wrote to the plan's `## Verification Log` — the log is the
+artifact that matters; this line is just the human-readable echo of it.
+
 Then **explicitly hand the manual verification to the user and ask for feedback.** Don't treat the work as accepted just because the automated checks passed — list what the plan's **Verification → Manual** items expect, and ask the user to try them out:
 
 > Implementation is in and automated checks pass. Before this is done, please verify manually:
@@ -144,7 +159,7 @@ Put the bolded **(copied to clipboard)** right after the command, only if the co
 - **Build against current code.** The plan is a snapshot; the repo is the truth. Re-read the files the plan names before changing them.
 - **Contracts are the spine.** Implement signatures, schemas, and routes exactly as planned — neighboring work and `/review-implementation` depend on them.
 - **Self-verify before claiming done.** A subtask becomes `implemented` only after the plan's automated checks pass; report anything still red instead of hiding it.
-- **One artifact, only when warranted.** The sole thing this skill writes (beyond code and status) is an `## Implementation Notes` section appended to the plan, and only for material deviations.
+- **Two plan sections, different rules.** `## Verification Log` is written every run — it's the check result `/review-implementation` relies on instead of re-running anything. `## Implementation Notes` is written only for material deviations; skip it when the run followed the plan.
 - **Status lives in task-plan.md.** This skill advances covered subtasks `planned → implemented`; `/review-implementation` and `/finalize` carry them onward. There is no separate ledger.
 - **The user accepts, not the agent.** Automated checks passing is necessary but not sufficient. After implementing, request manual verification and feedback, and iterate until the user explicitly signs off. Don't self-certify and move on.
 - **No auto-chain.** Once accepted, point to `/review-implementation` and stop. Copying the resolved command to the clipboard is a convenience, not an invocation — never run the next skill yourself.
