@@ -6,10 +6,17 @@ import { parseDocument } from 'yaml';
 export const WORKFLOW_SKILLS = [
   'add-task-to-backlog', 'auto-finalize', 'auto-implement',
   'auto-plan-implementation', 'auto-plan-task', 'auto-review-implementation',
-  'auto-start-task', 'auto-triage-findings', 'autopilot', 'finalize', 'implement',
+  'auto-small-task', 'auto-start-task', 'auto-triage-findings', 'autopilot', 'finalize', 'implement',
   'init-workflow', 'plan-implementation', 'plan-task', 'qa-scenarios',
-  'research-solution', 'review-implementation', 'review-pr', 'start-task',
+  'research-solution', 'review-implementation', 'review-pr', 'small-task', 'start-task',
   'triage-findings', 'workflow-status',
+];
+
+// Shortcut skills are not coordinator stages and do not use the autonomy contract.
+export const AUTOPILOT_STAGES = [
+  'auto-start-task', 'auto-plan-task', 'auto-plan-implementation',
+  'auto-implement', 'auto-review-implementation', 'auto-triage-findings',
+  'auto-finalize',
 ];
 
 export async function validateSkills(skillsRoot, { expectedNames = WORKFLOW_SKILLS } = {}) {
@@ -75,13 +82,16 @@ export async function validateSkills(skillsRoot, { expectedNames = WORKFLOW_SKIL
       }
     }
     // Dependencies are mandatory even when an author accidentally removes the link.
-    if (entry.name.startsWith('auto-')) {
+    if (AUTOPILOT_STAGES.includes(entry.name)) {
       references.add(`../${entry.name.slice(5)}/SKILL.md`);
       references.add('../autopilot/assets/autonomy-contract.md');
     }
+    if (entry.name === 'auto-small-task') {
+      references.add('../small-task/SKILL.md');
+    }
     if (entry.name === 'autopilot') {
       references.add('assets/autonomy-contract.md');
-      for (const stage of WORKFLOW_SKILLS.filter((name) => name.startsWith('auto-'))) {
+      for (const stage of AUTOPILOT_STAGES) {
         references.add(`../${stage}/SKILL.md`);
         references.add(`../${stage.slice(5)}/SKILL.md`);
       }

@@ -115,6 +115,8 @@ changeset tooling like `.changeset/`). Let the finding shape the question:
 **4. Autopilot.** `/autopilot` runs the whole task pipeline unattended, and it never stops to ask —
 so how far it's allowed to go has to be decided **here, in advance**. It always commits locally. The
 question is whether it may also **push the branch and open a PR/MR** when it finishes a task.
+The same completion policy governs `/small-task` and `/auto-small-task`; explain
+that the choice also pre-authorizes their configured remote completion actions.
 
 **Detect first, then ask**, as with the changelog: check whether a remote is configured and whether
 `gh` or `glab` is installed and authenticated (`gh auth status` / `glab auth status`). Then offer the

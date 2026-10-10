@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
-import { validateSkills } from './validate-skills.mjs';
+import { AUTOPILOT_STAGES, validateSkills } from './validate-skills.mjs';
 
 async function fixture(t, files) {
   const root = await mkdtemp(join(tmpdir(), 'workflow-validation-'));
@@ -81,6 +81,53 @@ test('requires autonomous companions even without explicit links', async (t) => 
   assert.ok(errors.some((error) => error.includes('../autopilot/assets/autonomy-contract.md')));
 });
 
+test('requires the autonomous shortcut core even without an explicit link', async (t) => {
+  const root = await fixture(t, { 'auto-small-task/SKILL.md': skill('auto-small-task') });
+  const { errors } = await validateSkills(root, { expectedNames: ['auto-small-task'] });
+  assert.equal(errors.length, 1);
+  assert.ok(errors[0].includes('../small-task/SKILL.md'));
+});
+
+test('accepts shortcut companions without the autopilot contract', async (t) => {
+  const root = await fixture(t, {
+    'auto-small-task/SKILL.md': skill('auto-small-task'),
+    'small-task/SKILL.md': skill('small-task'),
+  });
+  const { errors } = await validateSkills(root, { expectedNames: ['auto-small-task', 'small-task'] });
+  assert.deepEqual(errors, []);
+});
+
+test('autopilot requires exactly its seven stages and their core companions', async (t) => {
+  const root = await fixture(t, {
+    'autopilot/SKILL.md': skill('autopilot'),
+    'autopilot/assets/autonomy-contract.md': '# Contract',
+  });
+  const { errors } = await validateSkills(root, { expectedNames: ['autopilot'] });
+  assert.equal(AUTOPILOT_STAGES.length, 7);
+  assert.equal(errors.length, 14);
+  for (const stage of AUTOPILOT_STAGES) {
+    assert.ok(errors.some((error) => error.includes(`../${stage}/SKILL.md`)));
+    assert.ok(errors.some((error) => error.includes(`../${stage.slice(5)}/SKILL.md`)));
+  }
+  assert.ok(errors.every((error) => !error.includes('small-task')));
+});
+
+test('accepts a complete autopilot pipeline without either shortcut', async (t) => {
+  const files = {
+    'autopilot/SKILL.md': skill('autopilot'),
+    'autopilot/assets/autonomy-contract.md': '# Contract',
+  };
+  const expectedNames = ['autopilot'];
+  for (const stage of AUTOPILOT_STAGES) {
+    const core = stage.slice(5);
+    files[`${stage}/SKILL.md`] = skill(stage);
+    files[`${core}/SKILL.md`] = skill(core);
+    expectedNames.push(stage, core);
+  }
+  const root = await fixture(t, files);
+  assert.deepEqual((await validateSkills(root, { expectedNames })).errors, []);
+});
+
 test('rejects references outside the collection', async (t) => {
   const root = await fixture(t, { 'example/SKILL.md': skill('example', 'Read `../../outside.md`.') });
   const { errors } = await validateSkills(root, { expectedNames: ['example'] });
@@ -94,9 +141,9 @@ test('detects missing and unexpected skills', async (t) => {
   assert.ok(errors.some((error) => error.includes('Unexpected skill directory: other')));
 });
 
-test('validates the actual 21-skill collection', async () => {
+test('validates the actual 23-skill collection', async () => {
   const root = new URL('../skills/', import.meta.url);
   const { errors, names } = await validateSkills(fileURLToPath(root));
   assert.deepEqual(errors, []);
-  assert.equal(names.length, 21);
+  assert.equal(names.length, 23);
 });

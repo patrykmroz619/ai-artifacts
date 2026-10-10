@@ -1,6 +1,6 @@
 ---
 name: workflow-status
-description: Use when resuming work after time away and needing a snapshot of where a dev-workflow task stands and what to do next — "what was I doing", "where did I leave off", "what's the status of this task". Resolves the active task, reads task-plan.md and its work-items, checks git state, and reports each subtask's phase plus the one recommended next command. Read-only — never edits task artifacts, code, or git state.
+description: Use when resuming work after time away and needing a snapshot of where a dev-workflow task stands and what to do next — "what was I doing", "where did I leave off", "what's the status of this task". Reads task-plan.md and work-items or a shortcut's task.md, checks git state, and recommends the next pipeline command or resuming small-task/auto-small-task. Read-only — never edits task artifacts, code, or git state.
 ---
 
 # /workflow-status — Where things stand, and what's next
@@ -16,6 +16,7 @@ fixed. If something needs correcting, that's a decision for the user or the skil
 
 **Reads:** `specs/workflow-config.md`, `specs/tasks/{task}/task-info.md`, `task-plan.md`, each
 referenced work-item's `implementation-plan.md` / `review.md`, and git state (branch, status, log).
+For shortcut tasks, reads `specs/tasks/{task}/task.md` instead of pipeline artifacts.
 **Produces:** a chat report only — no files.
 
 ## Process
@@ -23,14 +24,21 @@ referenced work-item's `implementation-plan.md` / `review.md`, and git state (br
 ### Step 1: Resolve the task
 
 Same resolution order as the rest of the workflow: **explicit argument** wins; otherwise **infer from
-the current git branch** against the `Branch` line recorded in each task's `task-info.md`.
+the current git branch** against the `Branch` line recorded in each task's `task-info.md`
+or shortcut `task.md`.
 
 - If `specs/` doesn't exist, say so and point to `/init-workflow`.
 - If `specs/tasks/` has no entries, say so and point to `/start-task`.
 - If the branch doesn't match any task and none was given, list the task folders under
-  `specs/tasks/` (with each one's title from `task-info.md`) and ask which one to report on.
+  `specs/tasks/` (with each one's title from `task-info.md` or `task.md`) and ask which one to report on.
 
 ### Step 2: Read the task's artifacts
+
+**Choose the record format first.** If `task.md` exists, use the shortcut path below;
+do not expect pipeline artifacts or flag their absence as drift. If both shortcut
+and full-pipeline records exist, use explicit ownership/handoff information if
+available; otherwise flag ambiguous ownership rather than guessing or converting.
+Tasks without `task.md` follow the existing pipeline path:
 
 1. Read `task-info.md` for the title, tracker id, and recorded branch.
 2. Read `task-plan.md` in full: Definition of Done, subtask headings with their phase tags and
@@ -44,19 +52,44 @@ the current git branch** against the `Branch` line recorded in each task's `task
 4. For a work-item with a `review.md`, note whether it has open `Status: open` Blocker/Major findings
    — relevant context for whether `/finalize` will warn.
 
+**Shortcut path:** read `task.md` in full for title, tracker, Mode, Branch, goal and
+acceptance criteria, plan, progress, approvals, implementation notes, self-review,
+actual check results, outstanding manual checks, blockers, commit, and completion
+policy. Report missing or inconsistent information as drift. Autonomous approvals
+marked not applicable are expected, not missing human approvals. Do not infer
+completion just because a plan exists. Cross-check `committed` against git history
+and flag claimed passing checks without recorded results. A recorded hand-off to
+the full workflow takes precedence over resuming the shortcut.
+
 ### Step 3: Check git state
 
-1. Current branch vs. the task's recorded `Branch` — flag if they differ.
+1. Current branch vs. the task's recorded `Branch` in its selected record — flag if they differ.
 2. `git status` — uncommitted changes present? New/modified files not yet reflected in any
    `implementation-plan.md` or `review.md` are worth surfacing (possible unfinished or unrecorded work).
+   For shortcuts, compare against `task.md`'s scope and starting-state record; distinguish
+   preserved unrelated changes from unfinished task changes.
 3. `git log` on the current branch since it diverged from the default branch — a quick skim to sanity
    check that commits exist for subtasks marked `committed`, and that nothing is marked `committed`
    without a corresponding commit.
+   For shortcuts, cross-check the recorded commit subject/branch and completion progress.
 
 Keep this step light — it's a sanity pass, not a full audit. The goal is to catch "the files say X but
 the repo says Y", not to re-review the diff.
 
 ### Step 4: Determine the next step
+
+**Shortcut tasks:** report the progress and next action from `task.md`. For unfinished
+tasks, recommend `/small-task {task}` or `/auto-small-task {task}` according to its
+recorded Mode, naming the pending approval, failed check, blocker prerequisite, or
+finalization step it will resume. Never route these records to per-work-item skills.
+If Mode is missing or ambiguous, flag that and recommend the interactive
+`/small-task {task}` rather than assuming unattended authorization. If `handed off`,
+recommend the recorded full-workflow command instead. If committed, report local
+completion and any remaining manual or remote actions; do not suggest reimplementing
+or committing again. Unfinished remote completion may resume the same shortcut,
+which checks for existing commits and PRs before acting.
+
+**Pipeline tasks:** use the phase routing below unchanged.
 
 The workflow phase order is `pending → planned → implemented → reviewed → committed`, produced in turn
 by `/plan-implementation → /implement → /review-implementation → /finalize`. For the no-subtasks path,
@@ -77,6 +110,10 @@ infer the equivalent phase from which artifacts exist at the task root (no `impl
 ### Step 5: Report
 
 Print a compact status block, then the recommendation as a plain message.
+
+For shortcuts, replace the Subtasks block with Mode, Progress, Approvals (or
+autonomous/not applicable), Checks, Blockers, Commit, and Remaining actions from
+`task.md`. Keep branch/working-tree flags and the one resolved recommendation.
 
 ```text
 Task:    {title}  ({tracker-id, if any})

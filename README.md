@@ -1,6 +1,6 @@
 # Dev-workflow skills
 
-21 reusable agent skills for taking development work from task setup through
+23 reusable agent skills for taking development work from task setup through
 planning, implementation, review, and finalization. The repository contains one
 collection, installed with the [Skills CLI](https://github.com/vercel-labs/skills).
 See [workflow.md](workflow.md) for the workflow and its artifact contracts.
@@ -14,7 +14,7 @@ npx skills add patrykmroz619/ai-artifacts
 ```
 
 The interactive installer lets you choose skills and target agents. To install
-all 21 skills for Claude Code, Cursor, and Codex without prompts:
+all 23 skills for Claude Code, Cursor, and Codex without prompts:
 
 ```bash
 npx skills add patrykmroz619/ai-artifacts --skill '*' --agent claude-code cursor codex --yes
@@ -60,12 +60,28 @@ Repeat the implementation-through-finalization steps for each work-item.
 Existing task artifacts remain under `specs/`. Skill invocation syntax depends
 on the agent; you can also request a skill by name in a prompt.
 
+For a focused task after initialization, use `small-task` to combine setup,
+planning, implementation, verification, self-review, and finalization. It asks
+relevant planning questions and waits for plan approval, implementation approval,
+and commit-message confirmation. `auto-small-task` runs the same shortcut unattended.
+Both keep the brief, plan, progress, and results in `specs/tasks/{task}/task.md`,
+and resume existing records. `workflow-status` recognizes both formats.
+
+Interactive task growth beyond a focused change recommends the full workflow and
+stops; autonomous growth expands the combined plan and continues. Both preserve
+unrelated changes and use the configured Autopilot completion policy: `report only`
+commits locally and prepares PR/MR instructions; `open PR/MR` permits configured
+remote actions. Missing policy defaults to `report only`, and unavailable tooling
+falls back to a report. These shortcuts do not require subagents.
+
 ## Available skills
 
 | Skill | Purpose |
 | --- | --- |
 | `init-workflow` | Initialize project workflow configuration and task directories. |
 | `start-task` | Capture a task and create its workspace and branch. |
+| `small-task` | Plan, implement, verify, and finalize a focused task with approvals in one record. |
+| `auto-small-task` | Run the combined task shortcut unattended, without approval gates. |
 | `plan-task` | Define acceptance criteria and decompose the task. |
 | `plan-implementation` | Write a technical plan for a work-item. |
 | `implement` | Carry out the plan and verify the changes. |
@@ -94,8 +110,8 @@ does not initialize a workflow. `review-pr`, `qa-scenarios`, and
 `research-solution` can be used without the task pipeline. `add-task-to-backlog`
 and `workflow-status` read the project's workflow state.
 
-The Skills CLI does not automatically install companion skills. Each autonomous
-stage needs its core instructions plus the shared contract bundled with
+The Skills CLI does not automatically install companion skills. Each of the seven
+autonomous pipeline stages needs its core instructions plus the shared contract bundled with
 `autopilot`:
 
 | Autonomous skill | Required companions |
@@ -107,6 +123,16 @@ stage needs its core instructions plus the shared contract bundled with
 | `auto-review-implementation` | `review-implementation`, `autopilot` |
 | `auto-triage-findings` | `triage-findings`, `autopilot` |
 | `auto-finalize` | `finalize`, `autopilot` |
+| `auto-small-task` | `small-task` (including its bundled template); no `autopilot` contract |
+
+To install the autonomous shortcut and its core companion:
+
+```bash
+npx skills add patrykmroz619/ai-artifacts --skill auto-small-task small-task --agent codex
+```
+
+For a new project, install and run `init-workflow` first. The shortcuts require
+`specs/workflow-config.md`; installation alone does not configure the project.
 
 For example, to install the instructions required for just the implementation
 stage:
@@ -124,7 +150,7 @@ npx skills add patrykmroz619/ai-artifacts --skill autopilot auto-start-task star
 ```
 
 Use the same project/global scope and agent selection for companion skills so
-their installed directories are siblings. Autonomous skills assume the full
+their installed directories are siblings. Autonomous pipeline stages assume the full
 collection is installed. For a new project, also install and run `init-workflow`. Autopilot needs
 an agent runtime that supports subagents, and follows the completion mode in
 `specs/workflow-config.md`.
@@ -145,7 +171,8 @@ existing `specs/` task state are necessary.
 
 Each skill lives at `skills/<name>/SKILL.md` with YAML `name` and `description`.
 Templates belong in that skill's `assets/` directory. Keep references relative
-to the installed skill location. Autonomous skills assume the full collection is installed.
+to the installed skill location. Autonomous pipeline stages assume the full collection is installed;
+the autonomous shortcut needs only its core companion.
 Do not commit installed third-party authoring skills.
 
 Node.js 22 or newer is required for repository validation tooling:
@@ -159,7 +186,7 @@ npm test
 npx skills add ./skills --list
 ```
 
-In a clean checkout, `npx skills add . --list` also discovers the same 21 skills.
+In a clean checkout, `npx skills add . --list` also discovers the same 23 skills.
 Test installs from a temporary consumer project with the absolute path to this
 checkout as the source. CI validates frontmatter, names, collection membership,
 bundled files, and companion references; it runs validation tests on pushes and

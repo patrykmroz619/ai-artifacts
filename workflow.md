@@ -1,7 +1,8 @@
 # Dev-Workflow — High-Level Design
 
 A set of skills supporting a day-to-day, markdown-artifact-driven programming workflow.
-Each skill is a discrete step; together they take a task from initialization to a finalized commit.
+The core skills are discrete steps; together they take a task from initialization to a finalized
+commit. Two shortcuts combine those activities in one run and one task record.
 This document describes the **flow and contracts only** — not the final skill content.
 
 The workflow is **two-grained**: a task can be broken into smaller **subtasks**, each of which is
@@ -11,6 +12,47 @@ independently planned in detail, implemented, reviewed, and committed. The subta
 ---
 
 ## Core concepts
+
+### Combined task shortcuts
+
+After `/init-workflow`, `/small-task {description-or-task}` handles a focused task
+from setup through finalization in one run. `/auto-small-task` provides the same
+process unattended. Both write only `specs/tasks/{task}/task.md`, combining the
+brief, goal and acceptance criteria, solution design, affected code and interfaces,
+ordered implementation steps, verification approach, decisions, actual results,
+and completion progress. The template belongs to `skills/small-task/assets/task.md`.
+They create no separate plan, review, subtask, or decision-log artifacts.
+
+`small-task` inspects the codebase, asks relevant planning questions, waits for
+plan approval, implements and verifies, performs self-review and fixes findings,
+waits for implementation approval, then confirms the commit message and finalizes.
+`auto-small-task` reads the core shortcut with focused overrides: decisions come
+from evidence, approvals are not applicable, and it commits without confirmation.
+Neither shortcut delegates stages or uses the full pipeline's autonomy contract.
+
+Both read configuration and repository standards, record the actual branch and
+starting git state, preserve unrelated changes (including staged changes and mixed
+files), and stage only task-related work. Existing shortcut tasks resume without
+overwriting history; recorded approval is reused only for unchanged scope/design.
+Introduced failures and actionable self-review findings are fixed before committing.
+Genuine blockers leave a resumable record with causes, attempts, results, and next
+actions. Actual checks and outstanding manual checks stay in `task.md`.
+
+If interactive work exceeds shortcut suitability, record a recommendation to the
+full workflow and stop. Autonomous work continues within the combined record,
+expanding the plan as necessary while keeping the requested scope. Task growth
+alone does not trigger full-pipeline artifacts.
+
+Both follow configured branch, commit, changelog, and tracker conventions and the
+existing **Autopilot completion policy**. `report only` commits locally and prepares
+PR/MR instructions; `open PR/MR` permits configured push, PR/MR, and tracker actions.
+Absent/unrecognized policy defaults to `report only`; unavailable tooling falls
+back to a report. Any configured changelog entry belongs to the completing commit.
+`workflow-status` reads the combined record, cross-checks git, and recommends
+resuming its recorded shortcut instead of routing it through work-item stages.
+
+The sections below describe the existing full pipeline; its artifacts and routing
+remain unchanged. Shortcut task folders hold `task.md` instead of that structure.
 
 ### Artifacts root: `specs/`
 
@@ -104,14 +146,14 @@ subtask status lives — no separate ledger to drift.
 - **Task management** (Jira / Linear / GitHub Issues / none) and the access mechanism (MCP server, CLI such as `gh`, or manual).
 - **Git conventions** (branch naming, commit style).
 - **Changelog** practice (maintained or not, file location/format).
-- **Autopilot** — the completion mode for unattended runs: `open PR/MR` (the run may push and open the PR/MR itself) or `report only` (it commits locally and prints the command). An absent section means `report only`. This is a **pre-authorization**, decided while a human is present, because `/autopilot` never stops to ask mid-run.
+- **Autopilot** — the completion mode for unattended pipeline runs and both task shortcuts: `open PR/MR` (the run may push and open the PR/MR itself) or `report only` (it commits locally and prints the command). An absent section means `report only`. This is a **pre-authorization**, decided while a human is present, because `/autopilot` never stops to ask mid-run.
 - **Coding standards** — references to the repo's existing rules files (e.g. `CLAUDE.md`, `.cursor/rules`); no content of its own, just pointers to what stays authoritative.
 
 Skills read this file to decide whether to auto-fetch task data, propose branch names, prompt for changelog entries, etc. When an integration is configured but unavailable, skills degrade gracefully to manual input.
 
 ### Next-step hand-off
 
-Every skill closes with a `> **Next step:** run \`/command\`` blockquote and explicitly stops —
+Each interactive pipeline stage closes with a `> **Next step:** run \`/command\`` blockquote and explicitly stops —
 chaining into the next skill is always the human's call, never automatic. Two things make that
 hand-off actionable rather than just informative:
 
@@ -335,12 +377,19 @@ and any `## Implementation Notes`) and `task-plan.md` (overall DoD, incl. Planni
 
 ## Standalone skills
 
-Not every skill belongs to the task pipeline. These operate independently and read no task artifacts:
+Not every skill belongs to the task pipeline. These operate independently; status
+and backlog skills read project workflow state:
 
 - **`/review-pr` — Review someone else's pull request.** Puts the agent in the **reviewer's** seat (not the author's): it resolves a change from a `gh` PR or a local branch, diffs it against `main`/`master` (or a stated base), and writes a report to `specs/reviews/{pr-slug}.md` that **explains the change first** (a walkthrough with data-flow/sequence/component diagrams) and **lists findings second** (severity + confidence across correctness, safety, design/complexity, standards, pattern fit, and tests). It grills the solution for over-engineering and simpler alternatives, then collaborates on refining findings and phrasing comments. It never edits source and never advances task status — there are no plans, specs, or DoD involved, and it works on any repo even without a `specs/` directory.
 - **`/qa-scenarios` — Generate test scenarios for QA from your changes.** Produces a **manual-QA handoff document** from a diff (a `gh` PR or a local branch against `main`/`master`, plus uncommitted working-tree changes). Writes `specs/qa/{pr-slug}.md` with a **flexible, jargon-free description** of what the change does from a tester's perspective (prose, lists, subsections, or a diagram as the logic warrants) followed by **concise step-by-step test scenarios** (Preconditions/Steps/Expected) covering edge cases, variants, configurations, and the directly affected flows that could regress. Shared preconditions, test data, and step flows are factored into reusable named blocks to avoid duplication. Standalone — needs no plan or implementation artifacts, is black-box throughout, and never edits source.
 - **`/research-solution` — Research an architecture or solution approach through parallel subagents.** For complex or unfamiliar problems, features, or initiatives where the right approach isn't obvious — including ones too large for a single task. The agent scopes a research brief, splits it into independent streams (candidate libraries/frameworks, managed services, a web-search discovery stream for comparable open-source projects), dispatches them in parallel, then dispatches a second wave of one subagent per project the discovery stream actually surfaced — never a project picked from the agent's own memory — requiring those subagents to read and cite real source, not just docs. Synthesizes a recommendation into `specs/research/{slug}.md`. Task-agnostic: reads and writes no task artifacts, can run before any task exists, and can seed one or several later `/start-task` runs. Never edits source.
 - **`/workflow-status` — Re-entry snapshot: where a task stands, what's next.** The pickup point after stepping away from a task. Resolves the active task (explicit arg, else current-branch inference), reads `task-plan.md` and each referenced work-item's `implementation-plan.md` / `review.md`, and cross-checks that against light git state (branch match, working-tree cleanliness, a log skim). Reports each subtask's phase, flags any drift between recorded status and what's actually on disk, and closes with **one** recommended next command — the earliest-phase outstanding subtask, following the same resolution order the pipeline skills already use. Read-only throughout: it never edits `task-plan.md`, source, or git state, even when it finds drift.
+
+For shortcut tasks, `/workflow-status` reads `task.md` and reports its Mode,
+Progress, approvals, checks, blockers, commit, and outstanding actions. It
+recommends `/small-task {task}` or `/auto-small-task {task}` for unfinished work,
+honors a recorded full-workflow hand-off, and never treats missing pipeline
+artifacts as drift for shortcut tasks.
 
 ## Autonomous pipeline (`/autopilot`)
 
@@ -355,6 +404,7 @@ stages. The coordinator never plans, implements, or commits: it reads the state 
 which stage runs next, dispatches a **subagent** to run that stage's `auto-` skill, verifies what
 actually changed on disk, and loops. Stages never hand off to each other — the coordinator is the
 sole router, and `task-plan.md` remains the only status ledger.
+`auto-small-task` is a separate directly invoked shortcut, not an eighth stage.
 
 ```
 /autopilot {task}
@@ -376,7 +426,7 @@ sole router, and `task-plan.md` remains the only status ledger.
 
 `AskUserQuestion` is not available inside a delegated subagent — a property of the harness, not
 something a skill can opt out of — so a dispatched stage cannot reach the human. Autonomy therefore
-has to be written into the stage instructions rather than reached for at runtime. Each `auto-` skill is a **thin override**: it points at its core counterpart,
+has to be written into the stage instructions rather than reached for at runtime. Each `auto-` pipeline stage is a **thin override**: it points at its core counterpart,
 says "follow that exactly", and replaces only the specific steps that ask, propose for approval, or
 iterate until the user accepts. There is no second copy of the stage logic to drift.
 
@@ -411,5 +461,5 @@ calls were made and not just the diff. The shared rules live in
 
 ## Status / future
 
-- All twenty-one skills are implemented under `skills/`: the eight-step pipeline (`init-workflow`, `start-task`, `plan-task`, `plan-implementation`, `implement`, `review-implementation`, `triage-findings`, `finalize`), the standalone `review-pr`, `qa-scenarios`, `workflow-status`, `research-solution`, `add-task-to-backlog`, and the autonomous set (`autopilot` plus the seven `auto-` stage skills). This document is the high-level design; each `SKILL.md` is the authoritative spec for its step.
+- All twenty-three skills are implemented under `skills/`: the eight-step pipeline (`init-workflow`, `start-task`, `plan-task`, `plan-implementation`, `implement`, `review-implementation`, `triage-findings`, `finalize`), the standalone `review-pr`, `qa-scenarios`, `workflow-status`, `research-solution`, `add-task-to-backlog`, the autonomous set (`autopilot` plus the seven `auto-` stage skills), and the `small-task` / `auto-small-task` shortcuts. This document is the high-level design; each `SKILL.md` is the authoritative spec for its step.
 - Install the collection with `npx skills add patrykmroz619/ai-artifacts`. Selective installation and autonomous companion requirements are documented in [README.md](README.md). The Skills CLI handles agent destinations; there is no custom installer or rule injection.

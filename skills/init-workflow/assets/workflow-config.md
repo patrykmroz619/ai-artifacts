@@ -17,7 +17,7 @@ Update by re-running /init-workflow or by editing this file directly.
 
 ## Autopilot
 
-> How an unattended `/autopilot` run is allowed to finish. It commits locally either way;
+> How an unattended `/autopilot` run or either `/small-task` shortcut is allowed to finish. It commits locally either way;
 > this decides whether it may also push and open a PR/MR. Absent section = report only.
 
 - **Completion mode:** <open PR/MR | report only>
