@@ -1,9 +1,12 @@
-# 10x skills
-.claude/skills/10x-*/
-.claude/.10x-cli-manifest.json
-
 node_modules/
+
+# Local agent tooling is not part of the distributed collection.
+.agents/skills/
+.claude/skills/
+.claude/.10x-cli-manifest.json
+skills-lock.json
+
+# Legacy local installer output and task context.
 dist/
 dist-test/
-
 context/

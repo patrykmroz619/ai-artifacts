@@ -1,73 +1,36 @@
-# CLAUDE.md
+# Repository guidance
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This repository contains 21 dev-workflow agent skills. Consumers install them with
+`npx skills add patrykmroz619/ai-artifacts`. There is no custom CLI, artifact scope,
+rule injection, build step, or npm publication.
 
-## What this repo is
+## Layout
 
-A shared AI artifacts registry — skills and coding rules — distributed via `npx @patryk.mroz/artifacts install <scope>`. Consumers run that command inside any project with a `.claude/` or `.cursor/` folder; the CLI detects which tool is present and writes artifacts to the right place.
+- `skills/<name>/SKILL.md`: authoritative instructions, with YAML `name` and
+  `description`. Keep the directory name and frontmatter name identical.
+- Each skill's `assets/` holds its bundled templates. Resolve these relative to
+  the installed skill directory, not the consumer project's working directory.
+- `workflow.md`: overview of the workflow and its artifact contracts.
+- `scripts/`: collection validation and its tests.
 
-## CLI commands
+The seven `auto-*` skills depend on their corresponding core skill and
+`autopilot/assets/autonomy-contract.md`. Keep these references relative.
+The full collection is assumed to be installed; runtime dependency preflights are unnecessary.
+`autopilot` requires all seven autonomous stages and their core skills.
+
+## Checks
 
 ```bash
-npm run build        # compile cli/ → dist/ (production; excludes tests)
-npm test             # compile cli/ → dist-test/, then run node:test suites
-npm run verify-e2e   # compile cli/ → dist-test/, then run 4-fixture E2E harness
+npm ci
+npm run validate
+npm test
+npx skills add ./skills --list
 ```
 
-Run the CLI locally against a fixture dir:
+The list must contain exactly the 21 skills under `skills/`. Test installations
+in a temporary consumer project, not this checkout, so installed copies do not
+become part of the source collection. Third-party authoring tools are local
+dependencies and must not be committed.
 
-```bash
-node dist/index.js install coding-workflows --dry-run
-```
-
-> **Don't test via `npx @patryk.mroz/artifacts ...` from inside this repo.** This project's own `package.json` is named `@patryk.mroz/artifacts`, so npx resolves the spec to the local package and looks for its bin shim in `node_modules/.bin/artifacts` — which a package never creates for itself — and fails with `'artifacts' is not recognized`. This is a self-reference collision, not a packaging bug; the published package works fine in any consumer project. To exercise the published CLI, run `npx` in a different directory that has a `.claude/` or `.cursor/` folder; to exercise local changes, use `node dist/index.js` as above.
-
-## Architecture
-
-### Registry content (`artifacts/<scope>/`)
-
-All scope folders live under `artifacts/` at the repo root. Each scope folder is the unit of installation:
-
-- `artifacts/<scope>/RULES.md` — injected verbatim as a managed block into `CLAUDE.md` / `AGENTS.md` of the consumer project. The block is delimited `<!-- BEGIN registry:<scope> --> … <!-- END registry:<scope> -->` so reinstalls replace only that span.
-- `artifacts/<scope>/skills/<skill-id>/SKILL.md` — copied to `.claude/skills/<id>/` or `.cursor/skills/<id>/` depending on detected tool.
-
-### CLI source (`cli/`)
-
-TypeScript source compiled to `dist/` (production) or `dist-test/` (tests). Layout:
-
-```
-cli/
-  index.ts                       # citty root command; subCommands: { install }
-  common/
-    detect.ts                    # detectTargets() — returns Target[] for .claude/.cursor
-    fetch.ts                     # fetchScope() — downloads scope via giget
-  commands/install/
-    command.ts                   # thin citty CommandDef adapter
-    install.ts                   # orchestration logic (no citty dependency)
-    skills.ts                    # installSkills action
-    rules.ts                     # injectBlock (correctness-critical) + installRules
-    test/                        # node:test suites for this command (compiled to dist-test)
-```
-
-Two tsconfigs control what goes where:
-
-- `tsconfig.json` — prod build; `rootDir: "cli"`, `outDir: "dist"`, excludes `**/tests/**` and `*.test.ts`/`*.e2e.ts`
-- `tsconfig.test.json` — test build; same root, `outDir: "dist-test"`, includes everything
-
-### Detection logic
-
-`detectTargets(cwd)` checks for `.claude/` and `.cursor/` in the CWD. It returns one `Target` per found folder, or throws an actionable error if neither exists. This determines where skills and rules are written.
-
-### Managed-block rule injection
-
-`injectBlock` in `cli/commands/install/rules.ts` is the correctness-critical function. It replaces an existing `<!-- BEGIN registry:<scope> -->…<!-- END registry:<scope> -->` block in place, or appends one if absent. Content outside the block is never touched. Unit tests for this function must pass unchanged after any refactor.
-
-## Distribution
-
-`npx @patryk.mroz/artifacts install <scope>` works because:
-
-1. npm downloads the `@patryk.mroz/artifacts` package from the public registry
-2. The `prepack` script (`npm run build`) compiles `cli/` → `dist/` before publishing
-3. The `bin` entry points to `dist/index.js`
-
-`dist/` and `dist-test/` are gitignored and never committed.
+Consumer workflow state remains in `specs/`; the installation migration does not
+change those paths, skill names, approval gates, or task statuses.

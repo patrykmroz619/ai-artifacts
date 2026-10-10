@@ -1,53 +1,17 @@
 {
-  "name": "@patryk.mroz/artifacts",
-  "version": "1.1.0",
+  "name": "dev-workflow-skills",
+  "private": true,
   "type": "module",
-  "description": "Install AI skills and rules from the shared registry into your project",
-  "bin": {
-    "artifacts": "dist/index.js"
-  },
-  "files": [
-    "dist"
-  ],
-  "publishConfig": {
-    "access": "public"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/patrykmroz619/AI-artifacts.git"
-  },
-  "homepage": "https://github.com/patrykmroz619/AI-artifacts",
-  "bugs": {
-    "url": "https://github.com/patrykmroz619/AI-artifacts/issues"
-  },
+  "description": "Dev-workflow skills installed with npx skills add",
   "license": "MIT",
-  "keywords": [
-    "claude-code",
-    "cursor",
-    "ai",
-    "skills",
-    "cli",
-    "registry",
-    "artifacts"
-  ],
-  "dependencies": {
-    "citty": "^0.1.6",
-    "giget": "^3.3.0"
+  "scripts": {
+    "validate": "node scripts/validate-skills.mjs",
+    "test": "node --test scripts/validate-skills.test.mjs"
   },
   "devDependencies": {
-    "@types/node": "^18.19.130",
-    "typescript": "^5.0.0"
-  },
-  "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "prepare": "npm run build",
-    "prepack": "npm run build",
-    "pretest": "tsc -p tsconfig.test.json",
-    "test": "node --test \"dist-test/**/*.test.js\"",
-    "preverify-e2e": "tsc -p tsconfig.test.json",
-    "verify-e2e": "node dist-test/commands/install/tests/install.e2e.js"
+    "yaml": "^2.8.1"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   }
 }

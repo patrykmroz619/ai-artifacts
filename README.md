@@ -1,78 +1,167 @@
-# AI Artifacts Registry
+# Dev-workflow skills
 
-A shared registry of reusable AI artifacts — skills and coding rules — for use across projects with **Claude Code** and **Cursor IDE**.
+21 reusable agent skills for taking development work from task setup through
+planning, implementation, review, and finalization. The repository contains one
+collection, installed with the [Skills CLI](https://github.com/vercel-labs/skills).
+See [workflow.md](workflow.md) for the workflow and its artifact contracts.
 
 ## Install
 
-From inside any project that has a `.claude/` and/or `.cursor/` folder, run:
+Run inside the project where you want to use the skills:
 
 ```bash
-npx @patryk.mroz/artifacts install <scope>
+npx skills add patrykmroz619/ai-artifacts
 ```
 
-Example — install everything in the `coding-workflows` scope:
+The interactive installer lets you choose skills and target agents. To install
+all 21 skills for Claude Code, Cursor, and Codex without prompts:
 
 ```bash
-npx @patryk.mroz/artifacts install coding-workflows
+npx skills add patrykmroz619/ai-artifacts --skill '*' --agent claude-code cursor codex --yes
 ```
 
-Install multiple scopes at once:
+Useful variants:
 
 ```bash
-npx @patryk.mroz/artifacts install coding-workflows learning
+# List available skills without installing.
+npx skills add patrykmroz619/ai-artifacts --list
+
+# Install one standalone skill for one agent.
+npx skills add patrykmroz619/ai-artifacts --skill review-pr --agent codex
+
+# Install the collection globally instead of in the current project.
+npx skills add patrykmroz619/ai-artifacts --skill '*' --agent claude-code --global
+
+# Copy files instead of linking to a shared canonical copy.
+npx skills add patrykmroz619/ai-artifacts --skill '*' --agent cursor --copy
+
+# Update installed skills using the Skills CLI.
+npx skills update
 ```
 
-Preview what will be written without making changes:
+The Skills CLI manages discovery, agent destinations, links/copies, and update
+tracking. Its project destinations include `.agents/skills/` for Codex and Cursor,
+and `.claude/skills/` for Claude Code. This repository
+provides skill directories and templates; it does not inject rules into consumer
+`CLAUDE.md` or `AGENTS.md` files. No custom package or scope argument is needed.
+
+## Getting started
+
+After installing, invoke `init-workflow` in your coding agent (for example,
+`/init-workflow` in agents that expose skills as slash commands). It configures
+`specs/workflow-config.md` and the task workspace. Then use the core pipeline:
+
+```text
+start-task -> plan-task -> plan-implementation -> implement
+           -> review-implementation -> triage-findings -> finalize
+```
+
+Repeat the implementation-through-finalization steps for each work-item.
+Existing task artifacts remain under `specs/`. Skill invocation syntax depends
+on the agent; you can also request a skill by name in a prompt.
+
+## Available skills
+
+| Skill | Purpose |
+| --- | --- |
+| `init-workflow` | Initialize project workflow configuration and task directories. |
+| `start-task` | Capture a task and create its workspace and branch. |
+| `plan-task` | Define acceptance criteria and decompose the task. |
+| `plan-implementation` | Write a technical plan for a work-item. |
+| `implement` | Carry out the plan and verify the changes. |
+| `review-implementation` | Review the implementation and record findings. |
+| `triage-findings` | Decide how to handle findings and apply approved fixes. |
+| `finalize` | Commit the reviewed increment and prepare task completion. |
+| `review-pr` | Review an existing PR or branch. |
+| `qa-scenarios` | Generate a manual QA handoff from changes. |
+| `workflow-status` | Report task progress and the next workflow step. |
+| `research-solution` | Research solution options through parallel agents. |
+| `add-task-to-backlog` | Capture a new task in the configured backlog. |
+| `autopilot` | Coordinate the autonomous workflow from start to finish. |
+| `auto-start-task` | Start a task without interactive questions. |
+| `auto-plan-task` | Define the task plan autonomously. |
+| `auto-plan-implementation` | Write a work-item implementation plan autonomously. |
+| `auto-implement` | Implement and verify without an acceptance conversation. |
+| `auto-review-implementation` | Independently review an autonomous increment. |
+| `auto-triage-findings` | Resolve review findings autonomously. |
+| `auto-finalize` | Commit and complete according to configured authorization. |
+
+## Selective installation and dependencies
+
+Install the full collection for the complete workflow. Individual core skills
+may expect configuration or artifacts from earlier stages; installing a skill
+does not initialize a workflow. `review-pr`, `qa-scenarios`, and
+`research-solution` can be used without the task pipeline. `add-task-to-backlog`
+and `workflow-status` read the project's workflow state.
+
+The Skills CLI does not automatically install companion skills. Each autonomous
+stage needs its core instructions plus the shared contract bundled with
+`autopilot`:
+
+| Autonomous skill | Required companions |
+| --- | --- |
+| `auto-start-task` | `start-task`, `autopilot` |
+| `auto-plan-task` | `plan-task`, `autopilot` |
+| `auto-plan-implementation` | `plan-implementation`, `autopilot` |
+| `auto-implement` | `implement`, `autopilot` |
+| `auto-review-implementation` | `review-implementation`, `autopilot` |
+| `auto-triage-findings` | `triage-findings`, `autopilot` |
+| `auto-finalize` | `finalize`, `autopilot` |
+
+For example, to install the instructions required for just the implementation
+stage:
 
 ```bash
-npx @patryk.mroz/artifacts install coding-workflows --dry-run
+npx skills add patrykmroz619/ai-artifacts --skill auto-implement implement autopilot --agent codex
 ```
 
-The CLI detects which AI tools are present in the project and installs artifacts into the right places automatically.
+Installing `autopilot` for its contract does not make the coordinator usable on
+its own. To run the coordinator, install all seven autonomous stages and their
+core companions:
 
-## How it works
-
-The CLI:
-
-1. Detects `.claude/` → installs skills to `.claude/skills/`, injects rules into `CLAUDE.md`
-2. Detects `.cursor/` → installs skills to `.cursor/skills/`, injects rules into `AGENTS.md`
-3. Both present → installs into both
-4. Neither present → exits with an error and actionable guidance
-
-**Artifacts are read-only.** Re-running the command overwrites previously installed artifacts cleanly. It never modifies content outside the managed blocks it owns.
-
-### Rule injection — managed block format
-
-Rules are injected inside clearly marked blocks so reinstalls replace only the registry's span and never your own content:
-
-```
-<!-- BEGIN registry:<scope> -->
-...RULES.md content...
-<!-- END registry:<scope> -->
+```bash
+npx skills add patrykmroz619/ai-artifacts --skill autopilot auto-start-task start-task auto-plan-task plan-task auto-plan-implementation plan-implementation auto-implement implement auto-review-implementation review-implementation auto-triage-findings triage-findings auto-finalize finalize --agent codex
 ```
 
-If the block already exists it is replaced in place. If it does not, it is appended. Content outside the blocks is never touched.
+Use the same project/global scope and agent selection for companion skills so
+their installed directories are siblings. Autonomous skills assume the full
+collection is installed. For a new project, also install and run `init-workflow`. Autopilot needs
+an agent runtime that supports subagents, and follows the completion mode in
+`specs/workflow-config.md`.
 
-## Available scopes
+## Migrating from the custom CLI
 
-### `coding-workflows`
+`npx @patryk.mroz/artifacts install <scope>` is retired. Reinstall the skills
+using the command above; there are no artifact scopes. Skill names, templates,
+and workflow state paths remain the same.
 
-General-purpose coding skills and standards.
+The former installer may have added `<!-- BEGIN registry:<scope> -->` through
+`<!-- END registry:<scope> -->` blocks to consumer `CLAUDE.md` or `AGENTS.md`
+files. Review those blocks manually and retain or remove them according to the
+project's rules. The new installer does not manage or remove them. No changes to
+existing `specs/` task state are necessary.
 
-| Type  | ID               | Description                                                   |
-| ----- | ---------------- | ------------------------------------------------------------- |
-| skill | `commit-message` | Write Conventional Commits messages for staged changes        |
-| rules | `RULES.md`       | Comments, scope, change size, security, dependency guidelines |
+## Contributing
 
-## Update model
+Each skill lives at `skills/<name>/SKILL.md` with YAML `name` and `description`.
+Templates belong in that skill's `assets/` directory. Keep references relative
+to the installed skill location. Autonomous skills assume the full collection is installed.
+Do not commit installed third-party authoring skills.
 
-There is no lockfile and no version pinning — the CLI always fetches the latest `main`. To update installed artifacts, re-run the same install command; rule blocks are replaced in place and skill folders are overwritten.
+Node.js 22 or newer is required for repository validation tooling:
 
-## Detection cases
+```bash
+npm ci
+npm run validate
+npm test
 
-| `.claude/` | `.cursor/` | Result                                          |
-| ---------- | ---------- | ----------------------------------------------- |
-| ✓          | —          | Skills → `.claude/skills/`, rules → `CLAUDE.md` |
-| —          | ✓          | Skills → `.cursor/skills/`, rules → `AGENTS.md` |
-| ✓          | ✓          | Both targets                                    |
-| —          | —          | Error: no AI tool folder found                  |
+# Discover the source collection directly, excluding any local authoring tools.
+npx skills add ./skills --list
+```
+
+In a clean checkout, `npx skills add . --list` also discovers the same 21 skills.
+Test installs from a temporary consumer project with the absolute path to this
+checkout as the source. CI validates frontmatter, names, collection membership,
+bundled files, and companion references; it runs validation tests on pushes and
+pull requests. This repository is private as an npm package and is distributed
+from GitHub without a build or publishing step.
