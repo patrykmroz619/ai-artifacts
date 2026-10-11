@@ -1,6 +1,6 @@
 ---
 name: review-implementation
-description: Use after /implement, when a work-item's changes need an independent review against its implementation-plan.md, acceptance criteria, and coding standards. Resolves the scope from task-plan.md (asks when several subtasks are unreviewed), analyzes the diff for plan adherence, safety, quality, and pattern compliance, then writes a review.md of findings (severity + why-it's-valid + suggested fixes) and advances the covered subtasks to "reviewed". Report-only — it never edits source; /triage-findings acts on the findings. Run before /triage-findings.
+description: Use after /implement, when a work-item's changes need an independent review against its implementation-plan.md, acceptance criteria, and coding standards. Resolves the scope from task-plan.md (asks when several subtasks are unreviewed), analyzes the diff for plan adherence, safety, quality, overengineering, and consistency with existing architecture and code style, then writes a review.md of findings (severity + why-it's-valid + suggested fixes) and advances the covered subtasks to "reviewed". Report-only — it never edits source; /triage-findings acts on the findings. Run before /triage-findings.
 ---
 
 # /review-implementation — Independent review of a work-item
@@ -9,7 +9,7 @@ Review a resolved **work-item**'s changes against the plan that produced them �
 
 This skill is **report-only**: it analyzes and writes the report, it does **not** edit source code. The user decides what to act on in `/triage-findings`, which walks the findings and applies the fixes they approve. Keeping review separate from fixing is what makes the review independent.
 
-**Reads:** the work-item's `implementation-plan.md` (Target Structure, Contracts, Acceptance Criteria, Verification, and any `## Implementation Notes`), `specs/tasks/{task}/task-plan.md` (Definition of Done), `specs/workflow-config.md` (Coding standards), repo rules, and the actual code changes (diff).
+**Reads:** the work-item's `implementation-plan.md` (Target Structure, Contracts, Acceptance Criteria, Verification, and any `## Implementation Notes`), `specs/tasks/{task}/task-plan.md` (Definition of Done), `specs/workflow-config.md` (Coding standards), repo rules, applicable architecture/style documentation and configuration, representative existing code, and the actual code changes (diff).
 **Produces:** one `review.md` per covered work-item (beside its plan), and status updates in `task-plan.md`.
 
 ## The work-item model
@@ -61,6 +61,7 @@ For each covered work-item:
 1. Read its `implementation-plan.md` in full — **Target Structure**, **Contracts**, **Acceptance Criteria**, **Verification**, any **`## Implementation Notes`** (the deviations `/implement` recorded; these are prime review targets), and **`## Verification Log`** (the automated-check result `/implement` or `/triage-findings` last recorded — this is what Step 5's Verification section quotes; never re-run the checks yourself).
 2. Read `task-plan.md`'s **Definition of Done** for the covered subtasks, `specs/workflow-config.md`'s Coding standards section, and repo rules (`CLAUDE.md` / `AGENTS.md` / `.cursor/rules`).
 3. Treat the plan as the ground truth for *intent* and the standards as the ground truth for *quality*. The review measures the code against both.
+4. Read applicable architecture and style guidance referenced by those rules, plus relevant lint/formatter configuration. Compare with 1–2 existing implementations with similar responsibilities, reading callers or dependencies as needed to establish module boundaries and dependency direction. Distinguish documented rules from inferred conventions; acknowledge missing or conflicting evidence in the report instead of inventing a standard or claiming verified consistency.
 
 ### Step 3: Establish the diff
 
@@ -81,7 +82,8 @@ Scan the changes against each dimension and collect findings:
 - **Acceptance Criteria / DoD** — does the work satisfy the scope's acceptance criteria and the slice of the task DoD it owns?
 - **Coding Standards & Repo Rules** — violations of `workflow-config.md`'s referenced coding standards and the repo's rules files.
 - **Safety & Quality** — security (injection, secrets, missing authz at boundaries), performance (N+1, unbounded loops, missing pagination), reliability (unhandled errors at external boundaries, races, resource leaks), data safety (destructive ops, unsafe migrations).
-- **Pattern Consistency** — compare against 1–2 similar existing files; flag substantive mismatches (naming, layering, error handling), not trivial style.
+- **Design & Complexity** — assess whether abstractions, layers, configuration, dependencies, or speculative generalization earn their maintenance cost for the current requirements. Seek a materially simpler approach, including reuse of existing code, without forcing abstractions for incidental duplication. Every complexity finding must identify a concrete maintenance cost and a simpler alternative that preserves required behavior and security, performance, compatibility, and architectural constraints. Complexity alone is not a Blocker; grade by demonstrated impact. A faithfully followed plan can still be overengineered.
+- **Pattern Consistency** — check existing architecture and code style using the context gathered in Step 2: module boundaries, dependency direction, layering, naming, error handling, and code organization. Cite the applicable rule or representative existing code for each mismatch, and explain its impact. Allow justified deviations; do not enforce personal preferences or copy a flawed existing pattern merely for consistency.
 - **Scope Discipline** — changes that reach beyond this work-item's scope.
 
 Be precise and evidence-based: "`src/auth/handler.ts:42` — query built by string concatenation, vulnerable to injection" — not "there might be a security issue". Don't flag style preferences that don't matter; if the code works and follows the plan, minor formatting is a Minor observation at most.
@@ -110,6 +112,7 @@ For each covered work-item, write `review.md` to:
 | Acceptance Criteria  | PASS/WARNING/FAIL  |
 | Coding Standards     | PASS/WARNING/FAIL  |
 | Safety & Quality     | PASS/WARNING/FAIL  |
+| Design & Complexity  | PASS/WARNING/FAIL  |
 | Pattern Consistency  | PASS/WARNING/FAIL  |
 | Scope Discipline     | PASS/WARNING/FAIL  |
 
@@ -157,6 +160,7 @@ Read each written `review.md` with fresh eyes and fix issues inline before handi
 3. The **Verdict** matches the thresholds (any Blocker → Rejected; any Major → Needs attention; else Approved).
 4. The dimension verdicts are consistent with the findings listed.
 5. The report stayed within the work-item's scope and didn't drift into unrelated code.
+6. Complexity findings show a concrete maintenance cost and a materially simpler alternative that preserves the required behavior and constraints. Architecture/style findings cite a rule or representative code, distinguish conventions from preferences, and acknowledge evidence gaps or conflicts.
 
 ### Step 8: Summarize and hand off
 

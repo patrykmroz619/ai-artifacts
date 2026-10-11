@@ -22,7 +22,7 @@ weight the report carries — see the Notes.
 | **Step 8** — next-step line + clipboard copy | Return the stage report block from the autonomy contract instead. No `> **Next step:**` line, no clipboard, no invoking `/auto-triage-findings` or `/auto-finalize`. |
 
 Everything else stands **unchanged**: the severity scale and verdict thresholds,
-the diff classification in Step 3, all six analysis dimensions, the `review.md`
+the diff classification in Step 3, all core analysis dimensions, the `review.md`
 template with `Status: open` on every finding, the `implemented → reviewed`
 status advance, and the Step 7 self-review of the report.
 

@@ -85,10 +85,10 @@ falls back to a report. These shortcuts do not require subagents.
 | `plan-task` | Define acceptance criteria and decompose the task. |
 | `plan-implementation` | Write a technical plan for a work-item. |
 | `implement` | Carry out the plan and verify the changes. |
-| `review-implementation` | Review the implementation and record findings. |
+| `review-implementation` | Review implementation, overengineering, architecture and code style; record findings. |
 | `triage-findings` | Decide how to handle findings and apply approved fixes. |
 | `finalize` | Commit the reviewed increment and prepare task completion. |
-| `review-pr` | Review an existing PR or branch. |
+| `review-pr` | Review a PR or branch, including overengineering, architecture and code style. |
 | `qa-scenarios` | Generate a manual QA handoff from changes. |
 | `workflow-status` | Report task progress and the next workflow step. |
 | `research-solution` | Research solution options through parallel agents. |

@@ -1,6 +1,6 @@
 ---
 name: review-pr
-description: "Use when you need to review someone else\u0027s pull/merge request as the reviewer. Resolves the change from a gh PR, glab MR, or local branch, diffs it against main/master (or a stated base), and produces a review report that first explains what the change does — a walkthrough with data-flow/sequence/component diagrams — and then lists findings (severity + confidence + why-it-matters) across correctness, safety, design/complexity, standards, pattern fit, and tests. Grills the solution for over-engineering and simpler alternatives. Writes the report to specs/reviews/ and then collaborates: explain deeper, refine or challenge findings, help phrase comments for the author. Standalone — not part of the task pipeline; never edits source."
+description: "Use when you need to review someone else\u0027s pull/merge request as the reviewer. Resolves the change from a gh PR, glab MR, or local branch, diffs it against main/master (or a stated base), and produces a review report that first explains what the change does — a walkthrough with data-flow/sequence/component diagrams — and then lists findings (severity + confidence + why-it-matters) across correctness, safety, design/complexity, standards, existing architecture and code style, and tests. Checks overengineering and simpler alternatives. Writes the report to specs/reviews/ and then collaborates: explain deeper, refine or challenge findings, help phrase comments for the author. Standalone — not part of the task pipeline; never edits source."
 ---
 
 # /review-pr — Review someone else's pull request
@@ -54,6 +54,7 @@ This is the foundation of the report, not an afterthought.
 
 1. Read `specs/workflow-config.md`'s Coding standards section if it exists, plus repo rules (`CLAUDE.md` / `AGENTS.md` / `.cursor/rules`).
 2. If `specs/` is absent (this is the author's project, not yours), **degrade gracefully**: rely on repo rules and the idioms inferred from 1–2 neighboring files. Don't invent standards the project doesn't hold itself to.
+3. Read applicable architecture and style guidance referenced by those rules, plus relevant lint/formatter configuration. Compare with 1–2 existing implementations with similar responsibilities, reading callers or dependencies as needed to establish module boundaries and dependency direction. Distinguish documented rules from inferred conventions; acknowledge missing or conflicting evidence in the report instead of inventing a standard or claiming verified consistency.
 
 ### Step 4: Analyze across dimensions
 
@@ -61,9 +62,9 @@ Scan the change against each dimension and collect findings:
 
 - **Correctness & Bugs** — logic errors, mishandled edge cases, missing/incorrect error handling, off-by-ones, races, broken assumptions about inputs.
 - **Safety & Quality** — security (injection, secrets in code, missing authz at boundaries, unsafe deserialization), performance (N+1, unbounded loops/allocations, missing pagination), reliability (unhandled failures at external boundaries, resource leaks), data safety (destructive ops, unsafe migrations).
-- **Design & Complexity (the grill)** — is the approach more complex than the problem requires? Needless abstraction, premature generalization, layers that don't earn their keep, duplication that should be shared, or a shape that fights the codebase. Actively ask whether a **materially simpler alternative** exists and, if so, describe it. Equally, don't manufacture complexity concerns where the code is appropriately simple.
+- **Design & Complexity (the grill)** — assess whether abstractions, layers, configuration, dependencies, or speculative generalization earn their maintenance cost for the current requirements. Seek a **materially simpler alternative**, including reuse of existing code, without forcing abstractions for incidental duplication. Every complexity finding must identify a concrete maintenance cost and a simpler alternative that preserves required behavior and security, performance, compatibility, and architectural constraints. Complexity alone is not a Blocker; grade by demonstrated impact. Don't manufacture concerns where complexity is justified.
 - **Coding Standards & Repo Rules** — concrete violations of the standards loaded in Step 3.
-- **Pattern Consistency** — compare against 1–2 similar existing files; flag substantive mismatches (naming, layering, error handling, module boundaries), not trivial formatting.
+- **Pattern Consistency** — check existing architecture and code style using the context gathered in Step 3: module boundaries, dependency direction, layering, naming, error handling, and code organization. Cite the applicable rule or representative existing code for each mismatch, and explain its impact. Allow justified deviations; do not enforce personal preferences or copy a flawed existing pattern merely for consistency.
 - **Test Coverage** — are the changed behaviors covered? Do the tests assert real behavior rather than mocks echoing themselves? Are meaningful edge cases tested?
 
 Be precise: "`src/auth/handler.ts:42` — SQL built by string concatenation from `req.query.id`, injectable" — not "possible security issue". Consolidate related nits instead of padding the list. Where you're inferring rather than certain, mark the finding's confidence accordingly rather than overstating it.
@@ -153,7 +154,8 @@ Read the report with fresh eyes and fix it inline before handing off:
 2. Diagrams are accurate to the code and earn their place (no diagram for diagram's sake).
 3. Every finding has a real `file:line`, evidence, a non-obvious "why it matters", and an honest confidence.
 4. The verdict matches the thresholds (any Blocker → Request changes; any Major → Comment; else Approve).
-5. Design/complexity findings propose a concrete simpler path rather than just asserting "too complex".
+5. Complexity findings show a concrete maintenance cost and a materially simpler alternative that preserves the required behavior and constraints.
+6. Architecture/style findings cite a rule or representative code, distinguish conventions from preferences, and acknowledge evidence gaps or conflicts.
 
 ### Step 8: Hand off and collaborate
 
