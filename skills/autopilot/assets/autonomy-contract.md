@@ -116,7 +116,8 @@ OUTSTANDING: manual check — confirm the login redirect lands on /dashboard
 - **`STATUS-ADVANCED`** names the subtasks you moved and their new phase, or
   `none` (the no-subtasks path advances nothing).
 - **`OUTSTANDING`** carries anything a human still needs to do or know —
-  unverifiable manual checks, findings you deferred, the blocker reason. `none`
+  unverifiable manual checks, incomplete QA coverage, findings you deferred,
+  the blocker reason. `none`
   when there's nothing.
 
 Write the artifacts before you report. The files on disk are what the

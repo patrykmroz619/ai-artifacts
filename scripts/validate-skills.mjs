@@ -6,8 +6,8 @@ import { parseDocument } from 'yaml';
 export const WORKFLOW_SKILLS = [
   'add-task-to-backlog', 'auto-finalize', 'auto-implement',
   'auto-plan-implementation', 'auto-plan-task', 'auto-review-implementation',
-  'auto-small-task', 'auto-start-task', 'auto-triage-findings', 'autopilot', 'finalize', 'implement',
-  'init-workflow', 'plan-implementation', 'plan-task', 'qa-scenarios',
+  'auto-run-qa', 'auto-small-task', 'auto-start-task', 'auto-triage-findings', 'autopilot', 'finalize', 'implement',
+  'init-workflow', 'plan-implementation', 'plan-task', 'qa-scenarios', 'run-qa',
   'research-solution', 'review-implementation', 'review-pr', 'small-task', 'start-task',
   'triage-findings', 'workflow-status',
 ];
@@ -15,7 +15,7 @@ export const WORKFLOW_SKILLS = [
 // Shortcut skills are not coordinator stages and do not use the autonomy contract.
 export const AUTOPILOT_STAGES = [
   'auto-start-task', 'auto-plan-task', 'auto-plan-implementation',
-  'auto-implement', 'auto-review-implementation', 'auto-triage-findings',
+  'auto-implement', 'auto-review-implementation', 'auto-run-qa', 'auto-triage-findings',
   'auto-finalize',
 ];
 

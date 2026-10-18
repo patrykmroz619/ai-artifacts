@@ -34,7 +34,7 @@ subtasks `reviewed → committed`, and generating a real PR title and body.
 
 ## The commit gate
 
-Check both, before staging anything:
+Check all three, before staging anything:
 
 1. **The scope is `reviewed`.** If it's still `pending` / `planned` /
    `implemented`, the pipeline ran out of order — report `STATUS: blocked`.
@@ -43,8 +43,14 @@ Check both, before staging anything:
    deliberately stricter than the core skill, which also clears on `accepted` and
    `dismissed` — `/auto-triage-findings` can't use either, so a `deferred`
    Blocker is an unresolved one.
+3. **QA stage recorded.** The work-item's `review.md` has `## QA Verification`
+   with `QA status: complete`, `incomplete`, or `skipped`, and `QA retest: none`.
+   An incomplete run is reported as outstanding, not treated as a pass or a
+   separate commit gate. Missing QA or a required retest means the coordinator
+   ran out of order; return `STATUS: blocked` without committing.
 
-On either failure, report `STATUS: blocked` naming the finding IDs and stop. Do
+On any failure, report `STATUS: blocked` naming the relevant finding IDs or
+missing QA marker and stop. Do
 not commit, do not advance status. The core skill's warn-and-let-the-user-decide
 path needs a user; there isn't one, and committing over a Blocker is not a
 default worth taking silently.
@@ -111,7 +117,9 @@ PR needs to know what wasn't checked.
   `/auto-review-implementation` and `/auto-triage-findings` and re-runs no
   checks. That trust is exactly why the commit gate is strict.
 - **Scope discipline is absolute now.** With no one to ask, out-of-scope changes
-  are never swept in. Leave them uncommitted and name them in the report.
+  are never swept in. Stage the work-item's `review.md` and only the QA evidence
+  linked from its `## QA Verification` section alongside its planned changes.
+  Leave unrelated files uncommitted and name them in the report.
 - **The changelog rides the completing commit**, when the project practices one.
   Not a separate commit.
 - **Status lives in `task-plan.md`.** Advance covered subtasks to `committed`

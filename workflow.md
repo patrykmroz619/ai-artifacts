@@ -382,6 +382,7 @@ and backlog skills read project workflow state:
 
 - **`/review-pr` — Review someone else's pull request.** Puts the agent in the **reviewer's** seat (not the author's): it resolves a change from a `gh` PR or a local branch, diffs it against `main`/`master` (or a stated base), and writes a report to `specs/reviews/{pr-slug}.md` that **explains the change first** (a walkthrough with data-flow/sequence/component diagrams) and **lists findings second** (severity + confidence across correctness, safety, design/complexity, standards, existing architecture and code style, and tests). Complexity findings identify a concrete maintenance cost and a simpler alternative that preserves requirements; architecture/style findings cite rules or representative code. It then collaborates on refining findings and phrasing comments. It never edits source and never advances task status — there are no plans, specs, or DoD involved, and it works on any repo even without a `specs/` directory.
 - **`/qa-scenarios` — Generate test scenarios for QA from your changes.** Produces a **manual-QA handoff document** from a diff (a `gh` PR or a local branch against `main`/`master`, plus uncommitted working-tree changes). Writes `specs/qa/{pr-slug}.md` with a **flexible, jargon-free description** of what the change does from a tester's perspective (prose, lists, subsections, or a diagram as the logic warrants) followed by **concise step-by-step test scenarios** (Preconditions/Steps/Expected) covering edge cases, variants, configurations, and the directly affected flows that could regress. Shared preconditions, test data, and step flows are factored into reusable named blocks to avoid duplication. Standalone — needs no plan or implementation artifacts, is black-box throughout, and never edits source.
+- **`/run-qa` — Test the running change and report evidence.** Proposes and confirms the scope before live checks, then exercises relevant UI, API, CLI, or other behavior. Standalone runs write `specs/qa/{slug}/report.md` and evidence. For a workflow work-item, it adds `## QA Verification` and any product findings to `review.md`; source code remains untouched.
 - **`/research-solution` — Research an architecture or solution approach through parallel subagents.** For complex or unfamiliar problems, features, or initiatives where the right approach isn't obvious — including ones too large for a single task. The agent scopes a research brief, splits it into independent streams (candidate libraries/frameworks, managed services, a web-search discovery stream for comparable open-source projects), dispatches them in parallel, then dispatches a second wave of one subagent per project the discovery stream actually surfaced — never a project picked from the agent's own memory — requiring those subagents to read and cite real source, not just docs. Synthesizes a recommendation into `specs/research/{slug}.md`. Task-agnostic: reads and writes no task artifacts, can run before any task exists, and can seed one or several later `/start-task` runs. Never edits source.
 - **`/workflow-status` — Re-entry snapshot: where a task stands, what's next.** The pickup point after stepping away from a task. Resolves the active task (explicit arg, else current-branch inference), reads `task-plan.md` and each referenced work-item's `implementation-plan.md` / `review.md`, and cross-checks that against light git state (branch match, working-tree cleanliness, a log skim). Reports each subtask's phase, flags any drift between recorded status and what's actually on disk, and closes with **one** recommended next command — the earliest-phase outstanding subtask, following the same resolution order the pipeline skills already use. Read-only throughout: it never edits `task-plan.md`, source, or git state, even when it finds drift.
 
@@ -394,17 +395,16 @@ artifacts as drift for shortcut tasks.
 ## Autonomous pipeline (`/autopilot`)
 
 The pipeline above is human-in-the-loop by design: every skill stops, prints the next command, and
-waits for a person. `/autopilot` is the opposite mode — the same seven stages, every subtask, run
+waits for a person. `/autopilot` is the opposite mode — those stages plus a live QA review step, every subtask, run
 end to end in one unattended pass. It exists alongside the core skills and **changes none of them**.
 
 ### Shape
 
-A **coordinator** skill (`/autopilot`) plus an `auto-` counterpart for each of the seven pipeline
-stages. The coordinator never plans, implements, or commits: it reads the state on disk, decides
+A **coordinator** skill (`/autopilot`) plus eight `auto-` stages, including `auto-run-qa` after implementation review. The coordinator never plans, implements, or commits: it reads the state on disk, decides
 which stage runs next, dispatches a **subagent** to run that stage's `auto-` skill, verifies what
 actually changed on disk, and loops. Stages never hand off to each other — the coordinator is the
-sole router, and `task-plan.md` remains the only status ledger.
-`auto-small-task` is a separate directly invoked shortcut, not an eighth stage.
+sole router. `task-plan.md` remains the subtask status ledger; `review.md` holds QA completion and retest markers.
+`auto-small-task` is a separate directly invoked shortcut, not a pipeline stage.
 
 ```
 /autopilot {task}
@@ -435,6 +435,7 @@ iterate until the user accepts. There is no second copy of the stage logic to dr
 - `/auto-implement` — no blocker pause and no acceptance loop; manual verification is performed where
   possible and reported as outstanding where not.
 - `/auto-review-implementation` — nearly unchanged; it was already report-only.
+- `/auto-run-qa` — records a scope and tests observable behavior when automated checks do not fully cover it. It adds evidence and findings to `review.md` before triage, or records why live QA was skipped or incomplete. Triage fixes that affect tested behavior trigger a targeted retest.
 - `/auto-triage-findings` — the per-finding question becomes a fixed severity rubric. `accepted` and
   `dismissed` are never used: both encode a human taking a risk or overruling the reviewer.
 - `/auto-finalize` — commits without confirmation, hard-stops on an unfixed Blocker, and pushes or
@@ -461,5 +462,5 @@ calls were made and not just the diff. The shared rules live in
 
 ## Status / future
 
-- All twenty-three skills are implemented under `skills/`: the eight-step pipeline (`init-workflow`, `start-task`, `plan-task`, `plan-implementation`, `implement`, `review-implementation`, `triage-findings`, `finalize`), the standalone `review-pr`, `qa-scenarios`, `workflow-status`, `research-solution`, `add-task-to-backlog`, the autonomous set (`autopilot` plus the seven `auto-` stage skills), and the `small-task` / `auto-small-task` shortcuts. This document is the high-level design; each `SKILL.md` is the authoritative spec for its step.
+- All twenty-five skills are implemented under `skills/`: the eight-step interactive pipeline, standalone `review-pr`, `qa-scenarios`, `run-qa`, `workflow-status`, `research-solution`, `add-task-to-backlog`, the autonomous set (`autopilot` plus eight `auto-` stage skills), and the `small-task` / `auto-small-task` shortcuts. This document is the high-level design; each `SKILL.md` is the authoritative spec for its step.
 - Install the collection with `npx skills add patrykmroz619/ai-artifacts`. Selective installation and autonomous companion requirements are documented in [README.md](README.md). The Skills CLI handles agent destinations; there is no custom installer or rule injection.

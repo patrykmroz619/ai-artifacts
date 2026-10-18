@@ -30,6 +30,15 @@ plan's Contracts, re-running the automated checks after any fix, recording
 material deviations in `## Implementation Notes`, recomputing the `review.md`
 header, and **not** touching subtask status.
 
+After applying a source fix, inspect `review.md`'s `## QA Verification` cases.
+If the fix changes behavior those cases exercised and `QA retests` is below two,
+set `**QA retest:** required` in that section and name the affected case IDs.
+Do this after automated checks; leave earlier QA evidence intact. The
+coordinator will dispatch `auto-run-qa` before finalization. After two retests,
+record the affected cases as outstanding instead of requesting another pass;
+the final report must surface that limit. Do not mark a case passed because its
+finding was fixed in code. If no QA case is affected, leave `QA retest` unchanged.
+
 ## The rubric
 
 | Severity | Decision |

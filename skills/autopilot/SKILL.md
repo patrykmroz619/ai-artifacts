@@ -7,7 +7,7 @@ description: "Run the whole dev-workflow pipeline unattended — start-task thro
 
 Drive a task through the entire dev-workflow — `start-task` → `plan-task` →
 `plan-implementation` → `implement` → `review-implementation` →
-`triage-findings` → `finalize`, across every subtask — in one run, without
+`run-qa` → `triage-findings` → `finalize`, across every subtask — in one run, without
 asking the user anything once it starts.
 
 You are the **coordinator**. You do not plan, implement, review, or commit
@@ -79,15 +79,25 @@ the same resolution order every pipeline skill uses:
 | Earliest outstanding subtask is `pending` | `auto-plan-implementation` |
 | …is `planned` | `auto-implement` |
 | …is `implemented` | `auto-review-implementation` |
+| …is `reviewed`, its `review.md` has no `## QA Verification` section | `auto-run-qa` |
 | …is `reviewed`, its `review.md` has `Status: open` findings | `auto-triage-findings` |
+| …is `reviewed`, no open findings, `QA retest: required` | `auto-run-qa` |
 | …is `reviewed`, no open findings | `auto-finalize` |
 | Every subtask `committed` (or the no-subtasks path is committed) | Done — go to Step 7 |
 
 On the **no-subtasks path** there are no per-subtask statuses to read. Route on
 which artifacts exist at the task root instead: no `implementation-plan.md` →
 `auto-plan-implementation`; plan but no code changes or no `review.md` →
-`auto-implement` then `auto-review-implementation`; `review.md` with open
-findings → `auto-triage-findings`; otherwise → `auto-finalize`.
+`auto-implement` then `auto-review-implementation`. Once `review.md` exists,
+apply the table's order: missing QA section → `auto-run-qa`; open findings →
+`auto-triage-findings`; required retest → `auto-run-qa`; otherwise →
+`auto-finalize`.
+
+`auto-run-qa` records `QA status: skipped` when automated verification fully
+covers the change. An incomplete live run is recorded and reported, but does not
+by itself stop the pipeline. Open QA findings follow the same triage and Blocker
+rules as implementation-review findings. The QA section is the on-disk progress
+marker; `auto-run-qa` does not advance subtask status.
 
 **You are the sole router.** Stages never hand off to each other and never
 decide what runs next. Every transition comes back through this step.
@@ -245,6 +255,8 @@ Always surface these three, in every mode:
   `accepted` or `dismissed`, so anything it didn't fix is still genuinely open
   and needs a human to look at it.
 - **Outstanding manual verification** the stages couldn't perform.
+- **QA results and evidence**, including skipped or incomplete checks and their
+  reasons.
 
 Then stop. Don't start another task and don't offer to.
 

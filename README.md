@@ -1,6 +1,6 @@
 # Dev-workflow skills
 
-23 reusable agent skills for taking development work from task setup through
+25 reusable agent skills for taking development work from task setup through
 planning, implementation, review, and finalization. The repository contains one
 collection, installed with the [Skills CLI](https://github.com/vercel-labs/skills).
 See [workflow.md](workflow.md) for the workflow and its artifact contracts.
@@ -14,7 +14,7 @@ npx skills add patrykmroz619/ai-artifacts
 ```
 
 The interactive installer lets you choose skills and target agents. To install
-all 23 skills for Claude Code, Cursor, and Codex without prompts:
+all 25 skills for Claude Code, Cursor, and Codex without prompts:
 
 ```bash
 npx skills add patrykmroz619/ai-artifacts --skill '*' --agent claude-code cursor codex --yes
@@ -90,6 +90,7 @@ falls back to a report. These shortcuts do not require subagents.
 | `finalize` | Commit the reviewed increment and prepare task completion. |
 | `review-pr` | Review a PR or branch, including overengineering, architecture and code style. |
 | `qa-scenarios` | Generate a manual QA handoff from changes. |
+| `run-qa` | Confirm a testing scope, exercise running software, and write a report with evidence. |
 | `workflow-status` | Report task progress and the next workflow step. |
 | `research-solution` | Research solution options through parallel agents. |
 | `add-task-to-backlog` | Capture a new task in the configured backlog. |
@@ -99,6 +100,7 @@ falls back to a report. These shortcuts do not require subagents.
 | `auto-plan-implementation` | Write a work-item implementation plan autonomously. |
 | `auto-implement` | Implement and verify without an acceptance conversation. |
 | `auto-review-implementation` | Independently review an autonomous increment. |
+| `auto-run-qa` | Verify changes that need live QA and add evidence and findings to the review. |
 | `auto-triage-findings` | Resolve review findings autonomously. |
 | `auto-finalize` | Commit and complete according to configured authorization. |
 
@@ -106,11 +108,11 @@ falls back to a report. These shortcuts do not require subagents.
 
 Install the full collection for the complete workflow. Individual core skills
 may expect configuration or artifacts from earlier stages; installing a skill
-does not initialize a workflow. `review-pr`, `qa-scenarios`, and
+does not initialize a workflow. `review-pr`, `qa-scenarios`, `run-qa`, and
 `research-solution` can be used without the task pipeline. `add-task-to-backlog`
 and `workflow-status` read the project's workflow state.
 
-The Skills CLI does not automatically install companion skills. Each of the seven
+The Skills CLI does not automatically install companion skills. Each of the eight
 autonomous pipeline stages needs its core instructions plus the shared contract bundled with
 `autopilot`:
 
@@ -121,6 +123,7 @@ autonomous pipeline stages needs its core instructions plus the shared contract 
 | `auto-plan-implementation` | `plan-implementation`, `autopilot` |
 | `auto-implement` | `implement`, `autopilot` |
 | `auto-review-implementation` | `review-implementation`, `autopilot` |
+| `auto-run-qa` | `run-qa`, `autopilot` |
 | `auto-triage-findings` | `triage-findings`, `autopilot` |
 | `auto-finalize` | `finalize`, `autopilot` |
 | `auto-small-task` | `small-task` (including its bundled template); no `autopilot` contract |
@@ -142,11 +145,11 @@ npx skills add patrykmroz619/ai-artifacts --skill auto-implement implement autop
 ```
 
 Installing `autopilot` for its contract does not make the coordinator usable on
-its own. To run the coordinator, install all seven autonomous stages and their
+its own. To run the coordinator, install all eight autonomous stages and their
 core companions:
 
 ```bash
-npx skills add patrykmroz619/ai-artifacts --skill autopilot auto-start-task start-task auto-plan-task plan-task auto-plan-implementation plan-implementation auto-implement implement auto-review-implementation review-implementation auto-triage-findings triage-findings auto-finalize finalize --agent codex
+npx skills add patrykmroz619/ai-artifacts --skill autopilot auto-start-task start-task auto-plan-task plan-task auto-plan-implementation plan-implementation auto-implement implement auto-review-implementation review-implementation auto-run-qa run-qa auto-triage-findings triage-findings auto-finalize finalize --agent codex
 ```
 
 Use the same project/global scope and agent selection for companion skills so
@@ -186,7 +189,7 @@ npm test
 npx skills add ./skills --list
 ```
 
-In a clean checkout, `npx skills add . --list` also discovers the same 23 skills.
+In a clean checkout, `npx skills add . --list` also discovers the same 25 skills.
 Test installs from a temporary consumer project with the absolute path to this
 checkout as the source. CI validates frontmatter, names, collection membership,
 bundled files, and companion references; it runs validation tests on pushes and
