@@ -49,7 +49,9 @@ provides skill directories and templates; it does not inject rules into consumer
 
 After installing, invoke `init-workflow` in your coding agent (for example,
 `/init-workflow` in agents that expose skills as slash commands). It configures
-`specs/workflow-config.md` and the task workspace. Then use the core pipeline:
+`specs/workflow-config.md` and the task workspace. It inspects the project and
+guides setup for local startup, tests, browser interaction, and data/log inspection
+where applicable, recording verified commands without secrets. Then use the core pipeline:
 
 ```text
 start-task -> plan-task -> plan-implementation -> implement
@@ -78,7 +80,7 @@ falls back to a report. These shortcuts do not require subagents.
 
 | Skill | Purpose |
 | --- | --- |
-| `init-workflow` | Initialize project workflow configuration and task directories. |
+| `init-workflow` | Inspect the project, guide local verification setup, and initialize workflow configuration and task directories. |
 | `start-task` | Capture a task and create its workspace and branch. |
 | `small-task` | Plan, implement, verify, and finalize a focused task with approvals in one record. |
 | `auto-small-task` | Run the combined task shortcut unattended, without approval gates. |

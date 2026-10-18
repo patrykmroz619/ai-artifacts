@@ -17,8 +17,11 @@ For unattended execution, use `/auto-small-task`, which replaces the interactive
 
 - Require `specs/workflow-config.md`. If absent, stop and point to `/init-workflow`;
   do not initialize configuration implicitly. Read its git, changelog, tracker,
-  Autopilot completion policy, and coding-standards references. Read applicable
-  repository rules and inspect the affected code before choosing a solution.
+  Autopilot completion policy, project map, coding-standards references, and applicable local
+  operation, verification, and diagnostics. Read applicable repository rules and
+  inspect the affected code before choosing a solution. Check recorded tool and
+  command availability in the current environment; do not treat old verification
+  labels as a guarantee.
 - Resolve the task from the explicit task name or description, then the current
   branch matched against the `Branch` in existing `task.md` records. Derive a safe
   lowercase hyphenated slug for a new task. Ask only when identity is ambiguous.
@@ -62,7 +65,8 @@ already answered by the brief or configuration. Write a concrete, reviewable pla
 - Goal, constraints, and acceptance criteria.
 - Solution design, affected files/components, interface or data changes, and edge cases.
 - Ordered implementation steps with enough technical detail to execute them.
-- Verification commands, expected outcomes, and any required manual checks.
+- Verification commands, expected outcomes, and any required manual checks,
+  using configured browser/API/data/log access where applicable.
 - Meaningful decisions, rejected alternatives when useful, and assumptions.
 
 Present the plan and branch choice, request **plan approval**, and wait before

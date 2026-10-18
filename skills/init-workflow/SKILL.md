@@ -1,13 +1,13 @@
 ---
 name: init-workflow
-description: Initialize the markdown-artifact dev-workflow in this project — scaffold the specs/ root (workflow-config.md, tasks/) and interview the user to capture task-management, git, changelog, and coding-standards conventions. Use this whenever the user runs /init-workflow, or asks to "set up the dev workflow", "initialize specs", "bootstrap the workflow", "configure the task workflow", or wants a place for task planning/decision/review artifacts to live — even if they don't say "specs" explicitly. This is the one-time entry point that every other dev-workflow skill (/start-task, /plan-task, /plan-implementation, /implement, /review-implementation, /finalize) depends on.
+description: Initialize or complete a project's dev-workflow configuration. Inspect how the app runs and can be verified, guide setup of useful local tools, and record project-specific commands alongside tracker, git, changelog, and coding conventions in specs/workflow-config.md. Use for /init-workflow, setting up the dev workflow, or completing an existing workflow configuration.
 ---
 
 # /init-workflow — Initialize the dev-workflow
 
 Set up `specs/` — the committed, single source of truth for every dev-workflow artifact — and
-capture project-level configuration that the downstream skills read to decide how to integrate with
-your task tracker, git, and changelog.
+capture project-level configuration that downstream skills use to run and verify the app and to
+integrate with your task tracker, git, and changelog.
 
 This runs **once per project**, but is safe to re-run. It is idempotent in spirit: it never clobbers
 content you've already written. When an artifact already exists, it doesn't blindly skip it — it
@@ -19,7 +19,7 @@ than leaving holes.
 
 ```
 specs/
-├── workflow-config.md # filled from the interview below — task mgmt, git, changelog, coding standards
+├── workflow-config.md # project operation and verification, plus workflow conventions
 └── tasks/
     └── .gitkeep # keeps the (initially empty) tasks/ dir tracked in git
 ```
@@ -42,28 +42,42 @@ dir is tracked in git. /start-task populates it later (one folder per task); the
 documented there and in the workflow design, so no README is needed here.
 
 **`specs/workflow-config.md`** — filled in Step 2. If it already exists, don't recreate it; instead
-read it and check each section (task management, git conventions, changelog, autopilot, coding
-standards) for completeness. A config written before a section existed simply lacks it — that's a
-gap to fill, not a reason to leave it out. Run the interview **only for the sections that are missing or incomplete**, and ask the
-user before changing anything they've already filled in. If it's fully populated, show it and ask
-whether to keep it as-is or revisit anything.
+read it and check each applicable section (task management, git conventions, changelog, autopilot,
+coding standards, project map, local operation, verification and inspection) for completeness. A
+config written
+before a section existed simply lacks it — that's a gap to fill, not a reason to leave it out. Run
+the interview **only for sections that are missing or incomplete**, and ask before changing content
+the user already filled in. If it is fully populated, show it and ask whether to keep it as-is or
+revisit anything. Omit inapplicable operational sections; absence alone is not a gap for a project
+without that surface.
 
-### Step 2: Interview to fill `workflow-config.md`
+### Step 2: Inspect the project, then interview to fill `workflow-config.md`
 
 The goal is to record *how* this project's workflow integrates with the outside world, so later
-skills can auto-fetch task data, propose branch names, and prompt for changelog entries — and
-degrade gracefully to manual input when an integration isn't available.
+skills can auto-fetch task data, propose branch names, start and exercise the app, inspect results,
+and prompt for changelog entries — and degrade gracefully when an integration isn't available.
+
+Before the interview, inspect likely sources: README and contribution docs, agent/rules files,
+package/build manifests and scripts, test/CI configuration, service or container definitions,
+environment examples, migrations/seed scripts, and existing browser/API tooling. Identify the app
+surfaces, main code entry points and component boundaries, dependencies, local run and test commands,
+likely ports and health checks, data stores,
+logs, and safe test-data paths. Read relevant files rather than scanning secrets or large generated
+directories. Cite the source path beside information that may change. Distinguish a command found in
+the repo from one you actually ran. Ask only about gaps, ambiguous choices, and access the repo
+cannot establish; present discovered commands as defaults.
 
 **Prefer the `AskUserQuestion` tool to put questions to the user** — present the choices (system,
 access mechanism, changelog yes/no, etc.) as selectable options rather than asking in free-form prose.
 It keeps the interview fast and unambiguous, and the user can always pick "Other" to supply something
 not listed (which is how they name a tracker you didn't offer). Fall back to plain prose only for
-genuinely open-ended details that don't fit options well — pasted credentials, a project/board key, a
-custom branch pattern.
+genuinely open-ended details that don't fit options well, such as a project/board key or custom
+branch pattern. Do not ask users to paste credentials into chat or the committed config; record
+secret names and where they are supplied instead.
 
 Ask in **small batches** rather than one giant form — group related questions into a single
-`AskUserQuestion` call, let earlier answers inform later ones, and keep it conversational. Cover five
-areas:
+`AskUserQuestion` call, let earlier answers inform later ones, and keep it conversational. Cover the
+existing five areas plus applicable local operation and verification:
 
 **1. Task management.** Which system, if any. **Ask the user first — never infer the tracker from
 what tooling happens to be installed.** Do *not* scan for available MCP servers, CLIs (`gh`, `linear`,
@@ -153,6 +167,43 @@ standards enforced, they belong in a rules file, not duplicated into workflow co
 If `workflow-config.md` already has a `## Coding standards` section, leave the user's content alone —
 at most append references to rules files not already mentioned there, and tell the user.
 
+**6. Project map and local operation.** Record a short map of the apps/services, their purposes,
+source entry points, key code areas, and authoritative architecture or setup docs. Link to those
+sources rather than duplicating a large README or spec. Establish the supported local or disposable
+test environment: prerequisites and service dependencies, setup and start commands, working
+directory, environment variable names and their source (never values), URL/port or other entry
+point, readiness check, and how to stop only
+services the agent started. If there are multiple apps, name each and its purpose. Test a safe
+readiness path when feasible; otherwise mark it unverified with the missing prerequisite. Document
+staging only when the project defines a safe staging environment and the user wants it used. Do not
+assume access to production or real user data.
+
+**7. Verification and inspection.** Record the relevant existing commands for unit, integration,
+end-to-end, lint/type/build checks, including required services and where results appear. For each
+applicable interface, identify a practical observable check: browser for web UI, request tool and
+base URL for APIs, command invocation for CLIs, and queue/job trigger plus observable output for
+background work. For browser work, use a dedicated browser tool provided by the current agent
+runtime when it is suitable; otherwise use existing agent-usable project tooling or offer the
+[official Playwright CLI](https://playwright.dev/agent-cli/introduction) (`@playwright/cli`). Check
+the current installation instructions before proposing a command. Record the exact invocation and
+a fallback when a runtime-specific tool will not be available to another agent. Verify a harmless
+local interaction
+before marking browser access available; installed but untested means `not verified`.
+
+For persisted behavior, identify a read-only way to inspect local/test records (client command,
+admin endpoint, or documented query) and the data source it targets. Capture how to create/reset
+disposable fixtures, test roles/accounts without passwords, log locations or commands, and how to
+inspect job failures. Confirm read-only access or a harmless sample query when feasible. Prefer
+reusable commands and pointers to authoritative project docs over a copied schema or log dump.
+
+**8. Guided setup.** For a missing relevant tool or prerequisite, explain the concrete benefit and
+offer setup now or a documented skip. Before changing project files, dependencies, global tools,
+or external configuration, show the exact proposed change and obtain approval for that change.
+After setup, verify the capability with the project's local/test environment. If the user skips or
+verification fails, record `not configured` or `not verified`, the missing prerequisite and exact
+next action; never imply QA coverage that is unavailable. Setup here does not authorize later
+production access, destructive data operations, or remote publication.
+
 Then write `specs/workflow-config.md` from the bundled template at `assets/workflow-config.md`
 (resolve relative to this skill's directory), substituting the captured answers for the
 angle-bracketed placeholders. The template has no changelog section: **add a `## Changelog` section
@@ -161,6 +212,13 @@ entirely — its absence is what tells /finalize not to prompt for entries.
 
 The `## Autopilot` section, by contrast, is in the template and is **always written** — recording
 `report only` explicitly is better than leaving the mode implicit.
+
+For the operational sections, replace all placeholders with project-specific facts. Keep sections
+only when applicable; omit unneeded fields rather than filling them with guesses. Label each tool or
+command `verified`, `not verified`, or `not configured` and say why when it is not verified. Keep the
+config concise enough to use during a task: exact commands, safe environment and data boundaries,
+and paths to fuller docs. Never commit tokens, passwords, connection strings containing credentials,
+real test-account secrets, or sensitive sample data.
 
 ### Step 3: Summarize and point the way
 
@@ -174,6 +232,8 @@ specs/tasks/                [created | present]
 Where `completed` means the artifact already existed and you filled in missing pieces. If you
 referenced rules files in `workflow-config.md`'s Coding standards section, call that out so the user
 knows to review them.
+Summarize which local run, browser/API, data, and log capabilities were verified and which remain
+unavailable with their next setup action.
 
 Then close with two pointers, and stop — don't chain into another skill:
 

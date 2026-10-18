@@ -141,15 +141,18 @@ subtask status lives — no separate ledger to drift.
 
 ### Configuration-driven integrations
 
-`workflow-config.md` records _how_ the agent integrates with external systems, captured during init:
+`workflow-config.md` records how the agent runs and verifies this project and integrates with external systems, captured during init:
 
+- **Project map** — a short pointer to apps/services, source entry points, key code areas, and authoritative docs.
+- **Local operation** — setup, start, readiness, entry points, environment variable names, and cleanup for a safe local or designated test environment.
+- **Verification and diagnostics** — runnable checks, browser/API/CLI or job access, disposable fixtures, read-only data inspection, and logs. Each applicable capability records what was actually verified and what still needs setup.
 - **Task management** (Jira / Linear / GitHub Issues / none) and the access mechanism (MCP server, CLI such as `gh`, or manual).
 - **Git conventions** (branch naming, commit style).
 - **Changelog** practice (maintained or not, file location/format).
 - **Autopilot** — the completion mode for unattended pipeline runs and both task shortcuts: `open PR/MR` (the run may push and open the PR/MR itself) or `report only` (it commits locally and prints the command). An absent section means `report only`. This is a **pre-authorization**, decided while a human is present, because `/autopilot` never stops to ask mid-run.
 - **Coding standards** — references to the repo's existing rules files (e.g. `CLAUDE.md`, `.cursor/rules`); no content of its own, just pointers to what stays authoritative.
 
-Skills read this file to decide whether to auto-fetch task data, propose branch names, prompt for changelog entries, etc. When an integration is configured but unavailable, skills degrade gracefully to manual input.
+Skills read this file to avoid rediscovering project setup, choose checks that can exercise changed behavior, and follow tracker and git conventions. They check availability again in the current session; a recorded browser tool or command may no longer work. The committed config contains secret names and setup paths, never secret values.
 
 ### Next-step hand-off
 
@@ -184,11 +187,13 @@ hand-off actionable rather than just informative:
 **How it works:**
 
 1. Create the directory structure if absent (idempotent — never clobber existing files).
-2. Interview the user to fill `workflow-config.md`:
+2. Inspect project docs, manifests, tests, services, environment examples, and data/log tooling; then interview the user to fill gaps in `workflow-config.md`:
    - Which task management system (if any) and the integration mechanism.
    - For the chosen system, **verify availability** — check for the required MCP server or CLI (e.g. Jira/Linear MCP, `gh` CLI). If missing, ask the user to configure one of the supported options and record the choice.
    - Git branch/commit conventions; changelog practice.
    - Coding standards: scan the repo's rules files and record references to them (path + what each covers), rather than copying their content.
+   - A short project map, local startup and readiness, automated checks, safe test data, browser/API/CLI or job interaction, read-only persisted-data inspection, and logs where applicable.
+   - Offer setup for missing relevant tools, preferring an agent's dedicated browser tool or a working project tool and offering Playwright CLI as the portable web fallback. Obtain approval before changing dependencies, project files, global tools, or external configuration; verify before marking a capability available.
 
 ---
 

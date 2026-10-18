@@ -7,7 +7,7 @@ description: Use after /plan-task, when a chosen scope (one subtask, several sub
 
 Turn the high-level `task-plan.md` into one precise, actionable `implementation-plan.md` for a chosen **scope** — the whole task, a single subtask, or several subtasks bundled together. This is the plan `/implement` executes against, so it carries the technical decisions: which files and folders change, where new code lives, what contracts are introduced or modified, and how the result is verified.
 
-**Reads:** `specs/tasks/{task}/task-plan.md` (incl. Planning Notes + Definition of Done), `specs/tasks/{task}/task-info.md`, `specs/workflow-config.md` (Coding standards), relevant codebase context.
+**Reads:** `specs/tasks/{task}/task-plan.md` (incl. Planning Notes + Definition of Done), `specs/tasks/{task}/task-info.md`, `specs/workflow-config.md` (Coding standards and applicable operation/verification), relevant codebase context.
 **Produces:** one `implementation-plan.md` (location depends on scope, see below) and status/annotation updates in `task-plan.md`.
 
 ## The work-item model
@@ -51,7 +51,7 @@ The plan's own header lists the subtasks it covers — that is the two-way link 
    - Several subtasks → propose a short bundle slug describing the combined outcome; let the user adjust.
    - Whole task / no-subtasks → no work-item folder; the plan goes to the task root.
 4. **Check for an existing plan** at the resolved location. If one exists, this is a resumed run: show its current state and ask whether to continue from where it left off or restart.
-5. **Read context:** `task-plan.md` fully — the Definition of Done and Planning Notes for the covered scope are prior decisions, not things to re-ask. Read `task-info.md` and `specs/workflow-config.md`'s Coding standards section if present.
+5. **Read context:** `task-plan.md` fully — the Definition of Done and Planning Notes for the covered scope are prior decisions, not things to re-ask. Read `task-info.md` and `specs/workflow-config.md`'s Project map, Coding standards, and applicable local operation, verification, and diagnostics sections if present. Check recorded commands against current project files before putting them in the plan; a prior `verified` label is not proof they still work.
 6. **Explore the codebase** with Glob and Grep: find the exact files, modules, and patterns the scope will touch. Look for the conventions this work-item must follow — naming, layering, error handling, test layout, existing contracts nearby.
 
 Summarize findings in 3–5 bullets before asking anything: which files this work-item will touch, the patterns to follow, and any complexity signals. Don't ask the user what the codebase already answers.
@@ -156,7 +156,7 @@ src/
 ## Verification
 
 **Automated:** [Commands an agent can run — tests, lint, typecheck, build. Be specific.]
-**Manual:** [Human checks — UI/UX behavior, real-world cases, anything not coverable by a command.]
+**Manual:** [Observable checks not covered above; use configured browser/API/CLI access and read-only data or logs where relevant. Name any unavailable prerequisite.]
 ```
 
 `/implement` later appends a `## Verification Log` section recording the actual result of running

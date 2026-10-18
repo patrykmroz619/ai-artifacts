@@ -9,7 +9,7 @@ Turn a diff into a **manual-QA handoff document**: a plain-language description 
 
 This is a **standalone** skill. It needs no plans, specs, or task artifacts, works on any repo, and **never edits source** — it reads the change and writes one handoff document.
 
-**Reads:** the change (a `gh` PR or a local branch diff against the base, plus uncommitted working-tree changes), and enough of the surrounding code to understand the _behavior_ that changed.
+**Reads:** the change (a `gh` PR or a local branch diff against the base, plus uncommitted working-tree changes), enough of the surrounding code to understand the _behavior_ that changed, and applicable setup in `specs/workflow-config.md` when present.
 **Produces:** one document at `specs/qa/{slug}.md`, plus a chat summary.
 
 ## What makes a good handoff here
@@ -29,6 +29,12 @@ This is a **standalone** skill. It needs no plans, specs, or task artifacts, wor
 2. **Base branch:** the PR's `baseRefName` when known; otherwise auto-detect `main` or `master`; honor an explicitly stated base.
 3. **Establish the full change set:** `git diff <base>...<head>` (three-dot, against the merge-base) **plus uncommitted working-tree changes** (`git diff` and `git diff --staged`, and `git status` for new files). Generating scenarios before pushing is a first-class case — fold the working tree in.
 4. If there's no change to analyze or the source can't be resolved, stop and report what's missing.
+
+If `specs/workflow-config.md` exists, use its local entry points, test roles, fixtures, and available
+UI/API/CLI tools to make the later test setup actionable. Keep the handoff black-box: translate any
+internal database or log check into an observable expected result or tester-accessible check; never
+include credentials, internal schema, or unverified setup as though it works. Without a config,
+discover the same details from project docs as needed.
 
 ### Step 2: Understand the change (internal)
 
