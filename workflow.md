@@ -139,6 +139,14 @@ task that *does* have subtasks — that's a user-driven call, not something a de
 
 ### Subtask status in `task-plan.md`
 
+The canonical correctness rules are in
+[workflow integrity](skills/plan-task/references/workflow-integrity.md): explicit
+phases, source-bound evidence, finding gates, required QA, review history, and
+recoverable commits. Both interactive and autonomous stages follow that contract.
+Tasks without subtasks use `**Phase:** pending` below the task-plan title and
+advance through the same phases. Plans/reviews existing on disk do not prove a
+phase completed. Legacy missing phases require evidence-based reconciliation.
+
 `task-plan.md` lists each subtask as a heading carrying its slug and a phase tag, which the per-scope
 skills advance as work progresses:
 
@@ -292,8 +300,8 @@ work-item — resolved per **Scope resolution** above.
 
 1. Resolve the active task and work-item, and load its single `implementation-plan.md`.
 2. Implement the steps in order following the plan, contracts, coding standards, and repo rules; build against the current code, not the plan's snapshot. Pause and ask only on a genuine blocker.
-3. Run the plan's automated checks; fix failures you introduced and re-run until green or genuinely blocked. Record any material deviation in `## Implementation Notes`.
-4. Advance the status of each covered subtask in `task-plan.md` to `implemented`.
+3. Run required automated checks and record fingerprinted attempts in `## Verification Log`; preserve previous attempts. Fix failures and rerun affected checks after all source edits, including self-review. Record material deviations in `## Implementation Notes`.
+4. Advance covered subtask headings, or the no-subtasks `Phase`, to `implemented` only after required automated checks pass on final source inputs. Required manual/QA acceptance remains a separate finalization gate.
 5. Summarize what was done, hand the plan's **manual** verification to the user, and **iterate on feedback until the user explicitly accepts** before considering the step complete.
 
 ---
@@ -317,9 +325,9 @@ and any `## Implementation Notes`) and `task-plan.md` (overall DoD, incl. Planni
 **How it works:**
 
 1. Analyze the code changes for plan adherence, acceptance criteria / DoD, coding standards, safety & quality, design & complexity, consistency with existing architecture and code style, and scope discipline. Complexity findings need a concrete maintenance cost and a simpler alternative that preserves requirements; consistency findings cite applicable rules or representative existing code.
-2. Read the plan's recorded `## Verification Log` as evidence; never re-run automated checks during implementation review. A missing log becomes a finding.
+2. Compare verification provenance with current source. Reuse valid results; obtain missing/stale required evidence with necessary checks when possible, otherwise report blocked verification. Avoid rerunning unchanged valid checks.
 3. Write findings to the scoped `review.md`, each with a **severity** (Blocker / Major / Minor), the evidence that makes it valid, and a concrete suggested fix. This is **report-only** — it never edits source; `/triage-findings` acts on the findings (which carry a `Status: open` hook).
-4. Advance the status of each covered subtask in `task-plan.md` to `reviewed`.
+4. Advance covered headings or the no-subtasks `Phase` to `reviewed`. Re-review appends a fingerprinted pass while preserving finding IDs, decisions, QA evidence/history, and retest counters; omission never resolves an old finding.
 
 ---
 
@@ -337,7 +345,7 @@ and any `## Implementation Notes`) and `task-plan.md` (overall DoD, incl. Planni
 1. Resolve the scope to a `review.md`; re-read the code at each finding's location, since the review is a snapshot and the code may have moved.
 2. Walk the open findings in severity order (Blocker → Major → Minor), one `AskUserQuestion` each, carrying the finding, why it's valid, and the suggested fix(es). Every finding is closed by a **user decision** — `fixed` / `skipped` / `accepted` (with justification) / `deferred` / `dismissed` / `stale` — never by the agent's own judgment that it's trivial. Decisions are written back per finding, so an interrupted session resumes cleanly.
 3. Apply only approved fixes, minimal and targeted; then re-run the plan's automated checks and record any material deviation.
-4. **Advances no subtask status** — the covered subtasks stay `reviewed`. The per-finding statuses are the ledger, and `/finalize`'s open-Blocker gate reads them.
+4. **Advances no task phase**. Apply the shared finding gate table: open/deferred/invalidly skipped Blockers still gate; open/deferred Majors retain Needs attention. Only verified fixes become fixed. Source changes invalidate affected check/review/QA evidence; append fresh verification attempts and preserve required retest markers.
 
 ---
 
@@ -350,12 +358,12 @@ and any `## Implementation Notes`) and `task-plan.md` (overall DoD, incl. Planni
 
 **How it works:**
 
-1. Resolve the work-item, then **gate on review**: if the scope isn't `reviewed`, or its `review.md` has open Blocker findings, **warn and let the user override** rather than hard-blocking.
-2. **Determine the increment** from modified files + the work-item's `task-plan.md` status. If there are changes beyond the resolved scope, ask whether to commit only scope-related changes or everything.
+1. Resolve the work-item and apply the shared review, finding, current-verification, and required acceptance gates. Interactive overrides require an explicit recorded decision/reason; autonomous stages cannot override. Failed/unrun checks remain failed/unrun.
+2. **Determine the increment** using the starting-state baseline. Isolate task hunks with a temporary index or hunk selection, preserve unrelated staged/unstaged changes including mixed files, inspect the full candidate diff, and verify the actual candidate inputs.
 3. **Detect whether this completes the task** — i.e. all other subtasks are already `committed` and none remain outstanding, or this is the whole-task / no-subtasks path:
    - **Not the last** → commit just this increment and set its subtask heading(s) to `committed`.
    - **Last / whole task** → if changelog is practiced (per `workflow-config.md`), add the entry and **include it in this same commit**, then proceed to PR / wrap-up.
-4. Suggest a commit message (following configured conventions). Offer: proceed as-is, edit, or skip committing. This skill **trusts the prior review** — it does not re-run the plan's automated checks.
+4. Suggest a conventions-following message and offer proceed/edit/skip. Persist a prepared finalization record in the task commit, then save committed phases/state with a task-only amend of this run's unpublished commit. Verify the saved ledger before publication. Recover interruptions from parent/subject/scope/source evidence without duplicate code commits; never amend a published or unrelated commit. Reuse prior checks only when valid for the candidate.
 5. On task completion, optionally update the tracker (per config) and **prepare the PR**: always print the suggested title/body + `gh` command, and offer to push and open it when `gh` is available — never pushing or opening a PR without explicit confirmation.
 
 ---
@@ -457,10 +465,10 @@ iterate until the user accepts. There is no second copy of the stage logic to dr
 - `/auto-implement` — no blocker pause and no acceptance loop; manual verification is performed where
   possible and reported as outstanding where not.
 - `/auto-review-implementation` — nearly unchanged; it was already report-only.
-- `/auto-run-qa` — records a scope and tests observable behavior when automated checks do not fully cover it. It adds evidence and findings to `review.md` before triage, or records why live QA was skipped or incomplete. Triage fixes that affect tested behavior trigger a targeted retest.
+- `/auto-run-qa` — records required/optional cases with source-bound observations, evidence, and a separate QA acceptance gate. Current automated equivalents may cover required cases; unavailable required checks or exhausted required retests block completion. Optional gaps remain outstanding. Triage changes invalidate affected evidence; re-review never resets history or retest counts.
 - `/auto-triage-findings` — the per-finding question becomes a fixed severity rubric. `accepted` and
   `dismissed` are never used: both encode a human taking a risk or overruling the reviewer.
-- `/auto-finalize` — commits without confirmation, hard-stops on an unfixed Blocker, and pushes or
+- `/auto-finalize` — commits without confirmation, hard-stops on an unfixed Blocker or unmet required verification/QA gate, and pushes or
   opens a PR/MR only when the config's **Autopilot completion mode** pre-authorized it.
 
 ### Accountability

@@ -21,6 +21,9 @@ autonomous `auto-*` counterpart of the normal skill.
 ledger and a final report, and on completion may open a PR/MR through
 `auto-finalize` when the config pre-authorizes it.
 
+Read [workflow integrity](../plan-task/references/workflow-integrity.md) for
+explicit phases, gate consistency, evidence validity, and interruption recovery.
+
 **Scope warning worth stating plainly:** this pipeline never stops to ask, so
 nobody catches a wrong turn mid-run. It's built for straightforward tasks. A
 task with contested architecture, a risky migration, or high blast radius wants
@@ -79,25 +82,29 @@ the same resolution order every pipeline skill uses:
 | Earliest outstanding subtask is `pending` | `auto-plan-implementation` |
 | …is `planned` | `auto-implement` |
 | …is `implemented` | `auto-review-implementation` |
+| …is `reviewed`, source/review/required automated evidence is missing or stale | `auto-review-implementation` to refresh evidence/review; do not advance on stale reports |
 | …is `reviewed`, its `review.md` has no `## QA Verification` section | `auto-run-qa` |
 | …is `reviewed`, its `review.md` has `Status: open` findings | `auto-triage-findings` |
-| …is `reviewed`, no open findings, `QA retest: required` | `auto-run-qa` |
-| …is `reviewed`, no open findings | `auto-finalize` |
+| …is `reviewed`, an unfixed Blocker remains under the shared gate table | Stop and report blocked; deferred/skipped/accepted/dismissed cannot clear it autonomously |
+| …is `reviewed`, no open findings, `QA retest: required` or `QA acceptance: blocked` | `auto-run-qa`; exhausted required retests return blocked |
+| …is `reviewed`, findings and required acceptance gates clear | `auto-finalize` |
 | Every subtask `committed` (or the no-subtasks path is committed) | Done — go to Step 7 |
 
-On the **no-subtasks path** there are no per-subtask statuses to read. Route on
-which artifacts exist at the task root instead: no `implementation-plan.md` →
-`auto-plan-implementation`; plan but no code changes or no `review.md` →
-`auto-implement` then `auto-review-implementation`. Once `review.md` exists,
-apply the table's order: missing QA section → `auto-run-qa`; open findings →
-`auto-triage-findings`; required retest → `auto-run-qa`; otherwise →
-`auto-finalize`.
+On the **no-subtasks path**, read `**Phase:**` in `task-plan.md` and use exactly
+the same table. A plan's existence does not prove implementation; a review's
+existence does not prove acceptance. Missing legacy phases require reconciliation
+from verification, review, and git history under the shared contract; stop with
+a recovery instruction if unresolved. Do not invent an implemented phase.
 
-`auto-run-qa` records `QA status: skipped` when automated verification fully
-covers the change. An incomplete live run is recorded and reported, but does not
-by itself stop the pipeline. Open QA findings follow the same triage and Blocker
-rules as implementation-review findings. The QA section is the on-disk progress
-marker; `auto-run-qa` does not advance subtask status.
+On resume check prepared finalization records against history first. If a code
+commit succeeded but saving its committed ledger failed, dispatch `auto-finalize`
+for recovery, passing that fact explicitly. Do not recommit the implementation.
+
+`auto-run-qa` may skip observation only with current automated evidence covering
+all required cases. Optional gaps are reported. Unavailable required QA or
+exhausted required retests block completion; `QA status` alone never clears
+acceptance. Product failures follow triage and the shared finding gates. The QA
+section persists across re-review and does not advance the task phase.
 
 **You are the sole router.** Stages never hand off to each other and never
 decide what runs next. Every transition comes back through this step.

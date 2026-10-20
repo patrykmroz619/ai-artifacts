@@ -3,6 +3,11 @@
 The rules every `auto-*` stage skill follows during an unattended `/autopilot` run.
 Read this alongside the stage's own `SKILL.md` and the core skill it derives from.
 
+Follow [workflow integrity](../../plan-task/references/workflow-integrity.md) for
+all phases, verification/finding/QA gates, stable history, and commit recovery.
+The autonomous overrides never waive required checks or permit clearing a
+Blocker by skipping, deferring, accepting, or dismissing it.
+
 ## You have no user
 
 `AskUserQuestion` is unavailable to you — a delegated agent has no channel back
@@ -108,7 +113,9 @@ DECISIONS: D4 (High), D5 (Low)
 OUTSTANDING: manual check — confirm the login redirect lands on /dashboard
 ```
 
-- **`STATUS: blocked`** is for work that is genuinely impossible to continue —
+- **`STATUS: blocked`** includes required acceptance verification that cannot be
+  completed, exhausted required QA retests, unsafe separation of mixed changes,
+  or unreconciled finalization state. It is also for work genuinely impossible to continue —
   a missing credential, an unreachable dependency, a precondition the pipeline
   order should have satisfied and didn't. It is *not* for a hard decision. A
   hard decision is a `Low`-confidence entry, and you keep going.

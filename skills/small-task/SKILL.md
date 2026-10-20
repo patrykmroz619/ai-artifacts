@@ -100,6 +100,13 @@ the affected checks. Review the diff against acceptance criteria and standards,
 including regressions, interfaces, edge cases, and preservation of unrelated work.
 Keep self-review findings and their resolution inline in `task.md`.
 
+Bind each verification attempt to tested HEAD and a reproducible source fingerprint
+covering tracked and nonignored untracked application/test/config inputs, plus
+relevant ignored inputs and environment. Record the algorithm and exclusions;
+exclude only workflow records/evidence to avoid self-reference. Capture before/after
+checks, preserve prior attempts, and rerun affected checks after all source edits,
+including self-review. A date, phase, or clean HEAD alone cannot validate dirty inputs.
+
 Perform manual checks where possible. Clearly list those still outstanding and
 whether they gate completion. A required check that cannot be completed is a
 blocker, not a pass. For a genuine blocker, record the cause, attempts, current
@@ -119,6 +126,11 @@ recorded approvals. Inspect the final staged/unstaged diff. Stage only task-rela
 changes and `task.md`; use hunk selection for mixed files. Preserve pre-existing
 staged changes without including them in this commit. If separation cannot be
 done safely, leave a blocked record instead of committing unrelated work.
+
+Compare the final candidate's inputs with the tested fingerprint. If unrelated
+work present during testing is excluded from the commit, verify the isolated
+candidate in a temporary worktree or equivalent environment; preserve the user's
+original files/index. Reuse prior evidence only for demonstrably equivalent inputs.
 
 Add any configured changelog entry in its configured location and format; include
 it in this same completing commit. Skip if the project does not maintain one.

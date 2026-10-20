@@ -71,9 +71,10 @@ didn't actually run.
 ## Notes
 
 - **Green checks are the only gate left.** With the user's acceptance gone, the
-  plan's automated verification is what stands between a broken change and a
-  commit two stages later. Run it for real, read the output, and don't advance
-  status on a check that didn't pass.
+  implementation phase requires current passing automated verification; required
+  manual/QA acceptance remains a separate finalization gate. Run checks for real,
+  bind results to source fingerprints, rerun affected checks after self-review
+  fixes, and advance the no-subtasks Phase just like subtask headings.
 - **Deviations must be recorded.** `## Implementation Notes` is the highest-yield
   input to the review that follows, and the reviewer is a fresh agent that saw
   none of your reasoning. An unrecorded deviation is invisible for the rest of

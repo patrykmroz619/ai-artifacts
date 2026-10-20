@@ -128,6 +128,13 @@ The Skills CLI does not automatically install companion skills. Each of the eigh
 autonomous pipeline stages needs its core instructions plus the shared contract bundled with
 `autopilot`:
 
+Pipeline stages also share the integrity reference bundled with `plan-task`.
+Install `plan-task` with individual pipeline stages; all full-pipeline installs
+already include it. `run-qa` and `workflow-status` read that reference only for
+pipeline tasks. The optional Git snapshot helper is bundled with `implement` and
+uses Node.js 22+; without Node, record an equivalent reproducible snapshot using
+project-supported tools, as the integrity contract describes.
+
 | Autonomous skill | Required companions |
 | --- | --- |
 | `auto-start-task` | `start-task`, `autopilot` |
@@ -153,7 +160,7 @@ For example, to install the instructions required for just the implementation
 stage:
 
 ```bash
-npx skills add patrykmroz619/ai-artifacts --skill auto-implement implement autopilot --agent codex
+npx skills add patrykmroz619/ai-artifacts --skill auto-implement implement autopilot plan-task --agent codex
 ```
 
 Installing `autopilot` for its contract does not make the coordinator usable on

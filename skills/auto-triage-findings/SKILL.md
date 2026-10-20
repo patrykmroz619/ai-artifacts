@@ -31,27 +31,29 @@ material deviations in `## Implementation Notes`, recomputing the `review.md`
 header, and **not** touching subtask status.
 
 After applying a source fix, inspect `review.md`'s `## QA Verification` cases.
-If the fix changes behavior those cases exercised and `QA retests` is below two,
-set `**QA retest:** required` in that section and name the affected case IDs.
+If the fix changes required behavior those cases exercised, set `**QA retest:** required`
+and `**QA acceptance:** blocked` in that section and name the affected case IDs.
+For optional-only affected cases, invalidate their old results and report/retest
+them as optional; do not block required acceptance on optional coverage.
 Do this after automated checks; leave earlier QA evidence intact. The
 coordinator will dispatch `auto-run-qa` before finalization. After two retests,
-record the affected cases as outstanding instead of requesting another pass;
-the final report must surface that limit. Do not mark a case passed because its
+preserve the required marker and return `STATUS: blocked` if affected required
+cases remain unverified; optional gaps may remain outstanding. Do not mark a case passed because its
 finding was fixed in code. If no QA case is affected, leave `QA retest` unchanged.
 
 ## The rubric
 
 | Severity | Decision |
 | --- | --- |
-| **Blocker** | **Fix it.** Where the review offered two options, take the `⭐ Recommended` one. If the fix would break a plan Contract or reach outside this work-item, `deferred` with the reason — a Blocker is never left `open`. |
+| **Blocker** | **Fix and verify it.** Prefer the recommended option where appropriate. If the fix would break a Contract or exceed scope, defer with a reason. A failed/unverified fix remains open and blocks completion; applying an edit does not clear it. |
 | **Major** | **Fix it**, unless the fix would break a Contract or reach outside the work-item's scope → `deferred` with the reason. |
 | **Minor** | **Fix it** when the change is local, obvious, and low-risk. Otherwise `skipped`. |
 | **any** | `stale` when the code has genuinely moved past the finding — the core skill's one agent-judged status, and still the only one. |
 
 **`accepted` and `dismissed` are never used.** `accepted` means a human knowingly
 takes a risk; `dismissed` means a human overrules the reviewer. Neither is yours
-to do on their behalf, and both would silently un-gate a Blocker at
-`/auto-finalize`. When you think a finding is wrong or the risk is worth taking,
+to do on their behalf. Neither clears the autonomous commit gate. When you think
+a finding is wrong or the risk is worth taking,
 that's exactly what `deferred` plus a clear reason is for — it keeps the finding
 visible in the final report where a human can make that call.
 
@@ -74,9 +76,9 @@ never be looked at again.
   into unrequested edits.
 - **Minimal edits.** Change what the finding names. No opportunistic refactoring
   — an unattended run has no reviewer for work nobody asked for.
-- **Re-run the checks after fixing.** The core skill's Step 4 is not optional:
-  `/auto-finalize` explicitly trusts this stage and re-runs nothing. If a fix
-  broke something, this is the last place it can be caught.
+- **Re-run affected checks after fixing.** Keep fingerprinted attempts and mark
+  a finding fixed only after relevant verification passes. Finalization checks
+  evidence against the actual candidate and reuses only valid results.
 - **Write decisions as you go.** Per finding, not batched at the end — that's
   what makes an interrupted run resumable.
 - **An unfixed Blocker stops the pipeline.** `/auto-finalize` blocks on any

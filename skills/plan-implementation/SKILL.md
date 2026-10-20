@@ -10,6 +10,9 @@ Turn the high-level `task-plan.md` into one precise, actionable `implementation-
 **Reads:** `specs/tasks/{task}/task-plan.md` (incl. Planning Notes + Definition of Done), `specs/tasks/{task}/task-info.md`, `specs/workflow-config.md` (Coding standards and applicable operation/verification), relevant codebase context.
 **Produces:** one `implementation-plan.md` (location depends on scope, see below) and status/annotation updates in `task-plan.md`.
 
+Read [workflow integrity](../plan-task/references/workflow-integrity.md). Use its
+explicit phases and required/optional verification rules for every scope.
+
 ## The work-item model
 
 A **subtask** is a logical slice recorded in `task-plan.md` — it carries decomposition and status, but it is not a folder. A **work-item** is the unit this skill plans and the unit `/implement`, `/review-implementation`, and `/finalize` operate on. A work-item covers **one subtask, several subtasks, or the whole task**, and it always produces **exactly one** `implementation-plan.md`.
@@ -167,8 +170,8 @@ src/
 
 ## Verification
 
-**Automated:** [Commands an agent can run — tests, lint, typecheck, build. Be specific.]
-**Manual:** [Observable checks not covered above; use configured browser/API/CLI access and read-only data or logs where relevant. Name any unavailable prerequisite.]
+**Automated:** [Exact commands, expected outcomes, prerequisites, and which acceptance criteria each required check covers.]
+**Manual:** [Observable checks not covered above; label each required or optional, map required checks to acceptance criteria/DoD, and name unavailable prerequisites. Use configured browser/API/CLI/data/log access.]
 ```
 
 `/implement` later appends a `## Verification Log` section recording the actual result of running
@@ -180,7 +183,7 @@ Edit `task-plan.md` to reflect that this scope is planned:
 
 - For **each covered subtask**, advance its heading status `pending → planned` and annotate it with the work-item slug:
   `### 2. \`migrate-user-table\` — planned (work-item: \`data-layer\`)`
-- For the **no-subtasks / whole-task** path, there is no per-subtask status to advance — the plan at the task root is the record.
+- For the **no-subtasks** path, advance `**Phase:** pending → planned` in `task-plan.md` only after writing the implementation plan. For a whole-task work-item covering existing subtasks, advance all covered subtask headings together.
 
 Touch only the status and annotation on the covered headings. Leave the rest of `task-plan.md` — Definition of Done, Planning Notes, other subtasks — untouched.
 

@@ -20,8 +20,8 @@ the work looks finished.
 | Core step | Autonomous replacement |
 | --- | --- |
 | **Step 1.2** — ask when the scope is ambiguous | The dispatching prompt passes the scope explicitly. Use it. |
-| **Step 2** — warn on an unreviewed scope or open Blockers, then `AskUserQuestion` whether to commit anyway | **Hard-stop instead.** No override is available without a user. See *The commit gate* below. |
-| **Step 3.3** — `AskUserQuestion` when the tree holds changes beyond the scope | **Always commit scope-only.** Stage the files the plan's Target Structure and the work-item's records account for, and nothing else. Log a decision entry naming the out-of-scope files you left uncommitted, so they surface in the final report. |
+| **Step 2** — ask about a remaining commit gate | **Hard-stop instead.** No override is available without a user. See *The commit gate* below. |
+| **Step 3** — determine the increment | Commit task-only hunks using the core's starting-state baseline and isolated candidate. Preserve unrelated staged/unstaged work, including mixed files; block when separation is unsafe. Report excluded unrelated work. |
 | **Step 6.2** — offer proceed / edit / skip on the commit message | Generate the message per `workflow-config.md`'s commit style and **commit**. No confirmation, no skip. |
 | **Step 8.1** — offer to transition the tracker ticket | Runs only in **`open PR/MR`** mode (see *Completion mode*). Never in `report only`. Governed entirely by config — not a `decisions.md` entry. |
 | **Step 8.2** — `AskUserQuestion` before pushing and opening the PR | Governed by **completion mode**, not by a prompt. |
@@ -34,20 +34,25 @@ subtasks `reviewed → committed`, and generating a real PR title and body.
 
 ## The commit gate
 
-Check all three, before staging anything:
+Check these gates before committing, using the core's shared integrity contract:
+
+The core's committed-scope recovery/completion-only path does not make another
+code commit and must not fail merely because its phase is already `committed`.
+Reconcile saved ledger/history first and resume only outstanding authorized actions.
 
 1. **The scope is `reviewed`.** If it's still `pending` / `planned` /
    `implemented`, the pipeline ran out of order — report `STATUS: blocked`.
-2. **No unfixed Blocker** in the work-item's `review.md`. Blocking statuses are
-   **`open` and `deferred`**; only `fixed` and `stale` clear a Blocker. This is
-   deliberately stricter than the core skill, which also clears on `accepted` and
-   `dismissed` — `/auto-triage-findings` can't use either, so a `deferred`
-   Blocker is an unresolved one.
-3. **QA stage recorded.** The work-item's `review.md` has `## QA Verification`
-   with `QA status: complete`, `incomplete`, or `skipped`, and `QA retest: none`.
-   An incomplete run is reported as outstanding, not treated as a pass or a
-   separate commit gate. Missing QA or a required retest means the coordinator
-   ran out of order; return `STATUS: blocked` without committing.
+2. **No unfixed Blocker** in the complete ledger: only a verified `fixed` or
+   evidence-backed `stale` Blocker clears the autonomous gate. Open, deferred,
+   skipped, accepted, dismissed, or unknown Blocker states block this run.
+3. **Required verification passed on the candidate.** Current automated evidence
+   and review coverage match the candidate's source inputs. Run necessary checks
+   for missing/stale evidence, or return blocked; never trust the phase/date alone.
+4. **QA acceptance passed.** `## QA Verification` records `QA acceptance: passed`
+   with current case evidence (or named automated equivalents) for every required
+   case, and `QA retest: none`. Coverage may be incomplete only for optional cases.
+   An unavailable required check or exhausted retest budget blocks; it is not a
+   pass. Missing QA/provenance also blocks.
 
 On any failure, report `STATUS: blocked` naming the relevant finding IDs or
 missing QA marker and stop. Do
@@ -113,16 +118,15 @@ PR needs to know what wasn't checked.
   fully determined by `workflow-config.md`'s completion mode and task-management
   section, not a judgment call — there's nothing here for `decisions.md` to
   audit.
-- **No re-verification here.** Like the core skill, this stage trusts
-  `/auto-review-implementation` and `/auto-triage-findings` and re-runs no
-  checks. That trust is exactly why the commit gate is strict.
+- **Reuse valid evidence.** Compare tested and candidate fingerprints and inputs.
+  Run only necessary checks for invalid evidence, including isolated-candidate
+  verification for mixed work; block if required verification cannot be completed.
 - **Scope discipline is absolute now.** With no one to ask, out-of-scope changes
   are never swept in. Stage the work-item's `review.md` and only the QA evidence
   linked from its `## QA Verification` section alongside its planned changes.
   Leave unrelated files uncommitted and name them in the report.
 - **The changelog rides the completing commit**, when the project practices one.
   Not a separate commit.
-- **Status lives in `task-plan.md`.** Advance covered subtasks to `committed`
-  only after the commit actually lands. A status advance without a commit strands
-  the run: the coordinator reads the ledger and routes past work that was never
-  saved.
+- **Save the committed ledger.** Follow the core's prepared record, commit,
+  task-only amend, and interruption recovery procedure for both subtask headings
+  and the no-subtasks `Phase`. Do not push until code and committed ledger agree.

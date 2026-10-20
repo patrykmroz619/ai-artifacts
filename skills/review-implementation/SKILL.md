@@ -12,6 +12,9 @@ This skill is **report-only**: it analyzes and writes the report, it does **not*
 **Reads:** the work-item's `implementation-plan.md` (Target Structure, Contracts, Acceptance Criteria, Verification, and any `## Implementation Notes`), `specs/tasks/{task}/task-plan.md` (Definition of Done), `specs/workflow-config.md` (Coding standards), repo rules, applicable architecture/style documentation and configuration, representative existing code, and the actual code changes (diff).
 **Produces:** one `review.md` per covered work-item (beside its plan), and status updates in `task-plan.md`.
 
+Read [workflow integrity](../plan-task/references/workflow-integrity.md) for
+evidence validity, finding gates, stable review/QA history, and explicit phases.
+
 ## Documentation lookup
 
 Prefer Context7 to verify disputed dependency API behavior, setup, configuration, or
@@ -49,7 +52,9 @@ specs/tasks/{task}/
 | **Major**    | Should fix. Reliability, quality, pattern, or coding-standards violation that will bite later. |
 | **Minor**    | Optional. Nits, style, small suggestions — record them, but they don't gate the work.     |
 
-**Verdict thresholds:** Rejected on any **Blocker** · Needs attention on one or more **Majors** · Approved otherwise.
+**Verdict thresholds:** apply the shared status-aware finding table. Unresolved
+Blockers (including deferred/invalid skipped states) mean Rejected; unresolved
+Majors mean Needs attention. Retained fixed/stale findings do not fail a re-review.
 
 ## Process
 
@@ -64,13 +69,18 @@ specs/tasks/{task}/
      - **More than one** → ask with `AskUserQuestion`: review **a specific subtask/work-item** or **all not-yet-reviewed**.
    - **No-subtasks path** → review the whole task (`review.md` at the task root).
 3. For an "all not-reviewed" or multi-subtask selection, gather the set of covered work-items. Each gets its **own** `review.md`, written from a single analysis pass (Step 5).
-4. **Check for an existing `review.md`** at a resolved location. If one exists, this is a re-review: note its prior verdict and open findings, and write a fresh report rather than silently appending.
+4. **Check for an existing `review.md`**. On re-review, update it in place and
+   append a dated review pass with its source fingerprint. Preserve finding IDs,
+   decisions and prior observations, the complete QA section, evidence links,
+   and retest count. Reopen recurring findings with a reason; allocate distinct
+   findings above the highest existing ID. Omission from a new pass never resolves
+   an old finding. Invalidate affected review/QA coverage when source changes.
 
 ### Step 2: Read context
 
 For each covered work-item:
 
-1. Read its `implementation-plan.md` in full — **Target Structure**, **Contracts**, **Acceptance Criteria**, **Verification**, any **`## Implementation Notes`** (the deviations `/implement` recorded; these are prime review targets), and **`## Verification Log`** (the automated-check result `/implement` or `/triage-findings` last recorded — this is what Step 5's Verification section quotes; never re-run the checks yourself).
+1. Read its `implementation-plan.md` in full, including **Target Structure**, **Contracts**, **Acceptance Criteria**, **Verification**, **Implementation Notes**, and **Verification Log**. Compare recorded fingerprints and verification inputs with current source. Reuse valid results; run necessary non-destructive checks for missing/stale evidence when available, or report the required verification as blocked. Do not mutate application source to make checks pass.
 2. Read `task-plan.md`'s **Definition of Done** for the covered subtasks, `specs/workflow-config.md`'s Coding standards section, and repo rules (`CLAUDE.md` / `AGENTS.md` / `.cursor/rules`).
 3. Treat the plan as the ground truth for *intent* and the standards as the ground truth for *quality*. The review measures the code against both.
 4. Read applicable architecture and style guidance referenced by those rules, plus relevant lint/formatter configuration. Compare with 1–2 existing implementations with similar responsibilities, reading callers or dependencies as needed to establish module boundaries and dependency direction. Distinguish documented rules from inferred conventions; acknowledge missing or conflicting evidence in the report instead of inventing a standard or claiming verified consistency.
@@ -113,8 +123,9 @@ For each covered work-item, write `review.md` to:
 **Scope:** work-item `{slug}` covering subtasks `a`, `b`   (or: whole task — cross-cutting)
 **Plan:** specs/tasks/{task}/work-items/{slug}/implementation-plan.md
 **Date:** YYYY-MM-DD
+**Reviewed source:** [fingerprint algorithm/digest and HEAD]
 **Verdict:** Approved | Needs attention | Rejected
-**Findings:** N blockers · N majors · N minors
+**Findings:** [current unresolved counts by severity; separate historical resolution counts]
 
 ## Dimension Verdicts
 
@@ -130,8 +141,8 @@ For each covered work-item, write `review.md` to:
 
 ## Verification
 
-**Automated:** [copied from the plan's `## Verification Log` — not re-run here]
-**Manual:** [copied from the plan's `## Verification Log` — items still outstanding]
+**Automated:** [current attempt IDs/fingerprints, actual results and evidence; any justified reuse or checks run here]
+**Manual:** [required/optional checks, actual results, and outstanding acceptance gates]
 
 ## Findings
 
@@ -152,6 +163,11 @@ If there are no findings at all, state that explicitly and give the Approved ver
 
 Keep findings concrete and capped at what's worth acting on — consolidate related nits rather than padding the list. The `Status: open` field is the hook `/triage-findings` flips when the user decides a finding.
 
+The template initializes a first review; it never replaces a prior ledger. On
+re-review retain prior sections, add the new pass/results, and recompute header
+counts/verdict using the shared finding gate table. Review-check attempts belong
+in the review's Verification section with the same provenance as plan attempts.
+
 ### Step 6: Update task-plan.md
 
 Advance each covered subtask `implemented → reviewed` in `task-plan.md`, preserving its work-item annotation:
@@ -161,7 +177,10 @@ Advance each covered subtask `implemented → reviewed` in `task-plan.md`, prese
 ### 3. `backfill-script` — reviewed (work-item: `data-layer`)
 ```
 
-For the no-subtasks / whole-task path there is no per-subtask status to advance — the `review.md` at the task root is the record. Touch only the status on the covered headings; leave everything else in `task-plan.md` untouched.
+For the no-subtasks path advance `**Phase:** implemented → reviewed` in
+`task-plan.md`; for a whole-task work-item covering subtasks, update all covered
+headings. Re-review retains `reviewed` only with current review coverage. A
+reviewed phase does not clear findings or unperformed required QA.
 
 ### Step 7: Self-review the report
 
@@ -169,7 +188,7 @@ Read each written `review.md` with fresh eyes and fix issues inline before handi
 
 1. Every finding has a real `file:line`, evidence in **Finding**, and a non-obvious justification in **Why it's valid** — no vague nits.
 2. Every **Suggested fix** is concrete and actionable; two options appear only where there's a real tradeoff.
-3. The **Verdict** matches the thresholds (any Blocker → Rejected; any Major → Needs attention; else Approved).
+3. The **Verdict** matches the shared status-aware gate table, including deferred Blockers/Majors and recorded user risk decisions.
 4. The dimension verdicts are consistent with the findings listed.
 5. The report stayed within the work-item's scope and didn't drift into unrelated code.
 6. Complexity findings show a concrete maintenance cost and a materially simpler alternative that preserves the required behavior and constraints. Architecture/style findings cite a rule or representative code, distinguish conventions from preferences, and acknowledge evidence gaps or conflicts.
@@ -200,7 +219,7 @@ copy succeeded:
 ## Notes
 
 - **Report-only.** This skill analyzes and writes `review.md`; it never edits source. Findings are acted on by `/triage-findings` — that separation is what keeps the review independent.
-- **Never re-run automated verification.** `/implement` and `/triage-findings` own that; this skill reads their recorded `## Verification Log` and quotes it as-is. If the plan has no `## Verification Log` at all, that's a finding to raise (e.g. a Major: "no recorded verification result"), not a cue to run the commands yourself.
+- **Reuse valid verification.** Check provenance before quoting results. Missing/stale required evidence must be obtained or reported as blocked; unperformed checks are never passing. Avoid rerunning unchanged, valid checks.
 - **Evidence over opinion.** Every finding names a location and the concrete risk or violated standard. "Might be a problem somewhere" is not a finding.
 - **Don't flag style for its own sake.** If the code works and follows the plan, minor formatting differences are Minor observations, not Majors.
 - **The plan can be wrong too.** If the implementation faithfully followed a flawed plan (e.g. an insecure approach), flag the underlying issue — review catches plan defects, not just code defects.

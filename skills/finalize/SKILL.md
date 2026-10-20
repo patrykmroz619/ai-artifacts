@@ -10,6 +10,10 @@ Commit the work just reviewed for a resolved **work-item**, advance its subtasks
 **Reads:** `specs/workflow-config.md` (git conventions, changelog, tracker), `specs/tasks/{task}/task-plan.md` (subtask status + DoD), the work-item's `review.md` (open findings), task artifacts, and the git working tree.
 **Produces:** a git commit; status updates in `task-plan.md`; on task completion, a changelog entry (in the same commit) and a prepared/created PR.
 
+Read [workflow integrity](../plan-task/references/workflow-integrity.md). Its
+finding gates, candidate verification, mixed-change isolation, and recoverable
+commit/ledger procedure govern both this skill and `auto-finalize`.
+
 ## The work-item model
 
 A **work-item** is the unit `/plan-implementation` planned, `/implement` built, and `/review-implementation` reviewed: one subtask, several subtasks, or the whole task, with one `implementation-plan.md` and one `review.md`. `/finalize` commits that work-item as one increment and advances all the subtasks it covers `reviewed → committed`. Status lives only in `task-plan.md`.
@@ -27,21 +31,44 @@ A **work-item** is the unit `/plan-implementation` planned, `/implement` built, 
    - **No-subtasks path** → the whole task.
    - **Ask the user** if the scope is still ambiguous.
 3. **Read `specs/workflow-config.md`** and keep it in mind for the rest of the run: **git conventions** (branch naming, commit style) shape the commit message; the **changelog** section (present or absent) decides Step 5; the **task management** section decides the optional tracker update in Step 8.
+4. Check explicit phases and per-scope finalization history before the commit
+   gate. A prepared record may need recovery even if a code commit already exists.
+   A verified committed scope skips Steps 2–7 and resumes only applicable unfinished
+   completion actions in Step 8. If all subtasks are committed and only a task is
+   named, use completion-only scope; never create a duplicate increment.
 
 ### Step 2: Commit gate — warn, let the user override
 
 Before staging anything, confirm the scope is cleanly reviewed:
 
 - If the covered subtask is **not yet `reviewed`** (still `pending`/`planned`/`implemented`), surface that — the workflow order is implement → review → triage → finalize.
-- Read the work-item's `review.md` (if present) and check for **open Blocker findings** (`Severity: Blocker`, `Status: open`). A Blocker the user consciously closed as `accepted` or `dismissed` in `/triage-findings` is not a gate — only `open` ones are.
+- Require the work-item's `review.md` and apply the shared finding gate table.
+  Blockers that are open, deferred, or invalidly skipped still gate. Accepted or
+  dismissed Blockers clear only with the user's recorded decision and reason.
+- Check current source/review fingerprints and required automated and manual/QA
+  evidence. Required checks that failed or were not exercised remain gates;
+  `reviewed` and `QA status: complete` alone do not prove acceptance. Optional
+  unperformed checks are reported separately.
 
-If either check is off, **warn and ask** (`AskUserQuestion`) whether to commit anyway or cancel — don't hard-block, but don't proceed silently either. Point at `/triage-findings` as the way to resolve open findings properly, but the decision is theirs. If the scope is clean (`reviewed`, no open Blockers), continue without prompting.
+If a gate remains, show the exact findings/checks and ask whether to resolve,
+cancel, or explicitly override with a reason. Record the decision before committing;
+never reinterpret deferred/skipped as acceptance or label a failed/unrun check passed.
+Autonomous execution cannot override. A clean, currently verified scope proceeds.
 
 ### Step 3: Determine the increment
 
 1. Inspect the working tree: `git status` and `git diff` for staged/unstaged changes.
 2. Map the work-item to its expected changed files using the plan's **Target Structure** and the changes recorded in `review.md` / `## Implementation Notes`.
-3. **If the working tree has changes beyond the resolved scope**, ask (`AskUserQuestion`): commit **only the scope-related files**, or **everything**. Don't sweep unrelated changes into the increment by default.
+3. Compare with the recorded starting state. Isolate task hunks, including mixed
+   files; preserve unrelated staged and unstaged changes. Build a task-only
+   candidate using hunk selection or a temporary index, and inspect its full diff.
+   Never infer ownership from a filename or use a commit that consumes the entire
+   pre-existing index. If separation cannot be established safely, stop and report.
+4. Compare the candidate fingerprint with the tested snapshot. Verify an isolated
+   candidate when unrelated working-tree changes made the original test inputs
+   different; preserve the original workspace. Reuse only demonstrably valid evidence.
+5. On resume, reconcile any prepared finalization with git history before creating
+   a commit. Already committed work resumes completion actions only.
 
 ### Step 4: Detect task completion
 
@@ -60,7 +87,9 @@ If the config has no changelog section, skip this step entirely — its absence 
 
 1. **Suggest a commit message** following the **commit style** in `workflow-config.md` (e.g. Conventional Commits), informed by the subtask(s) and what changed. Reference the tracker id from `task-info.md` if the convention calls for it.
 2. Offer (`AskUserQuestion`): **proceed as-is** · **edit the message** · **skip committing**.
-3. On proceed/edit: stage the resolved files (scope-only or everything, per Step 3; plus the changelog from Step 5) and commit with the chosen message. On skip: stop here and report — don't advance status for an uncommitted increment.
+3. On proceed/edit: write the shared contract's `Finalization` prepared record,
+   then commit the isolated candidate, including task records and the configured
+   changelog. Preserve unrelated index entries/hunks. On skip, stop without advancing.
 
 ### Step 7: Update task-plan.md
 
@@ -71,7 +100,14 @@ Advance each covered subtask `reviewed → committed` in `task-plan.md`, preserv
 ### 3. `backfill-script` — committed (work-item: `data-layer`)
 ```
 
-For the no-subtasks / whole-task path there is no per-subtask status to advance — the commit is the record. Touch only the status on the covered headings.
+For no-subtasks, advance `**Phase:** reviewed → committed` instead. Mark the
+finalization record committed and save the final ledger in this run's unpublished
+commit by a task-only amend with the unchanged message, as the shared contract
+specifies. Verify the committed ledger and source snapshot before any remote action.
+Do not embed the commit's own hash. A failed commit/amend leaves a resumable report;
+on resume reconcile parent/subject/scope/fingerprint to avoid duplicate commits.
+If already published or HEAD moved, use a separate scoped metadata repair commit
+after verifying history; never amend someone else's or a published commit.
 
 ### Step 8: On task completion — wrap up
 
@@ -112,7 +148,9 @@ succeeded:
 - **Config-driven and graceful.** Read `workflow-config.md` for git, changelog, and tracker conventions. No changelog section → no changelog step. Tracker or `gh` unavailable → fall back to manual and say so; never fabricate a transition or a remote action.
 - **Scope discipline.** Commit only the resolved increment. When the tree holds unrelated changes, ask before sweeping them in — don't bundle silently.
 - **Changelog rides the completing commit.** When practiced, the entry is added on the task-completing increment and folded into that same commit, not committed separately.
-- **No re-verification here.** This skill trusts `/review-implementation`; it does not re-run the plan's automated checks. A change made after review is the user's responsibility — that's why the commit gate warns rather than guaranteeing green.
+- **Verify evidence validity.** Reuse matching source/review/check evidence;
+  refresh missing/stale results or report the required gate. A later source edit
+  is not silently covered by an earlier review or green check.
 - **Confirmation before outward actions.** Committing is local and expected; pushing and opening a PR are outward-facing and require explicit confirmation every time.
 - **Status lives in task-plan.md.** This skill advances covered subtasks `reviewed → committed` — the terminal state. There is no separate ledger.
 - **No auto-chain.** Summarize, point to the next increment or declare the task done, and stop. Copying the resolved command to the clipboard is a convenience, not an invocation — never run the next skill yourself.

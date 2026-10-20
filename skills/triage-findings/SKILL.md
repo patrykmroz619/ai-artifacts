@@ -12,6 +12,9 @@ Where `/review-implementation` is report-only, this skill is the counterpart tha
 **Reads:** the work-item's `review.md` (the findings ledger), its `implementation-plan.md` (**Contracts**, **Acceptance Criteria**, **Verification** — a fix must not break a contract), `specs/tasks/{task}/task-plan.md` (Definition of Done), `specs/workflow-config.md` (Coding standards), repo rules, and the source files each finding names.
 **Produces:** source changes for approved fixes; an updated `Status:` on every finding in `review.md` plus a refreshed header; and, only when a fix departs materially from the plan, an `## Implementation Notes` bullet on that work-item's `implementation-plan.md`.
 
+Read [workflow integrity](../plan-task/references/workflow-integrity.md) for the
+canonical finding gates, fingerprinted verification, and preservation of QA history.
+
 ## Documentation lookup
 
 Prefer Context7 when evaluating a finding or implementing its approved fix depends on
@@ -40,7 +43,7 @@ specs/tasks/{task}/
         └── review.md # the findings this skill resolves
 ```
 
-**Triage contract:** resolve the scope to a `review.md`, put every open finding to the user, apply only what they approve, re-run the plan's automated checks, and write each decision back as it's made. **Subtask status is not advanced** — it stays `reviewed`. The per-finding `Status:` fields are the ledger, and `/finalize`'s open-Blocker gate reads them.
+**Triage contract:** resolve the scope to a `review.md`, put unresolved findings to the user, apply approved fixes, verify them, and preserve each decision. **Subtask status is not advanced**. The shared status-aware finding table governs review verdicts and finalization, including deferred Blockers.
 
 ## Finding statuses
 
@@ -48,8 +51,8 @@ specs/tasks/{task}/
 
 | Status        | Meaning                                                                        |
 | ------------- | ------------------------------------------------------------------------------ |
-| **fixed**     | A fix was applied. Records which option, or what was done instead.              |
-| **skipped**   | Not worth acting on now. No justification required.                            |
+| **fixed**     | A fix was applied and relevant checks passed. Records the option and verification attempt. |
+| **skipped**   | Not worth acting on now; unavailable for Blockers (use explicit risk acceptance). |
 | **accepted**  | Real, but the risk is knowingly taken. Carries the user's justification — this is what un-gates a Blocker at `/finalize`. |
 | **deferred**  | Real, but out of this increment. Optionally becomes a subtask in `task-plan.md`. |
 | **dismissed** | The user disagrees that it's valid. Carries their reason.                      |
@@ -63,7 +66,8 @@ specs/tasks/{task}/
 2. **Resolve the scope → `review.md`**, in order:
    - **A path to a `review.md`** passed as the argument → resume triage on that file. Wins.
    - **Explicit subtask name(s)** → map each to its work-item via the `(work-item: \`slug\`)` annotation in `task-plan.md`; or `--task` for the whole-task review at the task root.
-   - **No argument** → find work-items whose `review.md` has findings still `Status: open`:
+   - **No argument** → find work-items with `open` findings or Blockers still
+     `deferred`/invalidly `skipped` under the shared finding table:
      - **None** → nothing to triage. If nothing is `reviewed` yet, point to `/review-implementation`; if every finding is already closed, say so and point to `/finalize`. Stop.
      - **Exactly one** → triage it.
      - **More than one** → ask with `AskUserQuestion`: a **specific work-item**, or **all with open findings**.
@@ -74,7 +78,10 @@ specs/tasks/{task}/
 
 For each `review.md` in scope:
 
-1. Parse the findings — ID, severity, dimension, location, the finding, why it's valid, the suggested fix(es), and current `Status:`. Filter to `open`; findings already closed stay closed.
+1. Parse the complete ledger and apply the shared finding gate table. Work on
+   `open` findings and explicitly selected deferred findings. Surface deferred
+   Blockers and invalid skipped Blockers even on resume; do not treat them as
+   cleared. Preserve prior IDs, decisions, and QA observations.
 2. Read the work-item's `implementation-plan.md` — **Contracts**, **Acceptance Criteria**, and **Verification**. A fix that breaks a contract is a deviation, not a fix.
 3. Read `task-plan.md`'s **Definition of Done**, `specs/workflow-config.md`'s Coding standards, and repo rules (`CLAUDE.md` / `AGENTS.md` / `.cursor/rules`).
 4. **Re-read the actual code at each finding's `file:line`.** The review is a snapshot and the code may have moved. If a finding no longer applies, don't drop it silently — surface it to the user in the loop (Step 3) and let them confirm `stale`.
@@ -103,9 +110,13 @@ The user can always answer in free text; `Defer`, `Dismiss`, and `Accept risk` a
 
 **Handling each response:**
 
-- **Apply Fix A/B / Fix now** → show the exact before/after, confirm briefly, apply. `Status: fixed` (naming the option: "fixed via Fix A").
-- **Fix differently** → ask what they'd prefer, apply it, `Status: fixed` with a one-line note on what was done instead of the suggestion.
-- **Skip** → `Status: skipped`. Move on — don't argue, don't re-pitch the fix.
+- **Apply Fix A/B / Fix now** → show the exact before/after, apply, and retain
+  `Status: open` with a fix-applied note until relevant verification passes.
+  Then mark `fixed`, naming the option and verification attempt.
+- **Fix differently** → ask what they'd prefer, apply it, and use the same verified-fix rule.
+- **Skip** → `Status: skipped` for Majors/Minors. For a Blocker, explain that
+  leaving it unfixed needs explicit risk acceptance and a recorded reason; do
+  not translate a generic skip into accepted risk.
 - **Accept risk** → ask for the justification if they didn't give one, record it. `Status: accepted`.
 - **Defer** → `Status: deferred`. Offer (via `AskUserQuestion`) to add a `pending` subtask to `task-plan.md` capturing the follow-up; if they decline, the finding's status is the record.
 - **Dismiss / disagree** → record their reason. `Status: dismissed`.
@@ -119,14 +130,20 @@ Keep momentum — the user has already read the report. Don't re-explain a findi
 
 ### Step 4: Verify
 
-If anything was fixed:
+If any fix was applied, including an edit still pending verification:
 
 1. Run the plan's **Automated** verification — the exact tests, lint, typecheck, and build commands it names (use Bash).
 2. **Fix what the fixes broke** and re-run, looping until green or you hit a genuine blocker (an environment problem, a pre-existing failure unrelated to this work, or a contradiction that needs the user).
 3. **Never silently skip a red check.** If something is still failing at the end, report it with the actual output and say why.
-4. **Update the plan's `## Verification Log`** in place (overwrite, not append) with the fresh result — same format `/implement` uses, naming this skill and the date. It's now the current source of truth for automated-check status; a later `/review-implementation` reads it instead of re-running anything.
+4. **Append a verification attempt** to the plan's `## Verification Log` with
+   before/after source fingerprints and actual results. Preserve earlier attempts.
+   Only mark a finding `fixed` after its relevant checks pass. Invalidate affected
+   review coverage and QA cases; retain their history and set `QA retest: required`
+   when applicable, even if an automatic retest limit has been reached.
 
-If nothing was fixed — every finding skipped, accepted, deferred, or dismissed — skip this step entirely rather than re-running green checks for nothing. The existing `## Verification Log` from `/implement` is still accurate; leave it untouched.
+If no source changed, reuse existing verification only after checking its source
+fingerprint and inputs. No edit in this stage does not prove earlier evidence is
+still current. Report missing/stale required evidence or perform necessary checks.
 
 ### Step 5: Record material deviations (only if any)
 
@@ -145,7 +162,10 @@ Add to the existing section if `/implement` already created one. **Skip the sect
 Recompute the `review.md` header from the decisions:
 
 - **Findings:** counts by status — e.g. `5 findings · 3 fixed · 1 accepted · 1 skipped`.
-- **Verdict:** **Rejected** while any Blocker is still `open` · **Needs attention** while any Major is still `open` · **Approved** otherwise. `fixed`, `accepted`, `dismissed`, `stale`, and `skipped` all count as closed; only `open` and `deferred` gate.
+- **Verdict:** apply the shared finding gate table: unresolved/deferred or invalidly
+  skipped Blocker → **Rejected**; unresolved/deferred Major → **Needs attention**;
+  otherwise **Approved**. Accepted/dismissed Blockers require the user's recorded
+  reason; automated runs cannot clear them that way. QA acceptance is a separate gate.
 - Leave the dimension verdicts as the reviewer wrote them — they're the record of what the review found, not of what triage did.
 
 Don't touch `task-plan.md` status. The covered subtasks stay `reviewed`; `/finalize` carries them to `committed`.
@@ -170,7 +190,7 @@ chain automatically. Put the bolded **(copied to clipboard)** right after the co
 copy succeeded:
 
 - **If the fixes were architectural or wide-blast-radius** (a contract changed, a module boundary moved, several files restructured): > **Next step:** re-run `/review-implementation add-oauth-login data-layer` **(copied to clipboard)** — these fixes are big enough to deserve a fresh look.
-- **If any Blocker is still `open`:** > **Next step:** the review is still Rejected on `<F-ids>`. Re-run `/triage-findings add-oauth-login data-layer` **(copied to clipboard)** to resolve them, or accept the risk explicitly before `/finalize`.
+- **If any Blocker still gates under the shared table:** > **Next step:** the review is still Rejected on `<F-ids>`. Re-run `/triage-findings add-oauth-login data-layer` to resolve them, or explicitly record risk acceptance before `/finalize`.
 - **Otherwise:** > **Next step:** run `/finalize add-oauth-login data-layer` **(copied to clipboard)** to commit this increment.
 
 ## Notes
@@ -180,7 +200,8 @@ copy succeeded:
 - **Minimal, targeted edits.** Fix what the finding names. No opportunistic refactoring, no improving code nobody flagged.
 - **Contracts still bind.** A fix that breaks the plan's contracts is a deviation to record (Step 5), not a free improvement.
 - **Write decisions as you go.** `review.md` is updated per finding, not in a batch at the end — that's what makes an interrupted session resumable.
-- **Keep the Verification Log current.** It's the only record a later `/review-implementation` trusts — if you fixed anything, overwrite it in Step 4; if you didn't, leave `/implement`'s entry alone rather than re-running checks just to refresh a timestamp.
+- **Keep evidence current.** Preserve verification attempts, bind them to source,
+  and rerun only checks whose inputs or coverage became invalid.
 - **Status lives in two places, deliberately.** Subtask phase stays in `task-plan.md` (`reviewed`, untouched here); per-finding resolution lives in `review.md`. `/finalize` reads both.
 - **Skipping is a legitimate outcome.** A review that ends with four skips and one fix is a successful triage, not a failure.
 - **No auto-chain.** Summarize, point to the next step, and stop. Copying the resolved command to the clipboard is a convenience, not an invocation — never run the next skill yourself.

@@ -23,7 +23,8 @@ weight the report carries — see the Notes.
 
 Everything else stands **unchanged**: the severity scale and verdict thresholds,
 the diff classification in Step 3, all core analysis dimensions, the `review.md`
-template with `Status: open` on every finding, the `implemented → reviewed`
+template with `Status: open` on new findings while preserving prior resolutions,
+the `implemented → reviewed`
 status advance, and the Step 7 self-review of the report.
 
 You write **no decision entries** in the normal case. A review reports findings;
@@ -57,8 +58,8 @@ call a human would have weighed in on.
   reminder that **the plan can be wrong too** matters most here.
 - **Still report-only.** Never edit source. `/auto-triage-findings` acts on the
   findings; that separation is what keeps this review worth having.
-- **No hand-off exists — the plan's `## Verification Log` is all you get.** You are
-  dispatched as a fresh subagent with none of `/auto-implement`'s conversation, so
-  there is nothing to "carry over" except what's on disk. Read the plan's
-  `## Verification Log` for automated-check status and never invoke test/lint/build
-  commands yourself; a missing log is a finding, not a reason to run one.
+- **Check evidence provenance.** You have the durable verification attempts,
+  not the implementation conversation. Compare their inputs/fingerprints with
+  current source, reuse valid results, and obtain missing/stale required evidence
+  when possible. Record checks run here without editing source; otherwise report
+  blocked verification. Re-review preserves the full ledger and QA history.

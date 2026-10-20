@@ -12,6 +12,10 @@ Produce the high-level plan for a task: break it into an ordered subtask plan, o
 
 `task-plan.md` is the **single source of truth for task-level planning context and subtask status** throughout the rest of the workflow. Every downstream skill reads and updates it.
 
+Read [workflow integrity](references/workflow-integrity.md) for phase transitions,
+legacy-state recovery, evidence, finding gates, and finalization. Its shared rules
+apply to all pipeline stages, including autonomous counterparts.
+
 **Planning contract:** explore the codebase first, cluster related decisions into short question rounds, propose alternatives with tradeoffs, brainstorm until the coverage checklist is satisfied (not merely until you *could* write something), get user approval for the breakdown, then write `task-plan.md`. Do not write or update the plan artifact until the user approves the proposed Definition of Done and subtask split / no-subtasks choice.
 
 ## Documentation lookup
@@ -154,6 +158,8 @@ For the no-subtasks path:
 ```markdown
 # Task Plan: [Task Title]
 
+**Phase:** pending
+
 ## Task Summary
 
 [1-3 sentences describing what this task changes and why.]
@@ -170,6 +176,9 @@ For the no-subtasks path:
 
 This task will be handled in a single implementation pass. Mention important files or folders inline here only if they orient the work, for example `path/or/folder` because it contains the relevant pattern.
 ```
+
+The no-subtasks `Phase` is an explicit ledger, advanced by downstream stages;
+never infer implementation or completion from the existence of a plan/review.
 
 ### Step 5: Self-review the plan
 

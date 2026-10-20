@@ -46,6 +46,8 @@
 - **Changes and deviations:** <actual changes and reasons for deviations>
 - **Self-review:** <findings and resolutions, or no findings with reviewed scope>
 - **Check results:** <exact commands, actual outcomes, relevant failure evidence>
+- **Verification provenance:** <attempt IDs, tested HEAD, before/after source fingerprints, algorithm/exclusions, environment, evidence, and justified reuse; preserve prior attempts>
+- **Candidate verification:** <candidate fingerprint and matching tested attempt, or isolated-candidate verification result>
 - **Outstanding manual checks:** <not performed; required or optional; none if completed>
 - **Blockers:** <cause, attempts, and next action, or none>
 

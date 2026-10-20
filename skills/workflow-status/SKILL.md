@@ -19,6 +19,9 @@ referenced work-item's `implementation-plan.md` / `review.md`, and git state (br
 For shortcut tasks, reads `specs/tasks/{task}/task.md` instead of pipeline artifacts.
 **Produces:** a chat report only — no files.
 
+For pipeline tasks, read [workflow integrity](../plan-task/references/workflow-integrity.md)
+and report its phase, evidence, finding, and QA gates without modifying artifacts.
+
 ## Process
 
 ### Step 1: Resolve the task
@@ -49,8 +52,10 @@ Tasks without `task.md` follow the existing pipeline path:
    - `reviewed` or later ⇒ expect a matching `review.md` to exist too.
    - Note any mismatch (status claims a phase but the file is missing, or a file exists for a phase
      the status hasn't reached) as a **drift flag** — don't fix it, just report it.
-4. For a work-item with a `review.md`, note whether it has open `Status: open` Blocker/Major findings
-   — relevant context for whether `/finalize` will warn.
+4. Apply the shared status-aware finding table to the complete review ledger,
+   including deferred findings and invalid skipped Blockers. Report stale source
+   fingerprints, required automated/manual/QA checks without current passing
+   evidence, pending retests, and prepared finalization records needing recovery.
 
 **Shortcut path:** read `task.md` in full for title, tracker, Mode, Branch, goal and
 acceptance criteria, plan, progress, approvals, implementation notes, self-review,
@@ -91,16 +96,23 @@ which checks for existing commits and PRs before acting.
 
 **Pipeline tasks:** use the phase routing below unchanged.
 
-The workflow phase order is `pending → planned → implemented → reviewed → committed`, produced in turn
-by `/plan-implementation → /implement → /review-implementation → /finalize`. For the no-subtasks path,
-infer the equivalent phase from which artifacts exist at the task root (no `implementation-plan.md` =
-`pending`; plan but no `review.md` = `implemented`; etc.).
+The workflow phase order is `pending → planned → implemented → reviewed → committed`,
+produced by `/plan-implementation → /implement → /review-implementation → /finalize`.
+For no-subtasks read `**Phase:**` in `task-plan.md`; never infer implementation
+from a plan or acceptance from a review. A legacy missing phase is drift: report
+the strongest supported evidence and recommend reconciliation by the owning stage.
+A plan alone supports at most `planned`; this read-only skill never writes a phase.
 
 - **Multiple subtasks at different phases** → the next command targets the **earliest-phase**
   outstanding subtask (matches the scope-resolution order every other skill already uses), named
   explicitly by slug.
 - **A `reviewed` subtask whose `review.md` still has `Status: open` findings** → the next command is
   `/triage-findings`, not `/finalize`. `reviewed` alone doesn't mean the findings were dealt with.
+- **Deferred/invalidly skipped Blockers** → recommend explicit triage/risk resolution;
+  they still gate. Missing/stale verification or review coverage needs evidence
+  refresh; required QA gaps or pending retests need `/run-qa`, not `/finalize`.
+- **A prepared finalization matching an existing code commit** → recommend
+  `/finalize` to recover the ledger, not another implementation/commit cycle.
 - **All subtasks `committed`** (or the no-subtasks path fully done) → say the task is complete; if a PR
   was never opened, suggest `/finalize` can still prepare one.
 - **Drift flagged in Step 2** → mention it before the recommendation; if it makes the "next step" itself

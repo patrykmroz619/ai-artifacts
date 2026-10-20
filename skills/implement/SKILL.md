@@ -10,6 +10,11 @@ Execute the approved `implementation-plan.md` for a resolved **work-item** — t
 **Reads:** the work-item's `implementation-plan.md` (Target Structure, Contracts, Steps, Acceptance Criteria, Verification), `specs/tasks/{task}/task-plan.md` (Definition of Done), `specs/workflow-config.md` (Coding standards and applicable operation/verification), repo rules, and the real source files the plan names.
 **Produces:** source code changes; status updates in `task-plan.md`; and, only when the implementation departs materially from the plan, a short `## Implementation Notes` section appended to that work-item's `implementation-plan.md`.
 
+Read [workflow integrity](../plan-task/references/workflow-integrity.md), including
+verification snapshots and preservation of mixed/staged changes. The bundled
+[snapshot helper](scripts/verification-snapshot.mjs) computes working-tree and
+candidate-index fingerprints without changing the real index or working files.
+
 ## Documentation lookup
 
 Prefer Context7 when implementation depends on dependency APIs, integration setup,
@@ -60,6 +65,9 @@ specs/tasks/{task}/
 1. Read the resolved `implementation-plan.md` in full: **Target Structure**, **Contracts**, **Implementation Steps**, **Acceptance Criteria**, and **Verification**. These are the spec for this run.
 2. Read `task-plan.md`'s **Definition of Done** for the covered subtasks, `specs/workflow-config.md`'s Project map, Coding standards, and applicable local operation, verification, and diagnostics sections, and repo rules (`CLAUDE.md` / `AGENTS.md` / `.cursor/rules`). Check configured commands and prerequisites against current project files before use; if a configured capability is unavailable, report the actual blocker rather than assuming it still works.
 3. **Re-read the actual files the plan names** with Read/Glob/Grep. Build against current reality — the codebase may have moved since the plan was written. If it has moved enough that a step no longer makes sense, that is a deviation to surface (Step 4), not something to silently route around.
+4. Before source edits, record starting HEAD/branch and pre-existing staged,
+   unstaged, and untracked changes in the plan, including mixed files. Preserve
+   that baseline on resume; reconstruct missing ownership or stop if unsafe.
 
 ### Step 3: Implement the steps in order
 
@@ -73,22 +81,25 @@ Work through the plan's **Implementation Steps** in sequence:
 
 ### Step 4: Verify — run, fix, report
 
-1. Run the plan's **Automated** verification — the exact tests, lint, typecheck, and build commands it names (use Bash).
+1. Capture the source fingerprint, then run the plan's **Automated** verification and repository-required checks. Capture the fingerprint again afterward; changed inputs require reassessment and affected checks to rerun.
 2. **Fix failures you introduced** and re-run, looping until the checks are green or you hit a genuine blocker (an environment problem, a pre-existing failure unrelated to this work, or a contradiction that needs the user).
 3. **Never silently skip a red check.** If something is still failing at the end, report it with the actual output and say why — a pre-existing failure, a blocked dependency, or a real defect to address.
-4. Note the plan's **Manual** verification items in the hand-off summary so the user knows what still needs a human check; don't mark them done yourself. Use configured run, browser, API, data, or log instructions to prepare a concrete hand-off where relevant, without changing the plan's manual acceptance gate.
-5. **Write the result to the plan** — append or overwrite a `## Verification Log` section on **this work-item's** `implementation-plan.md`:
+4. Note the plan's **Manual** verification items as required/optional and PASS/FAIL/NOT EXERCISED. Use configured access to perform checks when possible; preserve the user's manual acceptance gate and never infer a pass from source inspection.
+5. **Write the result to the plan** — append an attempt to `## Verification Log` on **this work-item's** `implementation-plan.md`, preserving earlier attempts:
 
    ```markdown
    ## Verification Log
 
-   **Automated:** ✓ passed — `npm test`, `npm run lint` (run by /implement, 2026-08-24)
-   **Manual:** outstanding — [items copied from the plan's Verification → Manual, still unchecked]
+   **Attempt:** V1 — [actual UTC time and environment]
+   **Tested HEAD:** [actual revision]
+   **Source fingerprint:** [algorithm, before/after digest, exclusions, relevant ignored-input digests]
+   **Automated:** [actual commands, exit codes, results, evidence paths, acceptance coverage]
+   **Manual:** [required/optional checks with PASS/FAIL/NOT EXERCISED and evidence]
    ```
 
    Use the actual commands run and their outcome — including a still-red check, named honestly,
-   with why. This is the **only** durable record of automated-check status; `/review-implementation`
-   reads it instead of re-running anything, so it must be accurate.
+   with why. Review reuses this evidence only when its inputs remain valid; stale
+   or missing evidence requires verification rather than trust in a date or phase.
 
 ### Step 5: Record material deviations (only if any)
 
@@ -100,18 +111,24 @@ If the implementation departed **materially** from the plan — a contract had t
 - [What changed vs. the plan, and why. One bullet per material deviation — concise, not a diary.]
 ```
 
-This is the single artifact `/implement` writes, and it is co-located with the plan so `/review-implementation` sees it for free. **Skip the section entirely** when the implementation followed the plan — don't add an empty or trivial note.
+These notes are co-located with the plan so review sees them. **Skip the section entirely** when the implementation followed the plan — don't add an empty or trivial note.
 
 ### Step 6: Update task-plan.md
 
-Advance each covered subtask `planned → implemented` in `task-plan.md`, preserving its work-item annotation:
+Prepare the following update, but write it only after Step 7 finishes and required
+automated checks pass on the final source snapshot. Advance each covered subtask
+`planned → implemented`, preserving its work-item annotation:
 
 ```
 ### 2. `migrate-user-table` — implemented (work-item: `data-layer`)
 ### 3. `backfill-script` — implemented (work-item: `data-layer`)
 ```
 
-For the no-subtasks / whole-task path there is no per-subtask status to advance — the plan at the task root is the record. Touch only the status on the covered headings; leave the Definition of Done, Planning Notes, and other subtasks untouched.
+For the no-subtasks path, advance `**Phase:** planned → implemented` in
+`task-plan.md`. For a whole-task work-item covering subtasks, advance all covered
+headings together. Do not advance on failing required automated checks. Source
+edits during Step 7 invalidate affected evidence and require Step 4 again before
+writing the phase update.
 
 ### Step 7: Self-review
 
@@ -122,6 +139,10 @@ Read the changes against the plan with fresh eyes and fix issues inline before h
 3. The **Acceptance Criteria** for this scope are met.
 4. No leftover placeholders, debug code, `TODO`s, or commented-out blocks.
 5. The plan's automated checks are green (or remaining failures are reported and explained).
+
+After any self-review fix, rerun affected checks and append a fresh verification
+attempt. Keep the phase at `planned` until required automated checks pass on the
+final source snapshot; a report of a red check is not a passing gate.
 
 ### Step 8: Summarize and request feedback
 
@@ -172,7 +193,7 @@ Put the bolded **(copied to clipboard)** right after the command, only if the co
 - **Build against current code.** The plan is a snapshot; the repo is the truth. Re-read the files the plan names before changing them.
 - **Contracts are the spine.** Implement signatures, schemas, and routes exactly as planned — neighboring work and `/review-implementation` depend on them.
 - **Self-verify before claiming done.** A subtask becomes `implemented` only after the plan's automated checks pass; report anything still red instead of hiding it.
-- **Two plan sections, different rules.** `## Verification Log` is written every run — it's the check result `/review-implementation` relies on instead of re-running anything. `## Implementation Notes` is written only for material deviations; skip it when the run followed the plan.
+- **Two plan sections, different rules.** Append actual verification attempts with source fingerprints; reuse only valid evidence. `## Implementation Notes` is only for material deviations.
 - **Status lives in task-plan.md.** This skill advances covered subtasks `planned → implemented`; `/review-implementation` and `/finalize` carry them onward. There is no separate ledger.
 - **The user accepts, not the agent.** Automated checks passing is necessary but not sufficient. After implementing, request manual verification and feedback, and iterate until the user explicitly signs off. Don't self-certify and move on.
 - **No auto-chain.** Once accepted, point to `/review-implementation` and stop. Copying the resolved command to the clipboard is a convenience, not an invocation — never run the next skill yourself.
