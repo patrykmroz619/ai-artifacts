@@ -1,8 +1,8 @@
 # Dev-workflow skills
 
-25 reusable agent skills for taking development work from task setup through
-planning, implementation, review, and finalization. The repository contains one
-collection, installed with the [Skills CLI](https://github.com/vercel-labs/skills).
+26 reusable agent skills for development work, including task setup, planning,
+implementation, review, finalization, and standalone audits. The repository
+contains one collection, installed with the [Skills CLI](https://github.com/vercel-labs/skills).
 See [workflow.md](workflow.md) for the workflow and its artifact contracts.
 
 ## Install
@@ -14,7 +14,7 @@ npx skills add patrykmroz619/ai-artifacts
 ```
 
 The interactive installer lets you choose skills and target agents. To install
-all 25 skills for Claude Code, Cursor, and Codex without prompts:
+all 26 skills for Claude Code, Cursor, and Codex without prompts:
 
 ```bash
 npx skills add patrykmroz619/ai-artifacts --skill '*' --agent claude-code cursor codex --yes
@@ -94,6 +94,7 @@ falls back to a report. These shortcuts do not require subagents.
 | `qa-scenarios` | Generate a manual QA handoff from changes. |
 | `run-qa` | Confirm a testing scope, exercise running software, and write a report with evidence. |
 | `workflow-status` | Report task progress and the next workflow step. |
+| `conversation-audit` | Review the current agent conversation for evidenced workflow friction and recommend improvements. |
 | `research-solution` | Research solution options through parallel agents. |
 | `add-task-to-backlog` | Capture a new task in the configured backlog. |
 | `autopilot` | Coordinate the autonomous workflow from start to finish. |
@@ -110,9 +111,9 @@ falls back to a report. These shortcuts do not require subagents.
 
 Install the full collection for the complete workflow. Individual core skills
 may expect configuration or artifacts from earlier stages; installing a skill
-does not initialize a workflow. `review-pr`, `qa-scenarios`, `run-qa`, and
-`research-solution` can be used without the task pipeline. `add-task-to-backlog`
-and `workflow-status` read the project's workflow state.
+does not initialize a workflow. `review-pr`, `qa-scenarios`, `run-qa`,
+`research-solution`, and `conversation-audit` can be used without the task
+pipeline. `add-task-to-backlog` and `workflow-status` read the project's workflow state.
 
 The Skills CLI does not automatically install companion skills. Each of the eight
 autonomous pipeline stages needs its core instructions plus the shared contract bundled with
@@ -191,7 +192,7 @@ npm test
 npx skills add ./skills --list
 ```
 
-In a clean checkout, `npx skills add . --list` also discovers the same 25 skills.
+In a clean checkout, `npx skills add . --list` also discovers the same 26 skills.
 Test installs from a temporary consumer project with the absolute path to this
 checkout as the source. CI validates frontmatter, names, collection membership,
 bundled files, and companion references; it runs validation tests on pushes and

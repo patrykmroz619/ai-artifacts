@@ -141,9 +141,9 @@ test('detects missing and unexpected skills', async (t) => {
   assert.ok(errors.some((error) => error.includes('Unexpected skill directory: other')));
 });
 
-test('validates the actual 25-skill collection', async () => {
+test('validates the actual 26-skill collection', async () => {
   const root = new URL('../skills/', import.meta.url);
   const { errors, names } = await validateSkills(fileURLToPath(root));
   assert.deepEqual(errors, []);
-  assert.equal(names.length, 25);
+  assert.equal(names.length, 26);
 });

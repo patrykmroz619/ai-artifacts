@@ -6,7 +6,7 @@ import { parseDocument } from 'yaml';
 export const WORKFLOW_SKILLS = [
   'add-task-to-backlog', 'auto-finalize', 'auto-implement',
   'auto-plan-implementation', 'auto-plan-task', 'auto-review-implementation',
-  'auto-run-qa', 'auto-small-task', 'auto-start-task', 'auto-triage-findings', 'autopilot', 'finalize', 'implement',
+  'auto-run-qa', 'auto-small-task', 'auto-start-task', 'auto-triage-findings', 'autopilot', 'conversation-audit', 'finalize', 'implement',
   'init-workflow', 'plan-implementation', 'plan-task', 'qa-scenarios', 'run-qa',
   'research-solution', 'review-implementation', 'review-pr', 'small-task', 'start-task',
   'triage-findings', 'workflow-status',
