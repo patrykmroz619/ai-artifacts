@@ -14,6 +14,21 @@ This skill is **standalone and outside the task pipeline**. It is not scoped to 
 
 **Why subagents, not you:** each research stream is an independent, open-ended investigation (searching, comparing, fetching real source). Running them yourself burns your context on raw search results and half-relevant README text you'll only need once. A subagent returns a distilled report; you keep only the synthesis.
 
+## Documentation lookup
+
+Include this guidance in applicable research-stream prompts: prefer Context7 when comparing
+dependency API capabilities, integration setup, configuration, or version-sensitive behavior.
+Establish the project's installed version from manifests/lockfiles, or the candidate version
+being evaluated. Check actual session tool availability; workflow-config status, if present,
+is only a starting point. Use `resolve-library-id` unless a suitable ID is already known,
+then `query-docs` with a focused question. Reuse relevant results supplied in context; skip
+lookups needing no external docs. If Context7 is unavailable, insufficient, or lacks
+matching-version docs, consult official documentation and report material uncertainty rather
+than blocking or installing tools. Return supporting links and version caveats for the
+existing research report. Documentation complements the required source-code investigation;
+it does not replace comparable-project discovery, source reading, or current evidence for
+maintenance, licensing, and pricing.
+
 ## Process
 
 ### Step 1: Scope the research question

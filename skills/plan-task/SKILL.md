@@ -14,6 +14,18 @@ Produce the high-level plan for a task: break it into an ordered subtask plan, o
 
 **Planning contract:** explore the codebase first, cluster related decisions into short question rounds, propose alternatives with tradeoffs, brainstorm until the coverage checklist is satisfied (not merely until you *could* write something), get user approval for the breakdown, then write `task-plan.md`. Do not write or update the plan artifact until the user approves the proposed Definition of Done and subtask split / no-subtasks choice.
 
+## Documentation lookup
+
+Prefer Context7 when a planning decision depends on dependency APIs, integration setup,
+configuration, or version-sensitive behavior. Inspect project manifests/lockfiles first;
+target the installed version (or the proposed version for a new dependency). Check actual
+session tool availability; any workflow-config documentation status is only a starting point.
+Use `resolve-library-id` unless a suitable ID is already known, then `query-docs` with a
+focused question. Reuse relevant results already in context; skip routine work needing no
+external docs. If Context7 is unavailable, insufficient, or lacks matching-version docs,
+consult official documentation and note material uncertainty rather than blocking or
+installing tools. Keep supporting links and version caveats in existing Planning Notes.
+
 ## Process
 
 ### Step 1: Read context

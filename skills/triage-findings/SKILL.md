@@ -12,6 +12,19 @@ Where `/review-implementation` is report-only, this skill is the counterpart tha
 **Reads:** the work-item's `review.md` (the findings ledger), its `implementation-plan.md` (**Contracts**, **Acceptance Criteria**, **Verification** — a fix must not break a contract), `specs/tasks/{task}/task-plan.md` (Definition of Done), `specs/workflow-config.md` (Coding standards), repo rules, and the source files each finding names.
 **Produces:** source changes for approved fixes; an updated `Status:` on every finding in `review.md` plus a refreshed header; and, only when a fix departs materially from the plan, an `## Implementation Notes` bullet on that work-item's `implementation-plan.md`.
 
+## Documentation lookup
+
+Prefer Context7 when evaluating a finding or implementing its approved fix depends on
+dependency APIs, integration setup, configuration, or version-sensitive behavior. Inspect
+manifests/lockfiles and target the version in use. Check session tool availability rather
+than trusting workflow-config status. Use `resolve-library-id` unless a suitable ID is
+already known, then `query-docs` with a focused question. Reuse relevant review/plan evidence
+already in context; skip routine fixes needing no external docs. If Context7 is unavailable,
+insufficient, or lacks matching-version docs, consult official documentation and note
+material uncertainty rather than blocking or installing tools. Keep supporting links and
+version caveats with the finding's decision or existing Implementation Notes. Existing
+approval requirements still apply.
+
 ## The work-item model
 
 A **work-item** is the unit `/plan-implementation` planned, `/implement` built, and `/review-implementation` reported on: one subtask, several subtasks, or the whole task, with exactly one `implementation-plan.md` and one `review.md`. Triage operates on the same unit.

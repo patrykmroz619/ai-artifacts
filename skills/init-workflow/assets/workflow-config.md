@@ -38,6 +38,17 @@ Update by re-running /init-workflow or by editing this file directly.
 - **Logs and jobs:** <exact log locations or commands and job failure inspection, as applicable; verification status>
 - **Missing setup:** <unavailable diagnostics and exact next action; omit when all relevant diagnostics work>
 
+## Documentation lookup
+
+> Optional Context7 access for dependency APIs, setup, configuration, and version-sensitive
+> behavior. Recheck actual session tools before use; this record does not guarantee access.
+> If unavailable or insufficient, use official documentation and continue.
+
+- **Context7 availability:** <verified | not verified, reason | not configured, confirmed missing setup>
+- **Client/access mechanism:** <agent client and Context7 MCP connection; configuration scope/location if known, never credentials>
+- **Verification:** <successful library/topic lookup and relevant version or coverage caveat; otherwise what prevented verification>
+- **Next action:** <missing prerequisite, setup/reconnect step, or documented user skip with official setup link; omit when none>
+
 ## Task management
 
 - **System:** <Jira | Linear | GitHub Issues | any other tracker | none>

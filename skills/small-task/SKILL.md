@@ -13,6 +13,18 @@ implementation plans, review reports, subtasks, or decision logs. Work through t
 steps in this run; the full pipeline's hand-off and delegation contracts do not apply.
 For unattended execution, use `/auto-small-task`, which replaces the interactive gates.
 
+## Documentation lookup
+
+Prefer Context7 when planning, implementation, or self-review depends on dependency APIs,
+integration setup, configuration, or version-sensitive behavior. Inspect manifests/lockfiles
+first and target the installed version (or the proposed version for a new dependency).
+Check session tool availability rather than trusting workflow-config status. Use
+`resolve-library-id` unless a suitable ID is already known, then `query-docs` with a focused
+question. Reuse relevant results already in context; skip routine edits needing no external
+docs. If Context7 is unavailable, insufficient, or lacks matching-version docs, consult
+official documentation and note material uncertainty; do not block or install tools just
+for this lookup. Keep supporting links and version caveats in the existing `task.md` record.
+
 ## 1. Resolve and inspect
 
 - Require `specs/workflow-config.md`. If absent, stop and point to `/init-workflow`;

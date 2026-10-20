@@ -1,6 +1,6 @@
 ---
 name: init-workflow
-description: Initialize or complete a project's dev-workflow configuration. Inspect how the app runs and can be verified, guide setup of useful local tools, and record project-specific commands alongside tracker, git, changelog, and coding conventions in specs/workflow-config.md. Use for /init-workflow, setting up the dev workflow, or completing an existing workflow configuration.
+description: Initialize or complete a project's dev-workflow configuration. Inspect how the app runs and can be verified, check Context7 documentation access, guide setup of useful tools, and record project-specific commands alongside tracker, git, changelog, and coding conventions in specs/workflow-config.md. Use for /init-workflow, setting up the dev workflow, or completing an existing workflow configuration.
 ---
 
 # /init-workflow — Initialize the dev-workflow
@@ -43,13 +43,17 @@ documented there and in the workflow design, so no README is needed here.
 
 **`specs/workflow-config.md`** — filled in Step 2. If it already exists, don't recreate it; instead
 read it and check each applicable section (task management, git conventions, changelog, autopilot,
-coding standards, project map, local operation, verification and inspection) for completeness. A
+coding standards, project map, local operation, verification, inspection, and documentation lookup) for completeness. A
 config written
 before a section existed simply lacks it — that's a gap to fill, not a reason to leave it out. Run
 the interview **only for sections that are missing or incomplete**, and ask before changing content
 the user already filled in. If it is fully populated, show it and ask whether to keep it as-is or
 revisit anything. Omit inapplicable operational sections; absence alone is not a gap for a project
 without that surface.
+
+Recheck Context7 availability in the current session even when the config is complete;
+saved configuration is not proof of working access. Preserve user-written setup details and
+choices, and propose updates when the observed status differs.
 
 ### Step 2: Inspect the project, then interview to fill `workflow-config.md`
 
@@ -77,7 +81,7 @@ secret names and where they are supplied instead.
 
 Ask in **small batches** rather than one giant form — group related questions into a single
 `AskUserQuestion` call, let earlier answers inform later ones, and keep it conversational. Cover the
-existing five areas plus applicable local operation and verification:
+existing five areas plus applicable local operation, verification, and documentation lookup:
 
 **1. Task management.** Which system, if any. **Ask the user first — never infer the tracker from
 what tooling happens to be installed.** Do *not* scan for available MCP servers, CLIs (`gh`, `linear`,
@@ -196,7 +200,42 @@ disposable fixtures, test roles/accounts without passwords, log locations or com
 inspect job failures. Confirm read-only access or a harmless sample query when feasible. Prefer
 reusable commands and pointers to authoritative project docs over a copied schema or log dump.
 
-**8. Guided setup.** For a missing relevant tool or prerequisite, explain the concrete benefit and
+**8. Documentation lookup (Context7).** Check Context7 separately from tracker discovery;
+the tracker restriction above does not prevent this check. Look for the current session's
+Context7 MCP tools (`resolve-library-id` and `query-docs`, possibly client-prefixed). If they
+are absent or fail, inspect only relevant MCP client configuration when accessible, without
+printing credentials. Do not infer that Context7 is unconfigured solely because no tools are
+exposed; distinguish missing configuration from configured-but-unavailable access. If the
+client cannot be established from the environment, ask which client the user wants configured.
+
+Verify working access with a focused, read-only documentation lookup for a dependency found
+in the project. Resolve its library ID, then query a relevant concept targeting the installed
+version when available. For projects without dependencies, use a small lookup for a named
+public library as a connectivity check, explicitly unrelated to project requirements. Only
+a successful documentation response warrants `verified`. If no matching project/version docs
+exist, distinguish that coverage gap from a connection failure; a successful public-library
+lookup can verify access while the project-specific limitation remains recorded.
+
+When Context7 is missing or broken, explain that it supplies current library documentation
+for planning, implementation, and review. Offer guided setup now or a documented skip. Before
+proposing commands, consult the current client-specific setup instructions linked from the
+[official Context7 MCP documentation](https://context7.com/docs/resources/all-clients).
+Show the exact proposed command/configuration change and its project or user scope; follow
+the guided-setup approval rule below before making changes. Let the user supply credentials
+through the client's supported authentication flow or secret configuration, never through
+chat or the committed workflow config. If setup requires a restart/reconnect, explain that
+step and leave access `not verified` until the tools are exposed and a lookup succeeds.
+
+Always record a concise `## Documentation lookup` section: Context7 availability (`verified`,
+`not verified`, or `not configured`), client/access mechanism, and any missing prerequisite or
+next action. `not verified` includes configured-but-unavailable access and inability to inspect
+configuration; say which. `not configured` requires confirmed missing setup. Record a user's
+skip and the official setup link so initialization can finish without Context7. On reruns,
+recheck availability, preserve existing details and skips, and avoid repeating an unchanged
+setup offer the user already declined. This is optional documentation access, not QA coverage
+or a prerequisite for downstream work; later skills must check their own session availability.
+
+**9. Guided setup.** For a missing relevant tool or prerequisite, explain the concrete benefit and
 offer setup now or a documented skip. Before changing project files, dependencies, global tools,
 or external configuration, show the exact proposed change and obtain approval for that change.
 After setup, verify the capability with the project's local/test environment. If the user skips or
@@ -212,6 +251,10 @@ entirely — its absence is what tells /finalize not to prompt for entries.
 
 The `## Autopilot` section, by contrast, is in the template and is **always written** — recording
 `report only` explicitly is better than leaving the mode implicit.
+
+The `## Documentation lookup` section is also always written, including when Context7 setup
+was skipped or could not be verified. Record status and next actions, not API keys or other
+credentials.
 
 For the operational sections, replace all placeholders with project-specific facts. Keep sections
 only when applicable; omit unneeded fields rather than filling them with guesses. Label each tool or
@@ -234,6 +277,8 @@ referenced rules files in `workflow-config.md`'s Coding standards section, call 
 knows to review them.
 Summarize which local run, browser/API, data, and log capabilities were verified and which remain
 unavailable with their next setup action.
+Include Context7's observed availability, any configured-but-unavailable access, and its next
+setup/reconnect action or documented skip.
 
 Then close with two pointers, and stop — don't chain into another skill:
 

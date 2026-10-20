@@ -36,6 +36,18 @@ The plan's own header lists the subtasks it covers — that is the two-way link 
 
 **Planning contract:** resolve the scope, explore the codebase, settle the technical decisions through structured Q&A (clustering related questions into short rounds), get approval for the outline, then write the plan and update `task-plan.md`. Do not write `implementation-plan.md` or touch `task-plan.md` until the user approves the proposed steps, affected files, and contracts.
 
+## Documentation lookup
+
+Prefer Context7 when a technical decision depends on dependency APIs, integration setup,
+configuration, or version-sensitive behavior. Inspect manifests/lockfiles first and target
+the installed version (or the proposed version for a new dependency). Check session tool
+availability rather than trusting recorded workflow-config status. Use `resolve-library-id`
+unless a suitable ID is already known, then `query-docs` with a focused question. Reuse
+relevant results already in context; skip routine work needing no external docs. If Context7
+is unavailable, insufficient, or lacks matching-version docs, consult official documentation
+and note material uncertainty; do not block or install tools just for this lookup. Keep
+supporting links and version caveats in the plan's existing Planning Notes.
+
 ## Process
 
 ### Step 1: Resolve scope and read context

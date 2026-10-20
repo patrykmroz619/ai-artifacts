@@ -12,6 +12,18 @@ This skill is for the **reviewer's** seat: it analyzes and reports, it **never e
 **Reads:** the PR/MR metadata via `gh`/`glab`, the checked-out local branch diff, the surrounding code the change touches, `specs/workflow-config.md`'s Coding standards section if present, and repo rules (`CLAUDE.md` / `AGENTS.md` / `.cursor/rules`).
 **Produces:** one report at `specs/reviews/{pr-slug}.md`, plus a chat summary and a collaborative follow-up.
 
+## Documentation lookup
+
+Prefer Context7 to verify disputed dependency API behavior, setup, configuration, or
+version-sensitive assumptions before raising a finding. Inspect manifests/lockfiles for
+the revision under review and target that version. Check actual session tool availability;
+any workflow-config documentation status is only a starting point. Use `resolve-library-id`
+unless a suitable ID is already known, then `query-docs` with a focused question. Reuse
+relevant evidence already in context; skip routine review needing no external docs. If
+Context7 is unavailable, insufficient, or lacks matching-version docs, consult official
+documentation and state remaining uncertainty rather than blocking or installing tools.
+Include supporting links and version caveats in the relevant finding; remain report-only.
+
 ## What makes a good PR review here
 
 1. **Understand before you judge.** The report leads with intent and a walkthrough of the change — what it does and how — so findings land in context. You read to understand first, then read the findings.

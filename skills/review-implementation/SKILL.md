@@ -12,6 +12,18 @@ This skill is **report-only**: it analyzes and writes the report, it does **not*
 **Reads:** the work-item's `implementation-plan.md` (Target Structure, Contracts, Acceptance Criteria, Verification, and any `## Implementation Notes`), `specs/tasks/{task}/task-plan.md` (Definition of Done), `specs/workflow-config.md` (Coding standards), repo rules, applicable architecture/style documentation and configuration, representative existing code, and the actual code changes (diff).
 **Produces:** one `review.md` per covered work-item (beside its plan), and status updates in `task-plan.md`.
 
+## Documentation lookup
+
+Prefer Context7 to verify disputed dependency API behavior, setup, configuration, or
+version-sensitive assumptions before raising a finding. Inspect manifests/lockfiles and
+target the version under review. Check actual session tool availability rather than
+trusting workflow-config status. Use `resolve-library-id` unless a suitable ID is already
+known, then `query-docs` with a focused question. Reuse relevant evidence already in context;
+skip routine review needing no external docs. If Context7 is unavailable, insufficient, or
+lacks matching-version docs, consult official documentation and state remaining uncertainty
+rather than blocking or installing tools. Include supporting links and version caveats in
+the relevant finding; documentation lookup does not permit source edits.
+
 ## The work-item model
 
 A **work-item** is the unit `/plan-implementation` planned and `/implement` built: one subtask, several subtasks, or the whole task, with exactly one `implementation-plan.md`. Review operates on the same unit and writes one `review.md` next to that plan. Status stays per-subtask in `task-plan.md`.

@@ -51,7 +51,16 @@ After installing, invoke `init-workflow` in your coding agent (for example,
 `/init-workflow` in agents that expose skills as slash commands). It configures
 `specs/workflow-config.md` and the task workspace. It inspects the project and
 guides setup for local startup, tests, browser interaction, and data/log inspection
-where applicable, recording verified commands without secrets. Then use the core pipeline:
+where applicable, recording verified commands without secrets.
+
+Initialization also checks Context7 documentation access and guides setup or records a skip.
+Context7 is optional: planning, implementation, research, and review prefer it when dependency
+APIs, setup, or version-sensitive behavior need documentation. Agents reuse relevant results
+and fall back to official docs when access or coverage is insufficient. Configure the MCP
+connection using [Context7's client setup documentation](https://context7.com/docs/resources/all-clients);
+installation of these skills alone does not configure it.
+
+Then use the core pipeline:
 
 ```text
 start-task -> plan-task -> plan-implementation -> implement

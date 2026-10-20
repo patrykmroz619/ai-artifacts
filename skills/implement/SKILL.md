@@ -10,6 +10,19 @@ Execute the approved `implementation-plan.md` for a resolved **work-item** — t
 **Reads:** the work-item's `implementation-plan.md` (Target Structure, Contracts, Steps, Acceptance Criteria, Verification), `specs/tasks/{task}/task-plan.md` (Definition of Done), `specs/workflow-config.md` (Coding standards and applicable operation/verification), repo rules, and the real source files the plan names.
 **Produces:** source code changes; status updates in `task-plan.md`; and, only when the implementation departs materially from the plan, a short `## Implementation Notes` section appended to that work-item's `implementation-plan.md`.
 
+## Documentation lookup
+
+Prefer Context7 when implementation depends on dependency APIs, integration setup,
+configuration, or version-sensitive behavior. Inspect manifests/lockfiles and target the
+version in use. Check session tool availability; recorded workflow-config status is only a
+starting point. Use `resolve-library-id` unless a suitable ID is already known, then
+`query-docs` with a focused question. Reuse relevant documentation from the plan or current
+context; skip routine edits needing no external docs. If Context7 is unavailable,
+insufficient, or lacks matching-version docs, consult official documentation and note
+material uncertainty rather than blocking or installing tools. Put supporting links and
+version caveats in existing Implementation Notes when they explain a material deviation;
+documentation lookup does not authorize changing the approved contracts.
+
 ## The work-item model
 
 A **work-item** is the unit `/plan-implementation` planned and the unit this skill executes: one subtask, several subtasks, or the whole task, with **exactly one** `implementation-plan.md`. Status stays per-subtask in `task-plan.md`; a work-item advances the status of **all** the subtasks it covers, together.

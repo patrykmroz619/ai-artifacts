@@ -54,6 +54,23 @@ resuming its recorded shortcut instead of routing it through work-item stages.
 The sections below describe the existing full pipeline; its artifacts and routing
 remain unchanged. Shortcut task folders hold `task.md` instead of that structure.
 
+### Dependency documentation
+
+`/init-workflow` checks Context7 MCP tools and verifies documentation access with a focused
+lookup. It guides client-specific setup or records a skip in `workflow-config.md`'s
+`Documentation lookup` section, alongside availability, client/access mechanism, verification
+evidence, and any next action. Configuration alone does not establish working access;
+reruns recheck it while preserving user choices. Setup is optional and follows the existing
+approval rule for configuration changes. No credentials belong in workflow artifacts.
+
+Planning, implementation, research, review, and finding resolution prefer Context7 when
+dependency APIs, integration setup, configuration, or version-sensitive behavior need docs.
+They target the dependency version in use, reuse relevant evidence, and check actual session
+tools rather than trusting recorded status. Routine work needs no lookup. Missing access or
+coverage falls back to official documentation, with material uncertainty recorded in existing
+artifacts. Autonomous counterparts inherit this guidance from their core skills. Research
+still requires source-code investigation; documentation does not replace it.
+
 ### Artifacts root: `specs/`
 
 `/init-workflow` creates a `specs/` directory at the repo root. It is the single source of
