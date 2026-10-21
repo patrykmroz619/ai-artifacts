@@ -166,7 +166,7 @@ subtask status lives — no separate ledger to drift.
 
 ### Configuration-driven integrations
 
-`workflow-config.md` records how the agent runs and verifies this project and integrates with external systems, captured during init:
+`workflow-config.md` records how the agent runs and verifies this project and integrates with external systems, captured during init. The written file is short lists of commands, paths, and statuses, not descriptions of them:
 
 - **Project map** — a short pointer to apps/services, source entry points, key code areas, and authoritative docs.
 - **Local operation** — setup, start, readiness, entry points, environment variable names, and cleanup for a safe local or designated test environment.

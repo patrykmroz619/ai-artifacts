@@ -109,9 +109,9 @@ path; if none exists, fall back to manual and record exactly what the user will 
 > - **REST API / other** — confirm the credentials and endpoint actually resolve before trusting them.
 >
 > If the chosen mechanism isn't available, tell the user what's missing and ask them to either
-> configure it now or fall back to manual. Record whatever is *actually* usable, and capture the
-> access details (endpoint, project key, auth method) in the config's **Notes** so downstream skills
-> can reach the tracker.
+> configure it now or fall back to manual. Record whatever is *actually* usable. Put each access
+> detail (endpoint, project key, auth method, secret name) on its own task-management bullet
+> (`key: value`) so downstream skills can reach the tracker.
 
 **2. Git conventions.** Branch naming pattern and commit style. If the repo already has rules files
 (e.g. `CLAUDE.md`, `AGENTS.md`, `.cursor/rules`) that specify these, read them and propose those as
@@ -123,9 +123,9 @@ prompting — look for common names at the root and a level or two down (e.g. `C
 changeset tooling like `.changeset/`). Let the finding shape the question:
 > - **If a changelog file is found** — don't ask whether one exists. Tell the user what you found,
 >   peek at its format (e.g. Keep a Changelog, plain dated entries, changesets), and confirm it's the
->   one the workflow should append to. Record its location and format.
+>   one the workflow should append to. Record its path and format as the two Changelog bullets.
 > - **If none is found** — ask whether the project maintains a changelog (perhaps elsewhere) or wants
->   to start one. Only capture location/format if they say yes.
+>   to start one. Only capture the two Changelog bullets if they say yes.
 >
 > Whether a changelog section ends up in the config is what tells /finalize whether and where to add
 > an entry.
@@ -145,8 +145,8 @@ two modes with their honest consequences:
 > - **Report only** — the run commits locally and stops there, printing the exact `gh pr create` /
 >   `glab mr create` command. Nothing leaves the machine without a human running that command.
 
-Record the choice, the remote host, and any details an unattended run needs to open the PR/MR
-correctly (base branch, draft vs ready, reviewers or labels) in the config's **Notes**.
+Record the choice and remote host on the template's **Mode** and **Host** bullets. Put base
+branch, draft vs ready, reviewers, and labels on their own bullets — one fact each.
 
 Two rules carry over from area 1: **only record what's actually available** — don't set `open PR/MR`
 against a CLI that isn't authenticated, or `/auto-finalize` will fall back to report-only anyway; and
@@ -171,34 +171,31 @@ standards enforced, they belong in a rules file, not duplicated into workflow co
 If `workflow-config.md` already has a `## Coding standards` section, leave the user's content alone —
 at most append references to rules files not already mentioned there, and tell the user.
 
-**6. Project map and local operation.** Record a short map of the apps/services, their purposes,
-source entry points, key code areas, and authoritative architecture or setup docs. Link to those
-sources rather than duplicating a large README or spec. Establish the supported local or disposable
-test environment: prerequisites and service dependencies, setup and start commands, working
-directory, environment variable names and their source (never values), URL/port or other entry
-point, readiness check, and how to stop only
-services the agent started. If there are multiple apps, name each and its purpose. Test a safe
-readiness path when feasible; otherwise mark it unverified with the missing prerequisite. Document
-staging only when the project defines a safe staging environment and the user wants it used. Do not
-assume access to production or real user data.
+**6. Project map and local operation.** One bullet per app or service (`purpose` and entry path),
+and one bullet per authoritative doc path. Do not copy a README or spec. For the local or disposable
+test environment, one bullet each for a prerequisite, setup command, start command, readiness check,
+stop command, and environment variable name plus where it is supplied (never the value). Repeat a
+bullet when there are several. One **Status** bullet: `verified`, or `not verified` / `not configured`
+with a few words of reason. Test a safe readiness path when feasible. Document staging only when the
+project defines a safe staging environment and the user wants it used. Do not assume access to
+production or real user data.
 
-**7. Verification and inspection.** Record the relevant existing commands for unit, integration,
-end-to-end, lint/type/build checks, including required services and where results appear. For each
-applicable interface, identify a practical observable check: browser for web UI, request tool and
-base URL for APIs, command invocation for CLIs, and queue/job trigger plus observable output for
-background work. For browser work, use a dedicated browser tool provided by the current agent
-runtime when it is suitable; otherwise use existing agent-usable project tooling or offer the
+**7. Verification and inspection.** One bullet per existing check command (unit, integration,
+end-to-end, lint, type, build), with its prerequisite and `verified` or `not verified` on that same
+bullet. One bullet for where results appear. For each applicable interface, one bullet: browser tool
+and fallback for web UI, request command and base URL for APIs, invocation for CLIs, and trigger plus
+observable output for jobs. For browser work, use a dedicated browser tool provided by the current
+agent runtime when it is suitable; otherwise use existing agent-usable project tooling or offer the
 [official Playwright CLI](https://playwright.dev/agent-cli/introduction) (`@playwright/cli`). Check
 the current installation instructions before proposing a command. Record the exact invocation and
 a fallback when a runtime-specific tool will not be available to another agent. Verify a harmless
-local interaction
-before marking browser access available; installed but untested means `not verified`.
+local interaction before marking browser access available; installed but untested means `not verified`.
 
-For persisted behavior, identify a read-only way to inspect local/test records (client command,
-admin endpoint, or documented query) and the data source it targets. Capture how to create/reset
-disposable fixtures, test roles/accounts without passwords, log locations or commands, and how to
-inspect job failures. Confirm read-only access or a harmless sample query when feasible. Prefer
-reusable commands and pointers to authoritative project docs over a copied schema or log dump.
+For persisted behavior, one bullet for the data source and its read-only client, admin endpoint, or
+sample query. One bullet per fixture role and its seed or reset command, without passwords. One
+bullet each for a log path or command and a job-failure command. Confirm read-only access or a
+harmless sample query when feasible. Point at project docs instead of copying a schema or log dump.
+One **Missing** bullet per unavailable check, with the next action; omit it when nothing is missing.
 
 **8. Documentation lookup (Context7).** Check Context7 separately from tracker discovery;
 the tracker restriction above does not prevent this check. Look for the current session's
@@ -226,11 +223,13 @@ through the client's supported authentication flow or secret configuration, neve
 chat or the committed workflow config. If setup requires a restart/reconnect, explain that
 step and leave access `not verified` until the tools are exposed and a lookup succeeds.
 
-Always record a concise `## Documentation lookup` section: Context7 availability (`verified`,
-`not verified`, or `not configured`), client/access mechanism, and any missing prerequisite or
-next action. `not verified` includes configured-but-unavailable access and inability to inspect
-configuration; say which. `not configured` requires confirmed missing setup. Record a user's
-skip and the official setup link so initialization can finish without Context7. On reruns,
+Always record `## Documentation lookup` as four short bullets: **Context7** status (`verified`,
+`not verified` plus a few words of reason, or `not configured`), **Client** and config path,
+**Check** (library and version or coverage caveat), and **Next** (missing prerequisite, reconnect
+step, or documented skip with the official setup link). Omit **Next** when there is nothing to do.
+`not verified` includes configured-but-unavailable access and inability to inspect configuration;
+say which. `not configured` requires confirmed missing setup. Record a user's skip and the official
+setup link so initialization can finish without Context7. On reruns,
 recheck availability, preserve existing details and skips, and avoid repeating an unchanged
 setup offer the user already declined. This is optional documentation access, not QA coverage
 or a prerequisite for downstream work; later skills must check their own session availability.
@@ -245,9 +244,15 @@ production access, destructive data operations, or remote publication.
 
 Then write `specs/workflow-config.md` from the bundled template at `assets/workflow-config.md`
 (resolve relative to this skill's directory), substituting the captured answers for the
-angle-bracketed placeholders. The template has no changelog section: **add a `## Changelog` section
-only when the user maintains one**, recording its location/format. If they don't, leave it out
-entirely — its absence is what tells /finalize not to prompt for entries.
+angle-bracketed placeholders. Substitute each placeholder with one short list item: one command,
+path, env name, status, or note per bullet. Repeat a bullet when there are several. Omit a bullet
+that does not apply. Do not add paragraphs, section introductions, or blockquotes to the written
+file. Put commands in backticks. Put `verified`, `not verified`, or `not configured` on that same
+bullet, with a few words of reason only when it is not verified.
+
+The template has no changelog section: **add a `## Changelog` section only when the user maintains
+one**, as two bullets — `File:` path and `Format:`. If they don't, leave it out entirely — its
+absence is what tells /finalize not to prompt for entries.
 
 The `## Autopilot` section, by contrast, is in the template and is **always written** — recording
 `report only` explicitly is better than leaving the mode implicit.
@@ -257,11 +262,9 @@ was skipped or could not be verified. Record status and next actions, not API ke
 credentials.
 
 For the operational sections, replace all placeholders with project-specific facts. Keep sections
-only when applicable; omit unneeded fields rather than filling them with guesses. Label each tool or
-command `verified`, `not verified`, or `not configured` and say why when it is not verified. Keep the
-config concise enough to use during a task: exact commands, safe environment and data boundaries,
-and paths to fuller docs. Never commit tokens, passwords, connection strings containing credentials,
-real test-account secrets, or sensitive sample data.
+only when applicable; omit unneeded bullets rather than filling them with guesses. Never commit
+tokens, passwords, connection strings containing credentials, real test-account secrets, or
+sensitive sample data. Record secret names and where they are supplied.
 
 ### Step 3: Summarize and point the way
 
