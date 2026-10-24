@@ -81,10 +81,14 @@ already answered by the brief or configuration. Write a concrete, reviewable pla
   using configured browser/API/data/log access where applicable.
 - Meaningful decisions, rejected alternatives when useful, and assumptions.
 
-Present the plan and branch choice, request **plan approval**, and wait before
-implementation. Record what was approved and any revisions. Reuse a recorded
-approval on resume only while its scope and design still match; material changes
-require an updated plan and approval. Set progress to `implementing` when starting.
+Before requesting **plan approval**, present a concise, decision-ready brief in
+the conversation: goal, proposed approach, affected components or interfaces,
+acceptance criteria, verification and manual checks, branch choice, and material
+assumptions. Link `task.md` for full detail, but do not make the user open it
+to understand what they are approving. Wait before implementation. Record what
+was approved and any revisions. Reuse a recorded approval on resume only while
+its scope and design still match; material changes require an updated
+conversation brief and plan approval. Set progress to `implementing` when starting.
 
 ## 3. Implement, verify, and self-review
 
@@ -113,11 +117,13 @@ blocker, not a pass. For a genuine blocker, record the cause, attempts, current
 state, and exact next action; set progress to `blocked` and stop with a resumable
 report. Do not finalize while introduced failures or actionable findings remain.
 
-When implementation is ready, summarize the change, verification evidence,
-deviations, and outstanding manual checks. Request **implementation approval**
-and wait before finalization. Record the response. If changes are requested,
-implement, verify, and self-review them before seeking approval again. Any later
-material code change invalidates that approval.
+When implementation is ready, summarize in the conversation what changed,
+verification commands and actual results, material deviations, and outstanding
+manual checks (including whether they gate completion). Link `task.md` for
+detail, request **implementation approval**, and wait before finalization.
+Record the response. If changes are requested, implement, verify, and self-review
+them before seeking approval again. Any later material code change invalidates
+that approval.
 
 ## 4. Finalize
 
@@ -135,9 +141,11 @@ original files/index. Reuse prior evidence only for demonstrably equivalent inpu
 Add any configured changelog entry in its configured location and format; include
 it in this same completing commit. Skip if the project does not maintain one.
 Generate a commit message following configured conventions, including tracker
-references when required. Present the final change and message for **commit-message
-confirmation** (proceed, edit, or skip). Wait for confirmation; skip leaves the task
-ready to commit without advancing to `committed`.
+references when required. Before **commit-message confirmation**, present the
+final change summary, proposed message, and any pending manual checks or
+completion actions in the conversation. Link `task.md` for detail and offer
+proceed, edit, or skip. Wait for confirmation; skip leaves the task ready to
+commit without advancing to `committed`.
 
 Commit the isolated task changes with the confirmed message. Only after success
 record `committed`, the message, branch, checks, and outstanding work. Include that
