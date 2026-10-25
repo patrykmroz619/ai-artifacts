@@ -5,7 +5,7 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // Workflow bookkeeping must not invalidate the source checks it describes.
-export const EXCLUDED_PATHS = ['specs/tasks', 'specs/qa', 'specs/reviews', 'specs/research'];
+export const EXCLUDED_PATHS = ['specs/tasks', 'specs/archived-tasks', 'specs/qa', 'specs/reviews', 'specs/research'];
 
 export function verificationSnapshot({ cwd = process.cwd(), index = false } = {}) {
   function git(args, env = process.env, allowFailure = false) {

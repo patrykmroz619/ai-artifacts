@@ -1,6 +1,6 @@
 # Repository guidance
 
-This repository contains 23 dev-workflow agent skills. Consumers install them with
+This repository contains 29 dev-workflow agent skills. Consumers install them with
 `npx skills add patrykmroz619/ai-artifacts`. There is no custom CLI, artifact scope,
 rule injection, build step, or npm publication.
 
@@ -13,10 +13,10 @@ rule injection, build step, or npm publication.
 - `workflow.md`: overview of the workflow and its artifact contracts.
 - `scripts/`: collection validation and its tests.
 
-The seven autonomous pipeline stages depend on their corresponding core skill and
+The eight autonomous pipeline stages depend on their corresponding core skill and
 `autopilot/assets/autonomy-contract.md`. Keep these references relative.
 The full collection is assumed to be installed; runtime dependency preflights are unnecessary.
-`autopilot` requires all seven autonomous stages and their core skills.
+`autopilot` requires all eight autonomous stages and their core skills.
 `auto-small-task` depends only on `small-task`, including its `assets/task.md` template.
 It is a direct shortcut, not an autopilot stage, and does not use the autonomy contract.
 Shortcut tasks use one `specs/tasks/{task}/task.md`; keep the full pipeline unchanged.
@@ -30,7 +30,7 @@ npm test
 npx skills add ./skills --list
 ```
 
-The list must contain exactly the 23 skills under `skills/`. Test installations
+The list must contain exactly the 29 skills under `skills/`. Test installations
 in a temporary consumer project, not this checkout, so installed copies do not
 become part of the source collection. Third-party authoring tools are local
 dependencies and must not be committed.

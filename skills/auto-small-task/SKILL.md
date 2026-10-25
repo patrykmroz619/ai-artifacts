@@ -29,4 +29,4 @@ repository standards, preservation of unrelated staged and unstaged work, resume
 task checks, self-review, fixing introduced failures before committing, and the
 configured completion policy. Missing policy defaults to `report only`; unavailable
 tooling falls back to a report. Record meaningful decisions in `task.md`, never in
-a separate decision log. Do not dispatch the seven autonomous pipeline stages.
+a separate decision log. Do not dispatch the eight autonomous pipeline stages.

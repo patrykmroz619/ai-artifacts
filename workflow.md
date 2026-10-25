@@ -79,6 +79,8 @@ truth for all workflow artifacts and is committed to the repo (living documentat
 ```
 specs/
 ├── workflow-config.md # workflow configuration (task mgmt, git conventions, changelog, coding standards, ...)
+├── documentation-guide.md # project-specific map and maintenance rules for durable docs, when configured
+├── archived-tasks/ # finished task folders moved here by /archive-task
 └── tasks/
     └── {task-name}/
         ├── task-info.md # source of truth about the task
@@ -410,6 +412,10 @@ and any `## Implementation Notes`) and `task-plan.md` (overall DoD, incl. Planni
 Not every skill belongs to the task pipeline. These operate independently; status
 and backlog skills read project workflow state:
 
+- **`/structure-documentation` — Plan durable documentation.** Inspects the project and existing docs, discusses audience and organization with the user, researches documentation practice where useful, and creates or updates `specs/documentation-guide.md`. The guide maps document types to locations and states how to maintain them; it does not require PRDs or other categories without project need.
+- **`/document-work` — Document implemented work.** Accepts a task folder, PR/MR or branch, or an implementation scope. It requires the guide, checks implementation evidence, confirms the exact documentation scope with the user, then updates authoritative project docs. It does not change task status or source code.
+- **`/archive-task` — Preserve a finished task.** After the user declares a task finished, it runs `/document-work` and waits for complete documentation before moving the whole folder from `specs/tasks/{task}/` to `specs/archived-tasks/{task}/`. It repairs affected links and does not commit, merge, or transition a ticket. This is separate from `/finalize` and `/autopilot`.
+
 - **`/review-pr` — Review someone else's pull request.** Puts the agent in the **reviewer's** seat (not the author's): it resolves a change from a `gh` PR or a local branch, diffs it against `main`/`master` (or a stated base), and writes a report to `specs/reviews/{pr-slug}.md` that **explains the change first** (a walkthrough with data-flow/sequence/component diagrams) and **lists findings second** (severity + confidence across correctness, safety, design/complexity, standards, existing architecture and code style, and tests). Complexity findings identify a concrete maintenance cost and a simpler alternative that preserves requirements; architecture/style findings cite rules or representative code. It then collaborates on refining findings and phrasing comments. It never edits source and never advances task status — there are no plans, specs, or DoD involved, and it works on any repo even without a `specs/` directory.
 - **`/qa-scenarios` — Generate test scenarios for QA from your changes.** Produces a **manual-QA handoff document** from a diff (a `gh` PR or a local branch against `main`/`master`, plus uncommitted working-tree changes). Writes `specs/qa/{pr-slug}.md` with a **flexible, jargon-free description** of what the change does from a tester's perspective (prose, lists, subsections, or a diagram as the logic warrants) followed by **concise step-by-step test scenarios** (Preconditions/Steps/Expected) covering edge cases, variants, configurations, and the directly affected flows that could regress. Shared preconditions, test data, and step flows are factored into reusable named blocks to avoid duplication. Standalone — needs no plan or implementation artifacts, is black-box throughout, and never edits source.
 - **`/run-qa` — Test the running change and report evidence.** Proposes and confirms the scope before live checks, then exercises relevant UI, API, CLI, or other behavior. Standalone runs write `specs/qa/{slug}/report.md` and evidence. For a workflow work-item, it adds `## QA Verification` and any product findings to `review.md`; source code remains untouched.
@@ -492,5 +498,5 @@ calls were made and not just the diff. The shared rules live in
 
 ## Status / future
 
-- All twenty-five skills are implemented under `skills/`: the eight-step interactive pipeline, standalone `review-pr`, `qa-scenarios`, `run-qa`, `workflow-status`, `research-solution`, `add-task-to-backlog`, the autonomous set (`autopilot` plus eight `auto-` stage skills), and the `small-task` / `auto-small-task` shortcuts. This document is the high-level design; each `SKILL.md` is the authoritative spec for its step.
+- All twenty-nine skills are implemented under `skills/`: the interactive pipeline, standalone review, QA, research, documentation, archive, backlog, and status skills, the autonomous set (`autopilot` plus eight `auto-` stage skills), and the `small-task` / `auto-small-task` shortcuts. This document is the high-level design; each `SKILL.md` is the authoritative spec for its step.
 - Install the collection with `npx skills add patrykmroz619/ai-artifacts`. Selective installation and autonomous companion requirements are documented in [README.md](README.md). The Skills CLI handles agent destinations; there is no custom installer or rule injection.

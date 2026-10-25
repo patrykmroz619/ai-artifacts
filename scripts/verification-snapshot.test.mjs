@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { test } from 'node:test';
@@ -65,6 +65,18 @@ test('phase, review and QA evidence updates do not invalidate source evidence', 
   put(cwd, 'specs/qa/example/evidence/run.txt', 'PASS\n');
   put(cwd, 'secret.env', 'must not enter snapshot\n');
   assert.equal(verificationSnapshot({ cwd }).fingerprint, initial);
+});
+
+test('archiving a task does not invalidate source evidence', (t) => {
+  const cwd = fixture(t);
+  const initial = verificationSnapshot({ cwd }).fingerprint;
+  mkdirSync(join(cwd, 'specs/archived-tasks'), { recursive: true });
+  const source = join(cwd, 'specs/tasks/example');
+  const destination = join(cwd, 'specs/archived-tasks/example');
+  renameSync(source, destination);
+  assert.equal(verificationSnapshot({ cwd }).fingerprint, initial);
+  git(cwd, 'add', '-A');
+  assert.equal(verificationSnapshot({ cwd, index: true }).fingerprint, initial);
 });
 
 test('tracked ignored files remain verification inputs', (t) => {

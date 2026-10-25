@@ -4,12 +4,12 @@ import { fileURLToPath } from 'node:url';
 import { parseDocument } from 'yaml';
 
 export const WORKFLOW_SKILLS = [
-  'add-task-to-backlog', 'auto-finalize', 'auto-implement',
+  'add-task-to-backlog', 'archive-task', 'auto-finalize', 'auto-implement',
   'auto-plan-implementation', 'auto-plan-task', 'auto-review-implementation',
-  'auto-run-qa', 'auto-small-task', 'auto-start-task', 'auto-triage-findings', 'autopilot', 'conversation-audit', 'finalize', 'implement',
+  'auto-run-qa', 'auto-small-task', 'auto-start-task', 'auto-triage-findings', 'autopilot', 'conversation-audit', 'document-work', 'finalize', 'implement',
   'init-workflow', 'plan-implementation', 'plan-task', 'qa-scenarios', 'run-qa',
   'research-solution', 'review-implementation', 'review-pr', 'small-task', 'start-task',
-  'triage-findings', 'workflow-status',
+  'structure-documentation', 'triage-findings', 'workflow-status',
 ];
 
 // Shortcut skills are not coordinator stages and do not use the autonomy contract.
@@ -88,6 +88,9 @@ export async function validateSkills(skillsRoot, { expectedNames = WORKFLOW_SKIL
     }
     if (entry.name === 'auto-small-task') {
       references.add('../small-task/SKILL.md');
+    }
+    if (entry.name === 'archive-task') {
+      references.add('../document-work/SKILL.md');
     }
     if (entry.name === 'autopilot') {
       references.add('assets/autonomy-contract.md');

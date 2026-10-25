@@ -1,6 +1,6 @@
 # Dev-workflow skills
 
-26 reusable agent skills for development work, including task setup, planning,
+29 reusable agent skills for development work, including task setup, planning,
 implementation, review, finalization, and standalone audits. The repository
 contains one collection, installed with the [Skills CLI](https://github.com/vercel-labs/skills).
 See [workflow.md](workflow.md) for the workflow and its artifact contracts.
@@ -14,7 +14,7 @@ npx skills add patrykmroz619/ai-artifacts
 ```
 
 The interactive installer lets you choose skills and target agents. To install
-all 26 skills for Claude Code, Cursor, and Codex without prompts:
+all 29 skills for Claude Code, Cursor, and Codex without prompts:
 
 ```bash
 npx skills add patrykmroz619/ai-artifacts --skill '*' --agent claude-code cursor codex --yes
@@ -78,6 +78,13 @@ and commit-message confirmation. `auto-small-task` runs the same shortcut unatte
 Both keep the brief, plan, progress, and results in `specs/tasks/{task}/task.md`,
 and resume existing records. `workflow-status` recognizes both formats.
 
+For durable documentation, use `structure-documentation` to agree on a project
+map in `specs/documentation-guide.md`. Then `document-work` updates the appropriate
+pages from a confirmed task, PR, or implementation scope. When you declare a task
+finished, `archive-task` runs that documentation step and moves the complete task
+folder to `specs/archived-tasks/{task}/` only after the documentation is complete.
+These skills are standalone; archiving does not run automatically at finalization.
+
 Interactive task growth beyond a focused change recommends the full workflow and
 stops; autonomous growth expands the combined plan and continues. Both preserve
 unrelated changes and use the configured Autopilot completion policy: `report only`
@@ -99,6 +106,9 @@ falls back to a report. These shortcuts do not require subagents.
 | `review-implementation` | Review implementation, overengineering, architecture and code style; record findings. |
 | `triage-findings` | Decide how to handle findings and apply approved fixes. |
 | `finalize` | Commit the reviewed increment and prepare task completion. |
+| `structure-documentation` | Agree on a project documentation map and maintain `specs/documentation-guide.md`. |
+| `document-work` | Turn confirmed task, PR, or implementation scope into durable documentation. |
+| `archive-task` | Document a finished task, then move its full folder to `specs/archived-tasks/`. |
 | `review-pr` | Review a PR or branch, including overengineering, architecture and code style. |
 | `qa-scenarios` | Generate a manual QA handoff from changes. |
 | `run-qa` | Confirm a testing scope, exercise running software, and write a report with evidence. |
@@ -121,8 +131,10 @@ falls back to a report. These shortcuts do not require subagents.
 Install the full collection for the complete workflow. Individual core skills
 may expect configuration or artifacts from earlier stages; installing a skill
 does not initialize a workflow. `review-pr`, `qa-scenarios`, `run-qa`,
-`research-solution`, and `conversation-audit` can be used without the task
-pipeline. `add-task-to-backlog` and `workflow-status` read the project's workflow state.
+`research-solution`, `conversation-audit`, and `structure-documentation` can be used
+without the task pipeline. `document-work` requires the documentation guide;
+`archive-task` also requires `document-work` and an active task folder.
+`add-task-to-backlog` and `workflow-status` read the project's workflow state.
 
 The Skills CLI does not automatically install companion skills. Each of the eight
 autonomous pipeline stages needs its core instructions plus the shared contract bundled with
@@ -208,7 +220,7 @@ npm test
 npx skills add ./skills --list
 ```
 
-In a clean checkout, `npx skills add . --list` also discovers the same 26 skills.
+In a clean checkout, `npx skills add . --list` also discovers the same 29 skills.
 Test installs from a temporary consumer project with the absolute path to this
 checkout as the source. CI validates frontmatter, names, collection membership,
 bundled files, and companion references; it runs validation tests on pushes and

@@ -88,6 +88,13 @@ test('requires the autonomous shortcut core even without an explicit link', asyn
   assert.ok(errors[0].includes('../small-task/SKILL.md'));
 });
 
+test('requires the archive task documentation companion', async (t) => {
+  const root = await fixture(t, { 'archive-task/SKILL.md': skill('archive-task') });
+  const { errors } = await validateSkills(root, { expectedNames: ['archive-task'] });
+  assert.equal(errors.length, 1);
+  assert.ok(errors[0].includes('../document-work/SKILL.md'));
+});
+
 test('accepts shortcut companions without the autopilot contract', async (t) => {
   const root = await fixture(t, {
     'auto-small-task/SKILL.md': skill('auto-small-task'),
@@ -141,9 +148,9 @@ test('detects missing and unexpected skills', async (t) => {
   assert.ok(errors.some((error) => error.includes('Unexpected skill directory: other')));
 });
 
-test('validates the actual 26-skill collection', async () => {
+test('validates the actual 29-skill collection', async () => {
   const root = new URL('../skills/', import.meta.url);
   const { errors, names } = await validateSkills(fileURLToPath(root));
   assert.deepEqual(errors, []);
-  assert.equal(names.length, 26);
+  assert.equal(names.length, 29);
 });
